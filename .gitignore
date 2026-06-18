@@ -3,4 +3,3 @@ backend/dist/
 *.log
 .env
 .DS_Store
-frontend/
