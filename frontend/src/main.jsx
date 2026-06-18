@@ -23,7 +23,7 @@ import {
   Upload,
   Users
 } from "lucide-react";
-import { authApi } from "./api.js";
+import { authApi, resourceApi } from "./api.js";
 import "./styles.css";
 
 const imageAssets = {
@@ -352,9 +352,15 @@ function useThemeMode() {
 function App() {
   const [user, setUser, authLoading] = useLocalAuth();
   const [themeMode, setThemeMode] = useThemeMode();
-  const [resources, setResources] = useState(() => JSON.parse(localStorage.getItem("hpEduResources") || "null") || starterResources);
+  const [resources, setResources] = useState(starterResources);
   const [loginOpen, setLoginOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    resourceApi.list().then((items) => {
+      if (items.length) setResources(items);
+    });
+  }, []);
 
   const requestSubmit = (categoryId) => {
     if (!user) {
@@ -365,13 +371,12 @@ function App() {
   };
 
   const addResource = (resource) => {
-    const nextResource = { ...resource, id: Date.now(), updatedAt: new Date().toISOString().slice(0, 10) };
-    setResources((items) => {
-      const next = [nextResource, ...items];
-      localStorage.setItem("hpEduResources", JSON.stringify(next));
-      return next;
+    resourceApi.create(resource).then((res) => {
+      if (res.resource) {
+        setResources((items) => [res.resource, ...items]);
+        navigate(`/resources?category=${resource.category}`);
+      }
     });
-    navigate(`/resources?category=${resource.category}`);
   };
 
   return (
