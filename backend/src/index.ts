@@ -6,7 +6,9 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") })
 import express from "express"
 import { DataSource } from "typeorm"
 import { User } from "./entity/User"
+import { Resource } from "./entity/Resource"
 import authRoutes from "./routes/auth"
+import resourceRoutes from "./routes/resource"
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -17,7 +19,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || "igem_education",
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, Resource],
 })
 
 const app = express()
@@ -26,6 +28,7 @@ const PORT = parseInt(process.env.PORT || "3000")
 app.use(express.json())
 
 app.use("/api/auth", authRoutes)
+app.use("/api/resources", resourceRoutes)
 
 app.get("/", (_req, res) => {
   res.json({ message: "iGEM 2026 Education API" })
