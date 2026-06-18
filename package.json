@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "build": "tsc -p backend/tsconfig.json",
+    "start": "node backend/dist/index.js",
+    "dev": "tsc -p backend/tsconfig.json && node backend/dist/index.js"
+  },
+  "dependencies": {
+    "@types/node": "^25.9.3",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.0.0",
+    "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10"
+  }
+}
