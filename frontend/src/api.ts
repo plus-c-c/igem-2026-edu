@@ -2,9 +2,21 @@ import type { Resource, UploadedFile } from "./types"
 
 const API_BASE = "/api"
 
+export let onUnauthorized: (() => void) | null = null
+
+export function setOnUnauthorized(cb: () => void) {
+  onUnauthorized = cb
+}
+
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem("authToken")
   return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, options)
+  if (res.status === 401 && onUnauthorized) onUnauthorized()
+  return res
 }
 
 export const authApi = {
@@ -53,7 +65,7 @@ export const resourceApi = {
   },
 
   create: async (resource: Record<string, any>) => {
-    const res = await fetch(`${API_BASE}/resources`, {
+    const res = await authFetch(`${API_BASE}/resources`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(resource),
@@ -67,7 +79,7 @@ export const resourceApi = {
   },
 
   update: async (id: string, resource: Record<string, any>) => {
-    const res = await fetch(`${API_BASE}/resources/${id}`, {
+    const res = await authFetch(`${API_BASE}/resources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(resource),
@@ -76,7 +88,7 @@ export const resourceApi = {
   },
 
   remove: async (id: string) => {
-    const res = await fetch(`${API_BASE}/resources/${id}`, {
+    const res = await authFetch(`${API_BASE}/resources/${id}`, {
       method: "DELETE",
       headers: authHeaders(),
     })
@@ -89,7 +101,7 @@ export const fileApi = {
     const form = new FormData()
     form.append("file", file)
     if (materialLabel) form.append("materialLabel", materialLabel)
-    const res = await fetch(`${API_BASE}/resources/${resourceId}/files`, {
+    const res = await authFetch(`${API_BASE}/resources/${resourceId}/files`, {
       method: "POST",
       headers: authHeaders(),
       body: form,
@@ -117,6 +129,7 @@ export const fileApi = {
         try {
           const data = JSON.parse(xhr.responseText)
           if (xhr.status >= 200 && xhr.status < 300) return resolve(data)
+          if (xhr.status === 401 && onUnauthorized) onUnauthorized()
           const msg = data?.message || (xhr.status === 413 ? "文件大小超过 1GB 限制" : "文件上传失败")
           reject(new Error(msg))
         } catch { reject(new Error("上传响应解析失败")) }
@@ -138,7 +151,7 @@ export const fileApi = {
   },
 
   remove: async (resourceId: string, fileId: string) => {
-    const res = await fetch(`${API_BASE}/resources/${resourceId}/files/${fileId}`, {
+    const res = await authFetch(`${API_BASE}/resources/${resourceId}/files/${fileId}`, {
       method: "DELETE",
       headers: authHeaders(),
     })
