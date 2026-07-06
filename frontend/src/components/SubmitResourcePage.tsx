@@ -5,6 +5,7 @@ import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
 import { resourceApi, fileApi } from "../api"
 import { MaterialChecklist } from "./MaterialChecklist"
+import { caseSlug } from "./CampaignCard"
 
 interface SubmitResourcePageProps {
   user: User
@@ -372,7 +373,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </div>
         )}
         <div className="form-actions">
-          <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}` : "/"}>
+          <Link className="pill-btn secondary" to={isEdit ? `/cases/${caseSlug(editResource!.title)}` : "/"}>
             {isEdit ? "返回" : "取消"}
           </Link>
           <button className="pill-btn primary" type="submit" disabled={!selected.length || submitting}>

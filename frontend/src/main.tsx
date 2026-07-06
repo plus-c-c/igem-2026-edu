@@ -8,6 +8,7 @@ import { useLocalAuth } from "./hooks/useLocalAuth"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
+import { caseSlug } from "./components/CampaignCard"
 import { LoginModal } from "./components/LoginModal"
 import "./styles.css"
 
@@ -54,8 +55,7 @@ function App() {
 
   const updateResource = (id: string, updated: Partial<Resource>) => {
     setResources((items) => items.map((r) => String(r.id) === id ? { ...r, ...updated } : r))
-    const slug = (updated.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
-    navigate(`/cases/${slug}`)
+    navigate(`/cases/${caseSlug(updated.title || "")}`)
   }
 
   const deleteResource = (id: string) => {
