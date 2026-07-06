@@ -97,7 +97,7 @@ body {
   margin: 0;
   font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
   color: var(--ink);
-  background: var(--green);
+  background: linear-gradient(120deg, rgba(19,138,104,.1), transparent 22rem), linear-gradient(210deg, rgba(67,183,187,.13), transparent 24rem), var(--bg);
 }
 
 body::before {
@@ -136,7 +136,7 @@ button { border: 0; cursor: pointer; }
   place-items: center;
   border-radius: 8px;
   color: white;
-  background: var(--green);
+  background: linear-gradient(135deg, var(--green), var(--blue));
   box-shadow: 0 12px 28px rgba(19,138,104,.24);
 }
 .brand small { display: block; margin-top: .08rem; color: var(--muted); font-size: .72rem; font-weight: 700; }
@@ -243,7 +243,7 @@ p { color: var(--muted); line-height: 1.72; }
   border-radius: 8px;
   font-weight: 850;
 }
-.primary-action { color: white; background: var(--green); box-shadow: 0 14px 30px rgba(19,138,104,.2); }
+.primary-action { color: white; background: linear-gradient(135deg, var(--green), var(--blue)); box-shadow: 0 14px 30px rgba(31,112,168,.2); }
 .primary-action.compact { min-height: 2.55rem; padding: .68rem .9rem; }
 .primary-action:disabled { opacity: .42; cursor: not-allowed; }
 .secondary-action, .ghost-button { border: 1px solid var(--line); color: var(--green-dark); background: var(--surface-solid); }

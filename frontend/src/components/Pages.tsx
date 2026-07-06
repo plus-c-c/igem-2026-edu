@@ -232,8 +232,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const navigate = useNavigate()
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const item = campaignResources.find((c) => caseSlug(c.title) === caseId) || campaignCases.find((c) => caseSlug(c.title) === caseId) || campaignCases[0]
-  const category = categories.find((c) => c.id === r.category)
   const r = item as Resource
+  const category = categories.find((c) => c.id === r.category)
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = ["前期准备材料与安全边界", "现场讲解与互动体验", "满意度调查与成果测量", "复盘建议沉淀到资源库"]
 
