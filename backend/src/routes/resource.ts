@@ -1,6 +1,8 @@
 import { Router, Response } from "express"
+import fs from "fs"
 import { AppDataSource } from "../index"
 import { Resource } from "../entity/Resource"
+import { UploadedFile } from "../entity/File"
 import { authMiddleware, AuthRequest } from "../middleware/auth"
 
 const router = Router()
@@ -131,6 +133,13 @@ router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) =>
     if (resource.userId !== req.userId && req.userRole !== "admin") {
       return res.status(403).json({ message: "无权限删除此资源" })
     }
+    const fileRepo = AppDataSource.getRepository(UploadedFile)
+    const files = await fileRepo.findBy({ resourceId: resource.id })
+    for (const f of files) {
+      const path = `backend/uploads/${f.storedName}`
+      if (fs.existsSync(path)) fs.unlinkSync(path)
+    }
+    if (files.length) await fileRepo.remove(files)
     await resourceRepo.remove(resource)
     return res.json({ message: "删除成功" })
   } catch (error) {
