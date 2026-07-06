@@ -1014,6 +1014,10 @@ input:focus, select:focus, textarea:focus {
   margin-top: 4px;
 }
 
+.case-section {
+  margin-bottom: 48px;
+}
+
 .category-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
