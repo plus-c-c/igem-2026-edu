@@ -532,6 +532,7 @@ async function deleteAllResources(token: string): Promise<void> {
   console.log(`已清除 ${deleted} 个现有项目`)
 }
 
+// ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
   const ds = new DataSource({
     type: "postgres",
@@ -564,6 +565,8 @@ async function seedAdmin() {
 
   await ds.destroy()
 }
+
+// ========== 示例数据录入（通过 HTTP API） ==========
 
 async function main() {
   await seedAdmin()
