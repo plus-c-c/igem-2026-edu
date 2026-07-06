@@ -12,7 +12,7 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
-  const meta = projectMetaByCategory[item.category as keyof typeof projectMetaByCategory] || projectMetaByCategory.synbio
+  const meta = projectMetaByCategory[item.category as keyof typeof projectMetaByCategory] || projectMetaByCategory.applications
   const project = {
     organization: (item as any).organization || meta.organization,
     kind: (item as any).kind || meta.kind,

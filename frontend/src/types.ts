@@ -55,7 +55,7 @@ export interface ProjectMeta {
   venue: string
 }
 
-export type CategoryId = "synbio" | "applications" | "activities" | "cooperation" | "about"
+export type CategoryId = "applications" | "activities" | "cooperation" | "about"
 
 export interface UploadedFile {
   id: string
