@@ -506,10 +506,25 @@ async function seedResources(token: string): Promise<void> {
   if (failed > 0) process.exit(1)
 }
 
+async function hasExistingData(token: string): Promise<boolean> {
+  const res = await fetch(`${API_URL}/api/resources`, {
+    headers: { "Authorization": `Bearer ${token}` },
+  })
+  if (!res.ok) return false
+  const data: any = await res.json()
+  return data.resources && data.resources.length > 0
+}
+
 async function main() {
   console.log(`连接后端: ${API_URL}`)
   await waitForBackend()
   const token = await loginAsAdmin()
+
+  if (await hasExistingData(token)) {
+    console.log("数据库中已存在示例条目，跳过录入")
+    return
+  }
+
   await seedResources(token)
 }
 
