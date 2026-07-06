@@ -3,15 +3,18 @@ import jwt, { type SignOptions } from "jsonwebtoken"
 import { AppDataSource } from "../index"
 import { User } from "../entity/User"
 import { authMiddleware, AuthRequest } from "../middleware/auth"
+import { sendVerificationCode, storeVerificationData, verifyCode } from "../email"
 
 const router = Router()
 
-router.post("/register", async (req: AuthRequest, res: Response) => {
+router.post("/send-code", async (req: AuthRequest, res: Response) => {
   try {
-    const { email, password, name } = req.body
-
-    if (!email || !password || !name) {
-      return res.status(400).json({ message: "请提供邮箱、密码和姓名" })
+    const { email, name, password } = req.body
+    if (!email || !name || !password) {
+      return res.status(400).json({ message: "请提供邮箱、团队名称和密码" })
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "密码至少 6 位" })
     }
 
     const userRepo = AppDataSource.getRepository(User)
@@ -20,6 +23,29 @@ router.post("/register", async (req: AuthRequest, res: Response) => {
       return res.status(409).json({ message: "该邮箱已被注册" })
     }
 
+    storeVerificationData(email, { email, password, name })
+    await sendVerificationCode(email)
+    return res.json({ message: "验证码已发送到您的邮箱" })
+  } catch (error: any) {
+    console.error("发送验证码错误:", error)
+    return res.status(400).json({ message: error.message || "发送验证码失败" })
+  }
+})
+
+router.post("/verify-register", async (req: AuthRequest, res: Response) => {
+  try {
+    const { email, code } = req.body
+    if (!email || !code) {
+      return res.status(400).json({ message: "请提供邮箱和验证码" })
+    }
+
+    const result = verifyCode(email, code)
+    if (!result.valid || !result.data) {
+      return res.status(400).json({ message: "验证码错误或已过期" })
+    }
+
+    const { password, name } = result.data
+    const userRepo = AppDataSource.getRepository(User)
     const user = userRepo.create({ email, password, name })
     await userRepo.save(user)
 
