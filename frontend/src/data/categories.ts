@@ -1,4 +1,4 @@
-import { Microscope, FlaskConical, Sparkles, Handshake, Building2 } from "lucide-react"
+import { FlaskConical, Sparkles, Handshake, Building2 } from "lucide-react"
 import type { Category } from "../types"
 
 const imageAssets = {
@@ -13,20 +13,9 @@ const imageAssets = {
 
 export const categories: Category[] = [
   {
-    id: "synbio",
-    path: "/synbio",
-    name: "合成生物学科普",
-    short: "SynBio",
-    icon: Microscope,
-    intro: "用工程化语言解释 DNA、细胞工厂、生物设计与安全伦理，帮助学生建立入门框架。",
-    accent: "#1a9b78",
-    image: imageAssets.microscope,
-    recommended: ["PPT", "演讲稿", "阅读材料", "满意度调查", "成果测量表", "实践建议"],
-  },
-  {
     id: "applications",
     path: "/applications",
-    name: "项目应用科普",
+    name: "讲座科普",
     short: "Projects",
     icon: FlaskConical,
     intro: "把西湖大学、浙江大学和合作团队的项目转译成公众能理解的应用故事。",

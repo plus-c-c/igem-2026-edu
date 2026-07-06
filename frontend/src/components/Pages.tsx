@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import type { Resource, User } from "../types"
 import { fileApi } from "../api"
 import { categories } from "../data/categories"
@@ -15,15 +16,43 @@ interface PageProps {
 export function HomePage({ resources, onSubmit }: PageProps) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = campaignResources.slice(0, 4)
+  const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
+  const fullTitle = titleLines.join("\n")
+  const [typedTitle, setTypedTitle] = useState("")
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReducedMotion) {
+      setTypedTitle(fullTitle)
+      return
+    }
+
+    setTypedTitle("")
+    let index = 0
+    const timer = window.setInterval(() => {
+      index += 1
+      setTypedTitle(fullTitle.slice(0, index))
+      if (index >= fullTitle.length) window.clearInterval(timer)
+    }, 42)
+
+    return () => window.clearInterval(timer)
+  }, [fullTitle])
+
+  const typedLines = typedTitle.split("\n")
 
   return (
     <>
       {/* Hero — product-tile-light */}
-      <section className="product-tile light">
+      <section className="product-tile light home-hero">
         <div className="tile-content">
-          <p className="eyebrow">Westlake University × Zhejiang University × iGEM Education</p>
-          <h1>共建可复用的合成生物学教育资源网络</h1>
-          <p style={{ maxWidth: 600 }}>面向 iGEM 团队、支教队伍、合作学校和公众教育场景，沉淀科普材料、活动方案、反馈测量和联盟合作记录。</p>
+          <p className="eyebrow">ZJU-China、Westlake、XJTLU-China</p>
+          <h1 className="hero-title" aria-label={fullTitle}>
+            <span className="typewriter-text" aria-hidden="true">
+              <span className="typewriter-line">{typedLines[0] || "\u00a0"}</span>
+              <span className="typewriter-line">{typedLines[1] || "\u00a0"}</span>
+            </span>
+          </h1>
+          <p style={{ maxWidth: 600 }}>加入我们，一起点亮世界合成生物学科普的微光。</p>
           <div className="tile-actions">
             <button className="pill-btn primary" type="button" onClick={() => onSubmit()}>
               <Plus size={18} /> 教育项目招募
@@ -107,7 +136,15 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
       </div>
 
       <section className="case-section">
-        <SectionTitle title="教育项目" desc="每个项目都按真实招募信息组织，方便合作队伍快速判断是否适合参与。" />
+        <SectionTitle
+          title="教育项目"
+          action={
+            <button className="add-project-button" type="button" onClick={() => onSubmit(category.id)}>
+              <Plus size={19} />
+              <span>在这里添加你的项目</span>
+            </button>
+          }
+        />
         <div className="campaign-grid">
           {cases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
         </div>
@@ -215,5 +252,3 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
     </section>
   )
 }
-
-
