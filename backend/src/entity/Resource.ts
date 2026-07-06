@@ -27,7 +27,7 @@ export class Resource {
   @Column()
   title!: string
 
-  @Column()
+  @Column({ nullable: true })
   negotiator!: string
 
   @Column()
@@ -36,22 +36,22 @@ export class Resource {
   @Column({ default: "yes" })
   acceptsOthers!: string
 
-  @Column()
+  @Column({ nullable: true })
   delivery!: string
 
-  @Column()
+  @Column({ nullable: true })
   audience!: string
 
   @Column({ nullable: true })
   duration!: string
 
-  @Column()
+  @Column({ nullable: true })
   location!: string
 
-  @Column()
+  @Column({ nullable: true })
   reimbursement!: string
 
-  @Column()
+  @Column({ nullable: true })
   contact!: string
 
   @Column("text")
@@ -59,6 +59,21 @@ export class Resource {
 
   @Column("simple-array", { nullable: true })
   materials!: string[]
+
+  @Column({ default: "normal" })
+  type!: string
+
+  @Column({ nullable: true })
+  subtitle!: string
+
+  @Column({ nullable: true })
+  image!: string
+
+  @Column({ nullable: true })
+  format!: string
+
+  @Column({ nullable: true })
+  impact!: string
 
   @CreateDateColumn()
   createdAt!: Date

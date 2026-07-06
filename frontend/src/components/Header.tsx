@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom"
-import { ChevronDown, LogIn, LogOut, Monitor, Moon, Sun } from "lucide-react"
+import { ChevronDown, LogIn, LogOut, Monitor, Moon, Shield, Sun } from "lucide-react"
 import { useState } from "react"
 import type { User } from "../types"
 
@@ -65,6 +65,7 @@ export function Header({ user, setUser, openLogin, themeMode, setThemeMode }: He
         </button>
         {user ? (
           <>
+            {user.role === "admin" && <span className="admin-badge"><Shield size={14} /> 管理员</span>}
             <span className="team-pill">{user.teamName}</span>
             <button className="icon-button" type="button" onClick={() => { localStorage.removeItem("authToken"); setUser(null) }} aria-label="退出登录">
               <LogOut size={18} />

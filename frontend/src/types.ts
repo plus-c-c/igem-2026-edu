@@ -4,6 +4,7 @@ export interface User {
   id: string
   email: string
   teamName: string
+  role?: string
 }
 
 export interface Category {
@@ -20,6 +21,7 @@ export interface Category {
 
 export interface Resource {
   id: string | number
+  userId?: string
   category: string
   team: string
   organization?: string
@@ -34,6 +36,11 @@ export interface Resource {
   contact?: string
   desc: string
   materials: string[]
+  type?: string
+  subtitle?: string
+  image?: string
+  format?: string
+  impact?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -58,3 +65,14 @@ export interface ProjectMeta {
 }
 
 export type CategoryId = "synbio" | "applications" | "activities" | "cooperation" | "about"
+
+export interface UploadedFile {
+  id: string
+  resourceId: string
+  originalName: string
+  storedName: string
+  mimeType: string
+  size: number
+  materialLabel?: string
+  createdAt?: string
+}

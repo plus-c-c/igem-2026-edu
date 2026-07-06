@@ -1,5 +1,5 @@
 import { Router, Response } from "express"
-import jwt from "jsonwebtoken"
+import jwt, { type SignOptions } from "jsonwebtoken"
 import { AppDataSource } from "../index"
 import { User } from "../entity/User"
 import { authMiddleware, AuthRequest } from "../middleware/auth"
@@ -24,15 +24,15 @@ router.post("/register", async (req: AuthRequest, res: Response) => {
     await userRepo.save(user)
 
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" as any }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" } as SignOptions
     )
 
     return res.status(201).json({
       message: "注册成功",
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
     })
   } catch (error) {
     console.error("注册错误:", error)
@@ -60,15 +60,15 @@ router.post("/login", async (req: AuthRequest, res: Response) => {
     }
 
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" as any }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" } as SignOptions
     )
 
     return res.json({
       message: "登录成功",
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
     })
   } catch (error) {
     console.error("登录错误:", error)
@@ -84,7 +84,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "用户不存在" })
     }
 
-    return res.json({ user: { id: user.id, email: user.email, name: user.name } })
+    return res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   } catch (error) {
     console.error("获取用户信息错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })

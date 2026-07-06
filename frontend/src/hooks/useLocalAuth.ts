@@ -14,7 +14,7 @@ export function useLocalAuth(): [User | null, (user: User | null) => void, boole
       .getMe(token)
       .then((res: any) => {
         if (res.user) {
-          const u: User = { id: res.user.id, email: res.user.email, teamName: res.user.name }
+          const u: User = { id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role }
           setUserState(u)
           localStorage.setItem("hpEduUser", JSON.stringify(u))
         } else {
