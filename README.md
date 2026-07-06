@@ -22,10 +22,10 @@ docker compose up -d
 `docker compose up -d` 会自动按以下顺序启动：
 
 ```
-db (PostgreSQL) → backend (API) → seed-data (初始化) → frontend (Nginx)
+db (PostgreSQL) → backend (API) → seed (初始化) → frontend (Nginx)
 ```
 
-**seed-data** 容器完成以下初始化后自动退出：
+**seed** 容器完成以下初始化后自动退出：
 
 1. 通过 TypeORM 连接数据库，创建管理员账号（已存在则跳过）
 2. 等待后端 API 就绪
@@ -45,7 +45,7 @@ db (PostgreSQL) → backend (API) → seed-data (初始化) → frontend (Nginx)
 如需重置所有数据：
 
 ```bash
-docker compose run --rm seed-data
+docker compose run --rm seed
 ```
 
 脚本会清除所有现有项目并重新创建 15 个示例项目。

@@ -46,7 +46,7 @@ services:
       retries: 10
       start_period: 15s
 
-  seed-data:
+  seed:
     build:
       context: .
       dockerfile: backend/Dockerfile
