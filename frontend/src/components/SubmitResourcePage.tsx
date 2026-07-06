@@ -243,18 +243,20 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 <img src={editResource.image} alt="当前封面" />
                 <span>
                   当前封面
-                  {coverFileId && (
-                    <button type="button" className="file-delete-btn" disabled={coverDeleting}
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        setCoverDeleting(true)
-                        await fileApi.remove(String(editResource.id), coverFileId)
-                        setCoverFileId(null)
-                        setCoverDeleting(false)
-                        window.location.reload()
-                      }}
-                    >×</button>
-                  )}
+                  <button type="button" className="file-delete-btn" disabled={coverDeleting}
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      setCoverDeleting(true)
+                      try {
+                        if (coverFileId) {
+                          await fileApi.remove(String(editResource.id), coverFileId)
+                        }
+                        await resourceApi.update(String(editResource.id), { image: "" })
+                      } catch {}
+                      setCoverDeleting(false)
+                      window.location.reload()
+                    }}
+                  >×</button>
                 </span>
               </div>
             )}

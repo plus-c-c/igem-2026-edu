@@ -1092,19 +1092,18 @@ input:focus, select:focus, textarea:focus {
 }
 .case-steps div {
   padding: 11px;
-  border: 1px solid var(--divider-soft);
   border-radius: var(--radius-md);
   background: var(--canvas-parchment);
 }
 .case-steps strong {
   display: block;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.47;
-  letter-spacing: -0.374px;
+  letter-spacing: -0.224px;
   color: var(--primary);
 }
-.case-steps .step-content { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.case-steps .step-content { display: flex; flex-direction: column; gap: 8px; margin-top: 11px; }
 .case-steps .step-content span { font-size: 14px; color: var(--ink); letter-spacing: -0.224px; }
 
 .step-files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
