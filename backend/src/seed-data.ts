@@ -506,13 +506,25 @@ async function seedResources(token: string): Promise<void> {
   if (failed > 0) process.exit(1)
 }
 
-async function hasExistingData(token: string): Promise<boolean> {
+async function deleteAllResources(token: string): Promise<void> {
   const res = await fetch(`${API_URL}/api/resources`, {
     headers: { "Authorization": `Bearer ${token}` },
   })
-  if (!res.ok) return false
+  if (!res.ok) return
   const data: any = await res.json()
-  return data.resources && data.resources.length > 0
+  const resources = data.resources || []
+  if (resources.length === 0) return
+
+  console.log(`检测到 ${resources.length} 个现有项目，正在清除...`)
+  let deleted = 0
+  for (const r of resources) {
+    const delRes = await fetch(`${API_URL}/api/resources/${r.id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` },
+    })
+    if (delRes.ok) deleted++
+  }
+  console.log(`已清除 ${deleted} 个现有项目`)
 }
 
 async function main() {
@@ -520,11 +532,8 @@ async function main() {
   await waitForBackend()
   const token = await loginAsAdmin()
 
-  if (await hasExistingData(token)) {
-    console.log("数据库中已存在示例条目，跳过录入")
-    return
-  }
-
+  await deleteAllResources(token)
+  console.log("")
   await seedResources(token)
 }
 
