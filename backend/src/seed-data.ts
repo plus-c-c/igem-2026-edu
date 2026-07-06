@@ -54,7 +54,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "可提供交通补贴",
     type: "campaign",
-    image: "",
+    image: "/images/microscope.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "满意度调查", "实践建议"],
     campaignSteps: [
       { id: uid(), text: "准备 PPT 课件（30 页）、微生物标本玻片、便携显微镜 10 台", files: [] },
@@ -80,7 +80,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供材料包",
     type: "campaign",
-    image: "",
+    image: "/images/students.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "宣传材料", "文创"],
     campaignSteps: [
       { id: uid(), text: "设计 DNA 纸模模板（3 种难度），采购纸张与打印耗材", files: [] },
@@ -106,7 +106,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/lab-team.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "满意度调查", "成果测量表", "实践建议"],
     campaignSteps: [
       { id: uid(), text: "制作 40 页科普 PPT，准备 3 个伦理讨论案例素材", files: [] },
@@ -132,7 +132,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/lab-work.jpg",
     materials: ["PPT", "演讲稿", "宣传材料", "文创", "实践建议"],
     campaignSteps: [
       { id: uid(), text: "搭建微生物燃料电池演示装置，制备细菌培养液", files: [] },
@@ -158,7 +158,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供实验耗材",
     type: "campaign",
-    image: "",
+    image: "/images/petri.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "实践建议", "项目介绍书"],
     campaignSteps: [
       { id: uid(), text: "准备生物传感器试纸条、模拟水样套装、实验指导手册", files: [] },
@@ -184,7 +184,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/classroom.jpg",
     materials: ["PPT", "阅读材料", "宣传材料", "文创", "现场照片"],
     campaignSteps: [
       { id: uid(), text: "设计 10 块展板内容（对应 10 个 SDGs），制作互动问答转盘", files: [] },
@@ -210,7 +210,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供培养基和菌株",
     type: "campaign",
-    image: "",
+    image: "/images/petri.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
     campaignSteps: [
       { id: uid(), text: "制备表达 RFP/YFP/CFP 的工程菌株，配制彩色琼脂平板", files: [] },
@@ -236,7 +236,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/students.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "安全说明", "现场照片"],
     campaignSteps: [
       { id: uid(), text: "制备菌丝体砖块、细菌纤维素膜、藻类生物塑料展示样品各 5 份", files: [] },
@@ -262,7 +262,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供志愿者餐补和交通补贴",
     type: "campaign",
-    image: "",
+    image: "/images/classroom.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
     campaignSteps: [
       { id: uid(), text: "设计 7 个摊位内容与互动方案，采购耗材，制作印章卡和文创礼品", files: [] },
@@ -288,7 +288,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供住宿和交通补贴",
     type: "campaign",
-    image: "",
+    image: "/images/classroom.jpg",
     materials: ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
       { id: uid(), text: "对接 3 所合作学校确认时间与场地，招募 12 名志愿者讲师", files: [] },
@@ -314,7 +314,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供教师稿酬和教材印刷费",
     type: "campaign",
-    image: "",
+    image: "/images/lab-team.jpg",
     materials: ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
       { id: uid(), text: "组建 10 人编写组（5 名教师 + 5 名研究员），确定 5 个课程主题", files: [] },
@@ -340,7 +340,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/students.jpg",
     materials: ["反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
       { id: uid(), text: "设计调查问卷（20 题，含人口统计学变量），在 3 个城市进行预调查", files: [] },
@@ -366,7 +366,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/alliance.jpg",
     materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
     campaignSteps: [
       { id: uid(), text: "收集整理全年活动数据、照片和案例，设计年度报告（40 页）", files: [] },
@@ -392,7 +392,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/lab-team.jpg",
     materials: ["参与队伍", "分工", "联系方式"],
     campaignSteps: [
       { id: uid(), text: "设计招募海报与推文，通过高校渠道发布招募信息（目标报名 100+ 人）", files: [] },
@@ -418,7 +418,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
-    image: "",
+    image: "/images/classroom.jpg",
     materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
     campaignSteps: [
       { id: uid(), text: "规划参观路线，设计成果走廊展板（15 块），准备互动实验材料", files: [] },
