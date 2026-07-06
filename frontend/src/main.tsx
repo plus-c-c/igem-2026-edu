@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom"
 import type { Resource } from "./types"
-import { resourceApi } from "./api"
+import { resourceApi, setOnUnauthorized } from "./api"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { AppLayout } from "./components/AppLayout"
@@ -16,6 +16,15 @@ function App() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loginOpen, setLoginOpen] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      localStorage.removeItem("authToken")
+      localStorage.removeItem("hpEduUser")
+      setUser(null)
+      navigate("/")
+    })
+  }, [setUser, navigate])
 
   useEffect(() => {
     resourceApi.list().then((items) => {
