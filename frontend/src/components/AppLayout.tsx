@@ -7,14 +7,12 @@ interface AppLayoutProps {
   user: User | null
   setUser: (user: User | null) => void
   openLogin: () => void
-  themeMode: string
-  setThemeMode: (mode: "system" | "light" | "dark") => void
 }
 
-export function AppLayout({ children, user, setUser, openLogin, themeMode, setThemeMode }: AppLayoutProps) {
+export function AppLayout({ children, user, setUser, openLogin }: AppLayoutProps) {
   return (
     <>
-      <Header user={user} setUser={setUser} openLogin={openLogin} themeMode={themeMode} setThemeMode={setThemeMode} />
+      <Header user={user} setUser={setUser} openLogin={openLogin} />
       <main>{children}</main>
       <footer>
         <div>HP-Education 联盟</div>

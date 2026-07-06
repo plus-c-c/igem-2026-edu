@@ -308,7 +308,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 {imageUploadPct !== undefined && (
                   <div className="upload-progress-bar">
                     <div className="upload-progress-fill" style={{ width: `${imageUploadPct}%` }} />
-                    <span>{imageUploadPct}%</span>
                   </div>
                 )}
               </div>
@@ -374,14 +373,14 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </>
           )}
 
-          <label className="desc-field wide">简介<textarea name="desc" required={!isCampaign} placeholder="简要说明活动内容、形式、教育目标和合作要求" defaultValue={editResource?.desc} /></label>
+          <label className="wide">简介<textarea name="desc" required={!isCampaign} placeholder="简要说明活动内容、形式、教育目标和合作要求" defaultValue={editResource?.desc} /></label>
         </div>
 
         {isCampaign && (
           <section className="step-editor">
             <div className="step-editor-header">
               <h2>展示内容</h2>
-              <button type="button" className="primary-action compact" onClick={addStep}>
+              <button type="button" className="pill-btn primary" style={{ fontSize: 14, padding: "8px 16px" }} onClick={addStep}>
                 <Plus size={16} /> 添加板块
               </button>
             </div>
@@ -415,7 +414,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   {stepUploadProgress[step.id] !== undefined && (
                     <div className="upload-progress-bar">
                       <div className="upload-progress-fill" style={{ width: `${stepUploadProgress[step.id]}%` }} />
-                      <span>{stepUploadProgress[step.id]}%</span>
                     </div>
                   )}
                   {step.files.map((f) => (
@@ -466,7 +464,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 {progress !== undefined && (
                   <div className="upload-progress-bar">
                     <div className="upload-progress-fill" style={{ width: `${progress}%` }} />
-                    <span>{progress}%</span>
                   </div>
                 )}
               </label>
@@ -478,13 +475,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <div className="modal-backdrop" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>
             <div className="error-modal" onClick={(e) => e.stopPropagation()}>
               <p>{errorMsg}</p>
-              <button className="primary-action compact" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>确定</button>
+              <button className="pill-btn primary" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>确定</button>
             </div>
           </div>
         )}
         <div className="form-actions">
-          <Link className="secondary-action" to={isEdit ? `/resource/${editResource!.id}` : "/resources"}>{isEdit ? "返回" : "取消"}</Link>
-          <button className="primary-action compact" type="submit" disabled={!selected.length || submitting}>
+          <Link className="pill-btn secondary" to={isEdit ? `/resource/${editResource!.id}` : "/resources"}>{isEdit ? "返回" : "取消"}</Link>
+          <button className="pill-btn primary" type="submit" disabled={!selected.length || submitting}>
             {submitting ? <><Loader2 size={16} className="spin" /> 保存中...</> : isEdit ? "保存修改" : resourceType === "campaign" ? "发布案例" : "发布招募"}
           </button>
         </div>

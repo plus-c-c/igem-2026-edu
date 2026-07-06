@@ -61,11 +61,11 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         <label>邮箱<input name="email" type="email" required placeholder="team@example.com" /></label>
         <label>密码<input name="password" type="password" required placeholder={mode === "login" ? "请输入密码" : "6位以上密码"} /></label>
         <div className="form-actions">
-          <button className="ghost-button" type="button" onClick={onClose}>取消</button>
-          <span className="link-button" style={{ cursor: "pointer" }} onClick={() => { setMode(mode === "login" ? "register" : "login"); setError("") }}>
+          <button className="pill-btn secondary" type="button" onClick={onClose}>取消</button>
+          <span className="text-link" style={{ cursor: "pointer" }} onClick={() => { setMode(mode === "login" ? "register" : "login"); setError("") }}>
             {mode === "login" ? "没有账号？注册" : "已有账号？登录"}
           </span>
-          <button className="primary-action compact" type="submit" disabled={loading}>
+          <button className="pill-btn primary" type="submit" disabled={loading}>
             {loading ? "处理中..." : mode === "login" ? "登录" : "注册"}
           </button>
         </div>

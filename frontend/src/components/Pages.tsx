@@ -23,67 +23,67 @@ export function HomePage({ resources, onSubmit }: PageProps) {
 
   return (
     <>
-      <section className="hero-section">
-        <div className="hero-photo" aria-hidden="true" />
-        <div className="hero-copy">
+      {/* Hero — product-tile-light */}
+      <section className="product-tile light">
+        <div className="tile-content">
           <p className="eyebrow">Westlake University × Zhejiang University × iGEM Education</p>
           <h1>共建可复用的合成生物学教育资源网络</h1>
-          <p>面向 iGEM 团队、支教队伍、合作学校和公众教育场景，沉淀科普材料、活动方案、反馈测量和联盟合作记录。</p>
-          <div className="hero-actions">
-            <button className="primary-action" type="button" onClick={() => onSubmit()}>
+          <p style={{ maxWidth: 600 }}>面向 iGEM 团队、支教队伍、合作学校和公众教育场景，沉淀科普材料、活动方案、反馈测量和联盟合作记录。</p>
+          <div className="tile-actions">
+            <button className="pill-btn primary" type="button" onClick={() => onSubmit()}>
               <Plus size={18} /> 教育项目招募
             </button>
-            <Link className="secondary-action" to="/resources">
+            <Link className="pill-btn secondary" to="/resources">
               浏览资源库 <ArrowRight size={18} />
             </Link>
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="orbital-card top">
-            <BookOpen size={20} />
-            <span>课程材料</span>
-          </div>
-          <div className="dna-panel">
-            {Array.from({ length: 9 }).map((_, i) => <span key={i} />)}
-          </div>
-          <div className="orbital-card bottom">
-            <Users size={20} />
-            <span>教育合作</span>
-          </div>
+      </section>
+
+      {/* Stats — parchment section */}
+      <section className="product-tile parchment">
+        <div className="tile-content wide-container" style={{ maxWidth: 980, width: "100%" }}>
+          <StatsPanel resources={resources} />
         </div>
       </section>
 
-      <StatsPanel resources={resources} />
-
+      {/* Campaign showcase — product-tile-dark */}
       <section className="showcase-band">
-        <div>
+        <div className="tile-content">
           <p className="eyebrow">Campaign Demo</p>
-          <h2>可直接对外展示的教育活动样板</h2>
-          <p>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
-        </div>
-        <div className="showcase-strip">
-          {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} />)}
-        </div>
-      </section>
-
-      <section className="section-block">
-        <SectionTitle title="教育资源库" desc="从材料完整度、受众和栏目快速判断哪些内容可以复用。" action={<Link to="/resources">进入资源库</Link>} />
-        <div className="resource-grid">
-          {latest.map((r) => <ResourceCard key={r.id} resource={r} />)}
+          <h2 style={{ maxWidth: 500 }}>可直接对外展示的教育活动样板</h2>
+          <p style={{ maxWidth: 500 }}>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
+          <div className="showcase-strip">
+            {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} />)}
+          </div>
         </div>
       </section>
 
+      {/* Resource library preview — parchment */}
       <section className="section-block">
-        <SectionTitle title="五个栏目" desc="每个栏目都是一个可持续沉淀的教育专题。" />
-        <div className="category-grid">
-          {categories.map((cat) => (
-            <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
-              <img src={cat.image} alt="" />
-              <cat.icon size={24} />
-              <strong>{cat.name}</strong>
-              <span>{cat.intro}</span>
-            </Link>
-          ))}
+        <div className="tile-content">
+          <SectionTitle title="教育资源库" desc="从材料完整度、受众和栏目快速判断哪些内容可以复用。" action={<Link to="/resources">进入资源库</Link>} />
+          <div className="resource-grid">
+            {latest.map((r) => <ResourceCard key={r.id} resource={r} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Category grid — light */}
+      <section className="product-tile light">
+        <div className="tile-content wide-container" style={{ maxWidth: 1440, width: "100%" }}>
+          <h2>五个栏目</h2>
+          <p>每个栏目都是一个可持续沉淀的教育专题。</p>
+          <div className="category-grid">
+            {categories.map((cat) => (
+              <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
+                <img src={cat.image} alt="" />
+                <cat.icon size={24} />
+                <strong>{cat.name}</strong>
+                <span>{cat.intro}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </>
@@ -118,7 +118,7 @@ export function ResourceLibraryPage({ resources, onSubmit }: PageProps) {
           <h1>教育资源库</h1>
           <p>筛选、浏览和复用联盟内已有的教育材料。</p>
         </div>
-        <button className="primary-action compact" type="button" onClick={() => onSubmit()}>
+        <button className="pill-btn primary" type="button" onClick={() => onSubmit()}>
           <Upload size={17} /> 教育项目招募
         </button>
       </div>
@@ -164,12 +164,12 @@ export function ResourceLibraryPage({ resources, onSubmit }: PageProps) {
 
 export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
   return (
-    <section className="page-shell login-required">
+    <section className="page-shell">
       <div>
         <p className="eyebrow">Login Required</p>
         <h1>登录后发布教育项目招募</h1>
         <p>请先登录团队账号，然后从顶部导航、首页、资源库或栏目页进入教育项目招募发布流程。</p>
-        <button className="primary-action" type="button" onClick={openLogin}>
+        <button className="pill-btn primary" type="button" onClick={openLogin}>
           <LogIn size={18} /> 团队登录
         </button>
       </div>
@@ -184,8 +184,8 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
   const Icon = category.icon
 
   return (
-    <section className="page-shell category-page" style={{ "--accent": category.accent } as React.CSSProperties}>
-      <div className="category-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(12,35,32,.78), rgba(12,35,32,.36)), url(${category.image})` }}>
+    <section className="page-shell">
+      <div className="category-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${category.image})` }}>
         <div>
           <p className="eyebrow">{category.short}</p>
           <h1>{category.name}</h1>
@@ -243,7 +243,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   }
 
   return (
-    <section className="page-shell case-detail" style={{ "--accent": category?.accent || "#138a68" } as React.CSSProperties}>
+    <section className="page-shell case-detail">
       <div className="case-hero">
         <img src={r.image} alt="" />
         <div>
@@ -343,7 +343,7 @@ export function ResourceDetailPage({ resources, user, onDelete }: { resources: R
       <section className="page-shell">
         <h1>资源不存在</h1>
         <p>该资源可能已被删除或链接无效。</p>
-        <Link className="secondary-action" to="/resources" style={{ width: "fit-content" }}>返回资源库</Link>
+        <Link className="pill-btn secondary" to="/resources" style={{ width: "fit-content" }}>返回资源库</Link>
       </section>
     )
   }
@@ -354,7 +354,7 @@ export function ResourceDetailPage({ resources, user, onDelete }: { resources: R
   }
 
   return (
-    <section className="page-shell resource-detail" style={{ "--accent": category?.accent || "#138a68" } as React.CSSProperties}>
+    <section className="page-shell resource-detail">
       <div className="page-heading">
         <div>
           <p className="eyebrow">{category?.name || "资源详情"}</p>
