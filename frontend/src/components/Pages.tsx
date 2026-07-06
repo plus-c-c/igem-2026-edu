@@ -6,7 +6,6 @@ import { CheckCircle2, LogIn, Plus, Trash2 } from "lucide-react"
 import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
-import { campaignCases } from "../data/resources"
 
 interface PageProps {
   resources: Resource[]
@@ -15,7 +14,7 @@ interface PageProps {
 
 export function HomePage({ resources, onSubmit }: PageProps) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
-  const displayCampaigns = campaignResources.length ? campaignResources.slice(0, 4) : campaignCases.slice(0, 4)
+  const displayCampaigns = campaignResources.slice(0, 4)
 
   return (
     <>
@@ -90,8 +89,7 @@ export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
 
 export function CategoryPage({ category, resources, onSubmit }: { category: typeof categories[0]; resources: Resource[]; onSubmit: (categoryId?: string) => void }) {
   const list = resources.filter((r) => r.category === category.id)
-  const campaignList = resources.filter((r) => r.category === category.id && r.type === "campaign")
-  const cases = campaignList.length ? campaignList : campaignCases.filter((c) => c.category === category.id)
+  const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
   const Icon = category.icon
 
   return (
@@ -133,9 +131,17 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 export function CaseDetailPage({ resources, user, onDelete }: { resources: Resource[]; user: User | null; onDelete: (id: string) => void }) {
   const { caseId } = useParams()
   const navigate = useNavigate()
-  const campaignResources = resources.filter((r) => r.type === "campaign")
-  const item = campaignResources.find((c) => caseSlug(c.title) === caseId) || campaignCases.find((c) => caseSlug(c.title) === caseId) || campaignCases[0]
-  const r = item as Resource
+  const item = resources.find((c) => c.type === "campaign" && caseSlug(c.title) === caseId)
+  if (!item) {
+    return (
+      <section className="page-shell">
+        <h1>教育项目不存在</h1>
+        <p>该教育项目可能已被删除或链接无效。</p>
+        <Link className="pill-btn secondary" to="/" style={{ width: "fit-content" }}>返回首页</Link>
+      </section>
+    )
+  }
+  const r = item
   const category = categories.find((c) => c.id === r.category)
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
