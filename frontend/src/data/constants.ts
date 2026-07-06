@@ -1,4 +1,4 @@
-import type { CampaignCase, Resource } from "../types"
+import type { Resource } from "../types"
 
 export const materialTypes = ["项目介绍书", "项目合作书", "实践建议", "现场照片", "项目 example"]
 

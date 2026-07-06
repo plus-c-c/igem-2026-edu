@@ -46,16 +46,6 @@ export interface Resource {
   updatedAt?: string
 }
 
-export interface CampaignCase {
-  category: string
-  title: string
-  subtitle: string
-  image: string
-  format: string
-  impact: string
-  materials: string[]
-}
-
 export interface ProjectMeta {
   organization: string
   kind: string
