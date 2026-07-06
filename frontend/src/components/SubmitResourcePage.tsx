@@ -60,7 +60,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setExistingStepFiles(stepFiles)
     }).catch(() => {})
   }, [isEdit, editResource])
-  const defaultCategory = params.get("category") || editResource?.category || "synbio"
+  const defaultCategory = params.get("category") || editResource?.category || "applications"
 
   useEffect(() => {
     if (editResource) {
