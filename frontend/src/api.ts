@@ -29,11 +29,20 @@ export const authApi = {
     return res.json()
   },
 
-  register: async ({ email, password, name }: { email: string; password: string; name: string }) => {
-    const res = await fetch(`${API_BASE}/auth/register`, {
+  sendCode: async ({ email, name, password }: { email: string; name: string; password: string }) => {
+    const res = await fetch(`${API_BASE}/auth/send-code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, name, password }),
+    })
+    return res.json()
+  },
+
+  verifyRegister: async ({ email, code }: { email: string; code: string }) => {
+    const res = await fetch(`${API_BASE}/auth/verify-register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
     })
     return res.json()
   },
