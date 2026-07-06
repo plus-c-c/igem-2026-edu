@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import type { Resource } from "../types"
 import { categories } from "../data/categories"
 import { materialTypes } from "../data/constants"
@@ -7,7 +8,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
   const pct = Math.min(100, Math.round((resource.materials.length / materialTypes.length) * 100))
 
   return (
-    <article className="resource-card" style={{ "--accent": category?.accent || "#1a9b78" } as React.CSSProperties}>
+    <Link to={`/resource/${resource.id}`} className="resource-card" style={{ "--accent": category?.accent || "#1a9b78" } as React.CSSProperties}>
       <div className="card-top">
         <span>{category?.name}</span>
         <small>{resource.updatedAt}</small>
@@ -29,6 +30,6 @@ export function ResourceCard({ resource }: { resource: Resource }) {
           <span key={material}>{material}</span>
         ))}
       </div>
-    </article>
+    </Link>
   )
 }

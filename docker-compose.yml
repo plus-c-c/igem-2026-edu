@@ -1,6 +1,8 @@
 services:
   db:
     image: postgres:16-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -29,6 +31,8 @@ services:
       JWT_SECRET: change-this-in-production
       JWT_EXPIRES_IN: 7d
       PORT: 3000
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
 
   frontend:
     build:

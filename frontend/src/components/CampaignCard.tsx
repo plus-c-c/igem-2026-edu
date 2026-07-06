@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom"
-import type { CampaignCase } from "../types"
+import type { Resource } from "../types"
 import { projectMetaByCategory } from "../data/projectMeta"
 
-function caseSlug(title: string) {
+export function caseSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
 }
 
 interface CampaignCardProps {
-  item: CampaignCase
+  item: Resource
   variant?: "case" | "project"
 }
 

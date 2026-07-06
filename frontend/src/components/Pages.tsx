@@ -1,18 +1,15 @@
-import type { Resource } from "../types"
+import type { Resource, UploadedFile, User } from "../types"
+import { fileApi } from "../api"
 import { materialTypes } from "../data/constants"
 import { categories } from "../data/categories"
-import { Link, useLocation, useParams } from "react-router-dom"
-import { ArrowRight, BookOpen, CheckCircle2, LogIn, Plus, Search, Upload, Users } from "lucide-react"
-import { useMemo, useState } from "react"
+import { Link, useLocation, useParams, useNavigate } from "react-router-dom"
+import { ArrowRight, BookOpen, CheckCircle2, File, FileImage, FileText, Film, LogIn, Plus, Search, Trash2, Upload, Users } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { ResourceCard } from "./ResourceCard"
-import { CampaignCard } from "./CampaignCard"
+import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { campaignCases } from "../data/resources"
-
-function caseSlug(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
-}
 
 interface PageProps {
   resources: Resource[]
@@ -21,6 +18,8 @@ interface PageProps {
 
 export function HomePage({ resources, onSubmit }: PageProps) {
   const latest = resources.slice(0, 3)
+  const campaignResources = resources.filter((r) => r.type === "campaign")
+  const displayCampaigns = campaignResources.length ? campaignResources.slice(0, 4) : campaignCases.slice(0, 4)
 
   return (
     <>
@@ -63,7 +62,7 @@ export function HomePage({ resources, onSubmit }: PageProps) {
           <p>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
         </div>
         <div className="showcase-strip">
-          {campaignCases.slice(0, 4).map((item) => <CampaignCard key={item.title} item={item} />)}
+          {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} />)}
         </div>
       </section>
 
@@ -180,7 +179,8 @@ export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
 
 export function CategoryPage({ category, resources, onSubmit }: { category: typeof categories[0]; resources: Resource[]; onSubmit: (categoryId?: string) => void }) {
   const list = resources.filter((r) => r.category === category.id)
-  const cases = campaignCases.filter((c) => c.category === category.id)
+  const campaignList = resources.filter((r) => r.category === category.id && r.type === "campaign")
+  const cases = campaignList.length ? campaignList : campaignCases.filter((c) => c.category === category.id)
   const Icon = category.icon
 
   return (
@@ -200,7 +200,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
       <section className="case-section">
         <SectionTitle title="教育项目" desc="每个项目都按真实招募信息组织，方便合作队伍快速判断是否适合参与。" />
         <div className="campaign-grid">
-          {cases.map((c) => <CampaignCard key={c.title} item={c} variant="project" />)}
+          {cases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
         </div>
       </section>
 
@@ -227,28 +227,47 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
   )
 }
 
-export function CaseDetailPage({ onSubmit }: { onSubmit: (categoryId?: string) => void }) {
+export function CaseDetailPage({ resources, user, onDelete }: { resources: Resource[]; user: User | null; onDelete: (id: string) => void }) {
   const { caseId } = useParams()
-  const item = campaignCases.find((c) => caseSlug(c.title) === caseId) || campaignCases[0]
-  const category = categories.find((c) => c.id === item.category)
+  const navigate = useNavigate()
+  const campaignResources = resources.filter((r) => r.type === "campaign")
+  const item = campaignResources.find((c) => caseSlug(c.title) === caseId) || campaignCases.find((c) => caseSlug(c.title) === caseId) || campaignCases[0]
+  const category = categories.find((c) => c.id === r.category)
+  const r = item as Resource
+  const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = ["前期准备材料与安全边界", "现场讲解与互动体验", "满意度调查与成果测量", "复盘建议沉淀到资源库"]
+
+  const handleDelete = () => {
+    if (!confirm("确定删除此演示案例？此操作不可撤销。")) return
+    onDelete(String(r.id))
+  }
 
   return (
     <section className="page-shell case-detail" style={{ "--accent": category?.accent || "#138a68" } as React.CSSProperties}>
+      {canEdit && r.id && (
+        <div className="detail-actions" style={{ position: "absolute", top: "1.5rem", right: "1.5rem" }}>
+          <button className="edit-button" type="button" onClick={() => navigate(`/resource/${r.id}/edit`)}>
+            编辑
+          </button>
+          <button className="delete-button" type="button" onClick={handleDelete}>
+            <Trash2 size={16} /> 删除
+          </button>
+        </div>
+      )}
       <div className="case-hero">
-        <img src={item.image} alt="" />
+        <img src={r.image} alt="" />
         <div>
           <p className="eyebrow">Demo Case</p>
-          <h1>{item.title}</h1>
-          <p>{item.subtitle}</p>
-          <span className="demo-badge">测试内容，仅供展示</span>
+          <h1>{r.title}</h1>
+          <p>{r.subtitle}</p>
+          {r.id && <span className="demo-badge">演示案例</span>}
         </div>
       </div>
 
       <div className="case-detail-grid">
         <article className="case-story">
           <h2>案例简介</h2>
-          <p>这是为 HP-Education 联盟网站 demo 生成的展示案例，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。</p>
+          <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的展示案例，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
           <h2>展示内容</h2>
           <div className="case-steps">
             {steps.map((step, i) => (
@@ -262,14 +281,122 @@ export function CaseDetailPage({ onSubmit }: { onSubmit: (categoryId?: string) =
         <aside className="case-side">
           <h2>活动信息</h2>
           <p><strong>所属栏目</strong>{category?.name}</p>
-          <p><strong>活动形式</strong>{item.format}</p>
-          <p><strong>展示价值</strong>{item.impact}</p>
+          <p><strong>活动形式</strong>{r.format}</p>
+          <p><strong>展示价值</strong>{r.impact}</p>
           <div className="tags">
-            {item.materials.map((m) => <span key={m}>{m}</span>)}
+            {r.materials.map((m) => <span key={m}>{m}</span>)}
           </div>
-          <button className="primary-action compact" type="button" onClick={() => onSubmit(item.category)}>
-            发布本栏目项目招募
-          </button>
+        </aside>
+      </div>
+    </section>
+  )
+}
+
+function fileIcon(mimeType: string) {
+  if (mimeType.startsWith("image/")) return <FileImage size={20} />
+  if (mimeType.startsWith("video/")) return <Film size={20} />
+  if (mimeType.includes("pdf")) return <FileText size={20} />
+  if (mimeType.includes("spreadsheet") || mimeType.includes("excel")) return <FileText size={20} />
+  if (mimeType.includes("presentation") || mimeType.includes("powerpoint")) return <FileText size={20} />
+  if (mimeType.startsWith("text/")) return <FileText size={20} />
+  return <File size={20} />
+}
+
+function formatSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+export function ResourceDetailPage({ resources, user, onDelete }: { resources: Resource[]; user: User | null; onDelete: (id: string) => void }) {
+  const { resourceId } = useParams()
+  const navigate = useNavigate()
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+  const resource = resources.find((r) => String(r.id) === resourceId)
+  const category = categories.find((c) => c.id === resource?.category)
+  const canEdit = user && resource && (user.role === "admin" || resource.userId === user.id)
+  const canDelete = canEdit
+
+  useEffect(() => {
+    if (resourceId) {
+      fileApi.list(resourceId).then(setUploadedFiles)
+    }
+  }, [resourceId])
+
+  if (!resource) {
+    return (
+      <section className="page-shell">
+        <h1>资源不存在</h1>
+        <p>该资源可能已被删除或链接无效。</p>
+        <Link className="secondary-action" to="/resources" style={{ width: "fit-content" }}>返回资源库</Link>
+      </section>
+    )
+  }
+
+  const handleDelete = () => {
+    if (!confirm("确定删除此资源？此操作不可撤销。")) return
+    onDelete(String(resource.id))
+  }
+
+  return (
+    <section className="page-shell resource-detail" style={{ "--accent": category?.accent || "#138a68" } as React.CSSProperties}>
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">{category?.name || "资源详情"}</p>
+          <h1>{resource.title}</h1>
+        </div>
+        {canEdit && (
+          <div className="detail-actions">
+            <button className="edit-button" type="button" onClick={() => navigate(`/resource/${resource.id}/edit`)}>
+              编辑
+            </button>
+            <button className="delete-button" type="button" onClick={handleDelete}>
+              <Trash2 size={16} /> 删除资源
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="detail-grid">
+        <div className="detail-main">
+          <p className="meta">{resource.team} · {resource.audience}</p>
+          <p>{resource.desc}</p>
+
+          <h2>项目材料</h2>
+          <div className="tags">
+            {resource.materials.map((m) => <span key={m}>{m}</span>)}
+          </div>
+
+          {uploadedFiles.length > 0 && (
+            <>
+              <h2>上传文件</h2>
+              <div className="file-grid">
+                {uploadedFiles.map((f) => (
+                  <a key={f.id} className="file-card" href={fileApi.downloadUrl(f.id)} download={f.originalName}>
+                    <span className="file-icon">{fileIcon(f.mimeType)}</span>
+                    <span className="file-name">{f.originalName}</span>
+                    <span className="file-meta">
+                      {f.materialLabel && <span>{f.materialLabel}</span>}
+                      <span>{formatSize(f.size)}</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <aside className="detail-side">
+          <h2>项目信息</h2>
+          {resource.negotiator && <p><strong>主要洽谈队伍</strong>{resource.negotiator}</p>}
+          {resource.acceptsOthers && <p><strong>接受其他队伍</strong>{resource.acceptsOthers === "yes" ? "是" : "否"}</p>}
+          {resource.delivery && <p><strong>线上/线下</strong>{resource.delivery}</p>}
+          {resource.audience && <p><strong>目标受众</strong>{resource.audience}</p>}
+          {resource.duration && <p><strong>活动时限</strong>{resource.duration}</p>}
+          {resource.location && <p><strong>活动地点</strong>{resource.location}</p>}
+          {resource.reimbursement && <p><strong>报销情况</strong>{resource.reimbursement}</p>}
+          {resource.contact && <p><strong>联系方式</strong>{resource.contact}</p>}
+          {resource.updatedAt && <p><strong>更新时间</strong>{resource.updatedAt}</p>}
         </aside>
       </div>
     </section>

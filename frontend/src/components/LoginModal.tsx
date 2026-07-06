@@ -26,7 +26,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         const res = await authApi.login({ email: data.get("email") as string, password: data.get("password") as string })
         if (res.token) {
           localStorage.setItem("authToken", res.token)
-          onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name })
+          onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
           onClose()
         } else {
           setError(res.message || "登录失败")
@@ -39,7 +39,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         })
         if (res.token) {
           localStorage.setItem("authToken", res.token)
-          onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name })
+          onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
           onClose()
         } else {
           setError(res.message || "注册失败")
