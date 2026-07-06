@@ -6,7 +6,7 @@ import { resourceApi, setOnUnauthorized } from "./api"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { AppLayout } from "./components/AppLayout"
-import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage } from "./components/Pages"
+import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { LoginModal } from "./components/LoginModal"
 import "./styles.css"
@@ -80,7 +80,8 @@ function App() {
   return (
     <AppLayout user={user} setUser={setUser} openLogin={() => setLoginOpen(true)}>
       <Routes>
-        <Route path="/" element={<HomePage resources={resources} onSubmit={requestSubmit} />} />
+        <Route path="/" element={<HomePage resources={resources} />} />
+        <Route path="/recruitment" element={<RecruitmentPage resources={resources} onSubmit={requestSubmit} />} />
         <Route
           path="/submit"
           element={user ? <SubmitResourcePage key="new" user={user} addResource={addResource} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />}

@@ -6,9 +6,9 @@ import type { User } from "../types"
 const navItems = [
   { path: "/", name: "首页" },
   { path: "/applications", name: "讲座科普" },
-  { path: "/activities", name: "缤纷开放活动" },
-  { path: "/cooperation", name: "教育合作" },
-  { path: "/about", name: "关于联盟" },
+  { path: "/activities", name: "实践活动" },
+  { path: "/recruitment", name: "教育项目招募" },
+  { path: "/about", name: "关于我们" },
 ]
 
 interface HeaderProps {
@@ -23,8 +23,8 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
   return (
     <nav className="global-nav">
       <Link className="brand" to="/" onClick={() => setMenuOpen(false)}>
-        <span className="brand-mark">HP</span>
-        <span>HP-Education 联盟</span>
+        <img className="brand-logo" src="/images/logo.jpg" alt="SynEdu Global" />
+        <span>SynEdu Global</span>
       </Link>
       <div className={menuOpen ? "nav-links open" : "nav-links"}>
         {navItems.map((item) => (
