@@ -174,16 +174,12 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: -0.12px;
 }
 .global-nav .brand:hover { text-decoration: none; }
-.global-nav .brand-mark {
+.global-nav .brand-logo {
   width: 28px;
   height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 4px;
-  background: var(--primary);
-  color: white;
-  font-size: 13px;
-  font-weight: 700;
+  flex: 0 0 28px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 .global-nav .brand small { display: none; }
 
@@ -465,6 +461,7 @@ main {
 
 .home-hero .tile-content {
   max-width: min(1680px, 94vw);
+  text-align: center;
 }
 
 .hero-title {
@@ -474,10 +471,14 @@ main {
   font-size: clamp(42px, 3.2vw, 64px);
   line-height: 1.08;
   letter-spacing: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .typewriter-text {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .typewriter-line {
@@ -1029,6 +1030,10 @@ input:focus, select:focus, textarea:focus {
 }
 .page-heading p { margin-bottom: 0; }
 
+.recruitment-page {
+  max-width: 980px;
+}
+
 /* ========== Category Hero ========== */
 .category-hero {
   display: grid;
@@ -1071,6 +1076,10 @@ input:focus, select:focus, textarea:focus {
 }
 
 .case-section .campaign-grid {
+  margin-top: 32px;
+}
+
+.case-section .empty-state {
   margin-top: 32px;
 }
 
@@ -1777,6 +1786,9 @@ footer div {
 @media (max-width: 1023px) {
   h1 { font-size: 40px; letter-spacing: 0; }
   h2 { font-size: 34px; letter-spacing: -0.374px; }
+  .typewriter-line {
+    white-space: normal;
+  }
   .resource-grid { grid-template-columns: repeat(2, 1fr); }
   .campaign-grid { grid-template-columns: repeat(2, 1fr); }
   .category-grid { grid-template-columns: repeat(3, 1fr); }
