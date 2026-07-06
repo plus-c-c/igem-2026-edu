@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom"
+import { BrowserRouter, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom"
 import type { Resource } from "./types"
 import { resourceApi } from "./api"
 import { categories } from "./data/categories"
-import { starterResources } from "./data/resources"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { AppLayout } from "./components/AppLayout"
-import { HomePage, ResourceLibraryPage, LoginRequiredPage, CategoryPage, CaseDetailPage, ResourceDetailPage } from "./components/Pages"
+import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { LoginModal } from "./components/LoginModal"
 import "./styles.css"
 
 function App() {
   const [user, setUser, authLoading] = useLocalAuth()
-  const [resources, setResources] = useState<Resource[]>(starterResources)
+  const [resources, setResources] = useState<Resource[]>([])
   const [loginOpen, setLoginOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -24,14 +23,13 @@ function App() {
     })
   }, [])
 
-  const requestSubmit = (categoryId?: string, campaign?: boolean) => {
+  const requestSubmit = (categoryId?: string) => {
     if (!user) {
       setLoginOpen(true)
       return
     }
     const params = new URLSearchParams()
     if (categoryId) params.set("category", categoryId)
-    if (campaign) params.set("type", "campaign")
     navigate(`/submit${params.toString() ? `?${params.toString()}` : ""}`)
   }
 
@@ -39,21 +37,23 @@ function App() {
     resourceApi.create(resource).then((res: any) => {
       if (res.resource) {
         setResources((items) => [res.resource, ...items])
-        navigate(`/resources?category=${resource.category}`)
+        const cat = categories.find((c) => c.id === resource.category)
+        if (cat) navigate(cat.path)
       }
     })
   }
 
   const updateResource = (id: string, updated: Partial<Resource>) => {
     setResources((items) => items.map((r) => String(r.id) === id ? { ...r, ...updated } : r))
-    navigate(`/resource/${id}`)
+    const slug = (updated.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    navigate(`/cases/${slug}`)
   }
 
   const deleteResource = (id: string) => {
     resourceApi.remove(id).then((res: any) => {
       if (res.message) {
         setResources((items) => items.filter((r) => String(r.id) !== id))
-        navigate("/resources")
+        navigate("/")
       }
     })
   }
@@ -72,14 +72,12 @@ function App() {
     <AppLayout user={user} setUser={setUser} openLogin={() => setLoginOpen(true)}>
       <Routes>
         <Route path="/" element={<HomePage resources={resources} onSubmit={requestSubmit} />} />
-        <Route path="/resources" element={<ResourceLibraryPage resources={resources} onSubmit={requestSubmit} />} />
         <Route
           path="/submit"
           element={user ? <SubmitResourcePage key="new" user={user} addResource={addResource} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />}
         />
         <Route path="/cases/:caseId" element={<CaseDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
         <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
-        <Route path="/resource/:resourceId" element={<ResourceDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
         {categories.map((cat) => (
           <Route key={cat.id} path={cat.path} element={<CategoryPage category={cat} resources={resources} onSubmit={requestSubmit} />} />
         ))}

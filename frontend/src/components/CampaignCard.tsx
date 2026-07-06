@@ -56,7 +56,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
         <div className="tags">
           {item.materials.map((m) => <span key={m}>{m}</span>)}
         </div>
-        <span className="detail-link">查看案例详情</span>
+        <span className="detail-link">查看项目详情</span>
       </div>
     </Link>
   )
