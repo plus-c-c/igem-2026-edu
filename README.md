@@ -15,20 +15,23 @@ cd igem-2026-edu
 docker compose up -d
 ```
 
-首次启动会自动完成以下步骤：
+启动后等待一分钟左右，浏览器打开 [http://localhost](http://localhost) 即可看到页面和 15 个示例教育项目。
 
-1. 启动 PostgreSQL 数据库
-2. 启动后端 API 服务（端口 3000）
-3. 自动创建管理员账号并录入 15 个示例教育项目
-4. 启动前端 Nginx 服务（端口 80）
+### 启动流程说明
 
-### 访问网页
+`docker compose up -d` 会自动按以下顺序启动：
 
-浏览器打开 [http://localhost](http://localhost)
+```
+db (PostgreSQL) → backend (API) → seed-data (初始化) → frontend (Nginx)
+```
 
-### 示例项目
+**seed-data** 容器完成以下初始化后自动退出：
 
-首页和各个栏目页面展示 5 类共 15 个示例教育项目（合成生物学科普 / 讲座科普 / 缤纷开放活动 / 教育合作 / 关于联盟），每个项目包含标题、描述、活动形式、展示价值和实施步骤。
+1. 通过 TypeORM 连接数据库，创建管理员账号（已存在则跳过）
+2. 等待后端 API 就绪
+3. 通过 API 登录管理员账号
+4. 清除所有现有的示例项目
+5. 重新创建 15 个示例教育项目（5 个栏目各 3 个）
 
 ### 管理员账号
 
@@ -37,13 +40,15 @@ docker compose up -d
 
 登录后可发布、编辑、删除教育项目。
 
-### 重新录入示例数据
+### 手动重新初始化
+
+如需重置所有数据：
 
 ```bash
 docker compose run --rm seed-data
 ```
 
-脚本会先清除所有现有项目，再重新创建 15 个示例项目。
+脚本会清除所有现有项目并重新创建 15 个示例项目。
 
 ### 项目结构
 
@@ -52,7 +57,7 @@ docker compose run --rm seed-data
 │   └── src/
 │       ├── entity/     # 数据模型
 │       ├── routes/     # API 路由
-│       └── seed.ts     # 管理员账号 + 示例项目种子
+│       └── seed.ts     # 初始化脚本（管理员 + 示例数据）
 ├── frontend/           # Vite + React 前端
 │   └── src/
 │       ├── components/ # 页面组件
