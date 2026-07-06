@@ -18,7 +18,7 @@ export const categories: Category[] = [
     name: "讲座科普",
     short: "Projects",
     icon: FlaskConical,
-    intro: "把西湖大学、浙江大学和合作团队的项目转译成公众能理解的应用故事。",
+    intro: "开展各种主题的讲座，让大众走进合成生物学，了解 iGEM 和合成生物学的各种应用，降低学生和大众对新技术的误解。",
     accent: "#2776b8",
     image: imageAssets.labWork,
     recommended: ["PPT", "演讲稿", "阅读材料", "宣传材料", "文创", "实践建议"],
@@ -26,7 +26,7 @@ export const categories: Category[] = [
   {
     id: "activities",
     path: "/activities",
-    name: "缤纷开放活动",
+    name: "实践活动",
     short: "Events",
     icon: Sparkles,
     intro: "沉淀微生物作画、生物材料体验、开放工作坊等互动式教育活动方案。",
@@ -37,7 +37,7 @@ export const categories: Category[] = [
   {
     id: "cooperation",
     path: "/cooperation",
-    name: "教育合作",
+    name: "教育项目招募",
     short: "Partners",
     icon: Handshake,
     intro: "记录支教队伍、合作学校、公益教育场景和课程包共建进度。",
@@ -48,7 +48,7 @@ export const categories: Category[] = [
   {
     id: "about",
     path: "/about",
-    name: "关于联盟",
+    name: "关于我们",
     short: "Alliance",
     icon: Building2,
     intro: "展示联盟构成、团队分工、运行模式、赞助入口与年度教育成果。",
