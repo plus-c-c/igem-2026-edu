@@ -15,8 +15,11 @@ export function AppLayout({ children, user, setUser, openLogin }: AppLayoutProps
       <Header user={user} setUser={setUser} openLogin={openLogin} />
       <main>{children}</main>
       <footer>
-        <div>HP-Education 联盟</div>
-        <span>Westlake University × Zhejiang University · iGEM Education Demo</span>
+        <div className="footer-brand">
+          <span>SynEdu Global</span>
+          <img src="/images/logo.jpg" alt="SynEdu Global" />
+        </div>
+        <span>ZJU-China&Westlake&XJTLU-China</span>
       </footer>
     </>
   )

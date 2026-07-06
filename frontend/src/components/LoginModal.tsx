@@ -134,9 +134,9 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             <label>密码<input name="password" type="password" required placeholder={mode === "login" ? "请输入密码" : "6 位以上密码"} /></label>
             <div className="form-actions">
               <button className="pill-btn secondary" type="button" onClick={onClose}>取消</button>
-              <span className="text-link" style={{ cursor: "pointer" }} onClick={switchMode}>
+              <button className="auth-switch-link" type="button" onClick={switchMode}>
                 {mode === "login" ? "没有账号？注册" : "已有账号？登录"}
-              </span>
+              </button>
               <button className="pill-btn primary" type="submit" disabled={loading}>
                 {loading ? "处理中..." : mode === "login" ? "登录" : "发送验证码"}
               </button>

@@ -890,10 +890,11 @@ main {
 /* ========== Category Grid ========== */
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   width: 100%;
-  margin-top: 24px;
+  max-width: 1180px;
+  margin: 24px auto 0;
 }
 
 .category-card {
@@ -986,6 +987,15 @@ input, select, textarea {
   background: var(--canvas);
   outline: none;
   transition: border-color 0.2s;
+}
+
+select {
+  appearance: none;
+  padding-right: 54px;
+  background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%231d1d1f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 24px center;
+  background-size: 18px 18px;
 }
 
 textarea {
@@ -1081,6 +1091,21 @@ input:focus, select:focus, textarea:focus {
 
 .case-section .empty-state {
   margin-top: 32px;
+}
+
+.project-filter-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+}
+
+.project-filter-panel label {
+  margin: 0;
 }
 
 .category-layout {
@@ -1283,45 +1308,6 @@ input:focus, select:focus, textarea:focus {
   letter-spacing: -0.12px;
   color: var(--ink-muted-48);
 }
-
-/* ========== Recommend Panel ========== */
-.recommend-panel {
-  position: sticky;
-  top: 120px;
-  align-self: start;
-  padding: 28px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--canvas);
-}
-.recommend-panel h2 {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.374px;
-}
-.material-list { display: grid; gap: 10px; margin: 20px 0; }
-.material-list span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  letter-spacing: -0.224px;
-  color: var(--ink-muted-48);
-}
-.material-list svg { color: var(--primary); }
-
-.secondary-submit {
-  width: 100%;
-  padding: 11px 22px;
-  border-radius: var(--radius-pill);
-  background: var(--canvas-parchment);
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.224px;
-  transition: opacity 0.2s;
-}
-.secondary-submit:hover { opacity: 0.7; }
 
 /* ========== Submit Form ========== */
 .submit-form {
@@ -1662,6 +1648,23 @@ input:focus, select:focus, textarea:focus {
 }
 .login-modal p { margin: 0; }
 .login-modal .form-actions { justify-content: space-between; }
+.auth-switch-link {
+  align-self: center;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.224px;
+  white-space: nowrap;
+}
+.auth-switch-link:hover {
+  text-decoration: underline;
+}
 .login-error { color: #e53935; font-size: 14px; }
 .login-success { color: #34a853; font-size: 14px; }
 .login-hint { color: var(--ink-muted-48); font-size: 13px; text-align: center; }
@@ -1763,6 +1766,7 @@ input:focus, select:focus, textarea:focus {
 /* ========== Footer ========== */
 footer {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
   padding: 64px clamp(22px, 4vw, 40px);
@@ -1773,11 +1777,21 @@ footer {
   line-height: 1;
   letter-spacing: -0.12px;
 }
-footer div {
+.footer-brand {
+  display: grid;
+  gap: 12px;
+}
+.footer-brand span {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.224px;
   color: var(--ink-muted-80);
+}
+.footer-brand img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 /* ========== Responsive ========== */
@@ -1797,7 +1811,6 @@ footer div {
   .category-hero { grid-template-columns: 1fr; min-height: auto; }
   .category-layout { grid-template-columns: 1fr; }
   .case-hero, .case-detail-grid, .detail-grid { grid-template-columns: 1fr; }
-  .recommend-panel { position: static; }
 }
 
 /* Tablet portrait: 736–833px */
@@ -1843,6 +1856,7 @@ footer div {
   .upload-grid,
   .case-steps,
   .filter-bar,
+  .project-filter-panel,
   .material-checklist > div,
   .choice-group > div,
   .project-details { grid-template-columns: 1fr; }
