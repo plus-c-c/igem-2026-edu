@@ -13,7 +13,7 @@ interface PageProps {
   onSubmit: (categoryId?: string) => void
 }
 
-export function HomePage({ resources, onSubmit }: PageProps) {
+export function HomePage({ resources }: { resources: Resource[] }) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = campaignResources.slice(0, 4)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
@@ -54,9 +54,9 @@ export function HomePage({ resources, onSubmit }: PageProps) {
           </h1>
           <p style={{ maxWidth: 600 }}>加入我们，一起点亮世界合成生物学科普的微光。</p>
           <div className="tile-actions">
-            <button className="pill-btn primary" type="button" onClick={() => onSubmit()}>
+            <Link className="pill-btn primary" to="/recruitment">
               <Plus size={18} /> 教育项目招募
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -98,6 +98,51 @@ export function HomePage({ resources, onSubmit }: PageProps) {
         </div>
       </section>
     </>
+  )
+}
+
+export function RecruitmentPage({ resources, onSubmit }: PageProps) {
+  const category = categories.find((c) => c.id === "cooperation") || categories[0]
+  const list = resources.filter((r) => r.category === category.id)
+  const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
+  const Icon = category.icon
+  const sectionTitle = category.id === "applications" ? "科普项目" : category.id === "activities" ? "活动主题" : "教育项目"
+
+  return (
+    <section className="page-shell recruitment-page">
+      <div className="category-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${category.image})` }}>
+        <div>
+          <p className="eyebrow">{category.short}</p>
+          <h1>{category.name}</h1>
+          <p>{category.intro}</p>
+        </div>
+        <div className="category-badge">
+          <Icon size={34} />
+          <span>{list.length} 个项目</span>
+        </div>
+      </div>
+
+      <section className="case-section">
+        <SectionTitle
+          title={sectionTitle}
+          action={
+            <button className="add-project-button" type="button" onClick={() => onSubmit(category.id)}>
+              <Plus size={19} />
+              <span>在这里添加你的项目</span>
+            </button>
+          }
+        />
+        {cases.length ? (
+          <div className="campaign-grid">
+            {cases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>暂时还没有发布的教育项目。登录后可以添加第一个项目招募。</p>
+          </div>
+        )}
+      </section>
+    </section>
   )
 }
 
