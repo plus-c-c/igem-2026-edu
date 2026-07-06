@@ -41,6 +41,7 @@ export interface Resource {
   image?: string
   format?: string
   impact?: string
+  campaignSteps?: { id: string; text: string; files: { fileId: string; name: string }[] }[]
   createdAt?: string
   updatedAt?: string
 }

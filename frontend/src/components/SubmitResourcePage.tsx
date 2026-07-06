@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Upload, Loader2 } from "lucide-react"
+import { Upload, Loader2, Plus, Trash2 } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
 import { deliveryOptions, audienceOptions, participationOptions } from "../data/constants"
@@ -40,14 +40,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [imageUploadPct, setImageUploadPct] = useState<number | undefined>(undefined)
   const [coverFileId, setCoverFileId] = useState<string | null>(null)
   const [coverDeleting, setCoverDeleting] = useState(false)
+  const [campaignSteps, setCampaignSteps] = useState<{ id: string; text: string; files: { fileId: string; name: string }[] }[]>(
+    (editResource?.campaignSteps || [])
+  )
+  const stepFileInputs = useRef<Record<string, File | null>>({})
+  const [stepUploadProgress, setStepUploadProgress] = useState<Record<string, number>>({})
+  const [stepDeleting, setStepDeleting] = useState<string | null>(null)
+  const [existingStepFiles, setExistingStepFiles] = useState<Record<string, { id: string; name: string }[]>>({})
 
   useEffect(() => {
     if (!isEdit || !editResource) return
     fileApi.list(String(editResource.id)).then((files) => {
       const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
+      const stepFiles: Record<string, { id: string; name: string }[]> = {}
       for (const f of files) {
         if (f.materialLabel === "cover") {
           setCoverFileId(f.id)
+          continue
+        }
+        if (f.materialLabel?.startsWith("campaign-step-")) {
+          const stepId = f.materialLabel.replace("campaign-step-", "")
+          if (!stepFiles[stepId]) stepFiles[stepId] = []
+          stepFiles[stepId].push({ id: f.id, name: f.originalName })
           continue
         }
         const key = f.materialLabel || "其他"
@@ -55,6 +69,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         grouped[key].push({ id: f.id, name: f.originalName, size: f.size })
       }
       setExistingFiles(grouped)
+      setExistingStepFiles(stepFiles)
     }).catch(() => {})
   }, [isEdit, editResource])
   const defaultCategory = params.get("category") || editResource?.category || "synbio"
@@ -64,8 +79,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setSelected(editResource.materials || [])
       setDurationMode(parseDuration(editResource.duration).mode)
       setResourceType((editResource.type as "normal" | "campaign") || "normal")
+      setCampaignSteps(editResource.campaignSteps || [])
     }
     setCoverFileId(null)
+    setExistingStepFiles({})
     setErrorMsg("")
   }, [editResource])
 
@@ -73,6 +90,49 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setSelected((prev) =>
       prev.includes(material) ? prev.filter((m) => m !== material) : [...prev, material]
     )
+  }
+
+  const addStep = () => {
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
+    setCampaignSteps((prev) => [...prev, { id, text: "", files: [] }])
+  }
+
+  const removeStep = (stepId: string) => {
+    setCampaignSteps((prev) => prev.filter((s) => s.id !== stepId))
+  }
+
+  const updateStepText = (stepId: string, text: string) => {
+    setCampaignSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, text } : s))
+  }
+
+  const uploadStepFile = async (rid: string, stepId: string, file: File) => {
+    const upRes = await fileApi.uploadWithProgress(
+      rid, file, `campaign-step-${stepId}`,
+      (pct) => setStepUploadProgress((p) => ({ ...p, [stepId]: pct }))
+    )
+    const newFile = { fileId: upRes.file.id, name: upRes.file.originalName }
+    setCampaignSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, files: [...s.files, newFile] } : s))
+    setExistingStepFiles((prev) => {
+      const next = { ...prev }
+      if (!next[stepId]) next[stepId] = []
+      next[stepId] = [...next[stepId], { id: upRes.file.id, name: upRes.file.originalName }]
+      return next
+    })
+  }
+
+  const deleteStepFile = async (rid: string, stepId: string, fileId: string) => {
+    setStepDeleting(fileId)
+    await fileApi.remove(rid, fileId)
+    setCampaignSteps((prev) => prev.map((s) =>
+      s.id === stepId ? { ...s, files: s.files.filter((f) => f.fileId !== fileId) } : s
+    ))
+    setExistingStepFiles((prev) => {
+      const next = { ...prev }
+      if (next[stepId]) next[stepId] = next[stepId].filter((f) => f.id !== fileId)
+      if (!next[stepId]?.length) delete next[stepId]
+      return next
+    })
+    setStepDeleting(null)
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -99,6 +159,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         payload.format = data.get("format") as string
         payload.impact = data.get("impact") as string
         payload.desc = data.get("desc") as string
+        payload.campaignSteps = campaignSteps
       } else {
         payload.team = data.get("team") as string
         payload.negotiator = data.get("negotiator") as string
@@ -122,6 +183,15 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         return `/api/resources/files/${upRes.file.id}/download`
       }
 
+      const uploadStepFiles = async (rid: string) => {
+        for (const step of campaignSteps) {
+          const file = stepFileInputs.current[step.id]
+          if (file) {
+            await uploadStepFile(rid, step.id, file)
+          }
+        }
+      }
+
       if (isEdit && editResource) {
         const rid = String(editResource.id)
         for (const material of selected) {
@@ -133,6 +203,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             )
           }
         }
+        await uploadStepFiles(rid)
         const imgUrl = await uploadImage(rid)
         if (imgUrl) payload.image = imgUrl
         const res = await resourceApi.update(rid, payload)
@@ -151,6 +222,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             )
           }
         }
+        await uploadStepFiles(rid)
         const imgUrl = await uploadImage(rid)
         if (imgUrl) {
           const upRes = await resourceApi.update(rid, { ...payload, image: imgUrl })
@@ -304,6 +376,58 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
           <label className="desc-field wide">简介<textarea name="desc" required={!isCampaign} placeholder="简要说明活动内容、形式、教育目标和合作要求" defaultValue={editResource?.desc} /></label>
         </div>
+
+        {isCampaign && (
+          <section className="step-editor">
+            <div className="step-editor-header">
+              <h2>展示内容</h2>
+              <button type="button" className="primary-action compact" onClick={addStep}>
+                <Plus size={16} /> 添加板块
+              </button>
+            </div>
+            <div className="step-grid">
+              {campaignSteps.map((step, i) => (
+                <div key={step.id} className="step-block">
+                  <div className="step-block-header">
+                    <strong>{String(i + 1).padStart(2, "0")}</strong>
+                    <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title="删除板块">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <input className="step-text-input" placeholder="输入板块描述" value={step.text}
+                    onChange={(e) => updateStepText(step.id, e.target.value)} />
+                  <label className="upload-tile step-upload-tile">
+                    <Upload size={16} />
+                    上传文件
+                    <input type="file" onChange={(e) => { stepFileInputs.current[step.id] = e.target.files?.[0] || null }} />
+                    {stepFileInputs.current[step.id] && <span>{stepFileInputs.current[step.id]!.name}</span>}
+                  </label>
+                  {existingStepFiles[step.id]?.map((f) => (
+                    <span key={f.id} className="existing-file">
+                      {f.name}
+                      {isEdit && (
+                        <button type="button" className="file-delete-btn" disabled={stepDeleting === f.id}
+                          onClick={(e) => { e.stopPropagation(); deleteStepFile(String(editResource!.id), step.id, f.id) }}
+                        >×</button>
+                      )}
+                    </span>
+                  ))}
+                  {stepUploadProgress[step.id] !== undefined && (
+                    <div className="upload-progress-bar">
+                      <div className="upload-progress-fill" style={{ width: `${stepUploadProgress[step.id]}%` }} />
+                      <span>{stepUploadProgress[step.id]}%</span>
+                    </div>
+                  )}
+                  {step.files.map((f) => (
+                    !existingStepFiles[step.id]?.some((ef) => ef.id === f.fileId) && (
+                      <span key={f.fileId} className="existing-file">{f.name}</span>
+                    )
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <MaterialChecklist selected={selected} onToggle={toggleMaterial} />
 

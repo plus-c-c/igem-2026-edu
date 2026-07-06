@@ -75,6 +75,9 @@ export class Resource {
   @Column({ nullable: true })
   impact!: string
 
+  @Column("json", { nullable: true })
+  campaignSteps!: { id: string; text: string; files: { fileId: string; name: string }[] }[]
+
   @CreateDateColumn()
   createdAt!: Date
 

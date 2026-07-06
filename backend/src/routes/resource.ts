@@ -10,7 +10,7 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
     const {
       team, title, negotiator, category, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact
+      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps
     } = req.body
 
     const isCampaign = type === "campaign"
@@ -27,7 +27,7 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
       userId: req.userId,
       team, title, negotiator, category, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact,
+      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
     })
     await resourceRepo.save(resource)
 
@@ -95,7 +95,7 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
     const {
       team, title, negotiator, category, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact
+      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps
     } = req.body
 
     const isCampaign = (type || resource.type) === "campaign"
@@ -110,7 +110,7 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
     resourceRepo.merge(resource, {
       team, title, negotiator, category, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact,
+      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
     })
     await resourceRepo.save(resource)
 
