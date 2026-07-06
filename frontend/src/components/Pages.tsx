@@ -191,7 +191,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   return (
     <section className="page-shell case-detail">
       <div className="case-hero">
-        <img src={r.image} alt="" />
+        {r.image ? <img src={r.image} alt="" /> : <div className="hero-img-placeholder" />}
         <div>
           <p className="eyebrow">教育项目</p>
           <h1>{r.title}</h1>

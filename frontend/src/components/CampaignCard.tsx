@@ -3,7 +3,14 @@ import type { Resource } from "../types"
 import { projectMetaByCategory } from "../data/projectMeta"
 
 export function caseSlug(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+  if (slug) return slug
+  let hash = 0
+  for (let i = 0; i < title.length; i++) {
+    hash = ((hash << 5) - hash) + title.charCodeAt(i)
+    hash |= 0
+  }
+  return `project-${Math.abs(hash).toString(36)}`
 }
 
 interface CampaignCardProps {
@@ -25,7 +32,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   if (variant === "project") {
     return (
       <Link className="campaign-card project-card" to={`/cases/${caseSlug(item.title)}`}>
-        <img src={item.image} alt="" />
+        {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
         <div>
           <p className="project-org">{project.organization}</p>
           <h3>{item.title}</h3>
@@ -47,7 +54,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
   return (
     <Link className="campaign-card" to={`/cases/${caseSlug(item.title)}`}>
-      <img src={item.image} alt="" />
+      {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
       <div>
         <p className="campaign-format">{item.format}</p>
         <h3>{item.title}</h3>
