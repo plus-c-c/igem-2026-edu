@@ -235,7 +235,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const r = item as Resource
   const category = categories.find((c) => c.id === r.category)
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
-  const steps = ["前期准备材料与安全边界", "现场讲解与互动体验", "满意度调查与成果测量", "复盘建议沉淀到资源库"]
+  const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
 
   const handleDelete = () => {
     if (!confirm("确定删除此演示案例？此操作不可撤销。")) return
@@ -244,16 +244,6 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
   return (
     <section className="page-shell case-detail" style={{ "--accent": category?.accent || "#138a68" } as React.CSSProperties}>
-      {canEdit && r.id && (
-        <div className="detail-actions" style={{ position: "absolute", top: "1.5rem", right: "1.5rem" }}>
-          <button className="edit-button" type="button" onClick={() => navigate(`/resource/${r.id}/edit`)}>
-            编辑
-          </button>
-          <button className="delete-button" type="button" onClick={handleDelete}>
-            <Trash2 size={16} /> 删除
-          </button>
-        </div>
-      )}
       <div className="case-hero">
         <img src={r.image} alt="" />
         <div>
@@ -270,12 +260,26 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的展示案例，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
           <h2>展示内容</h2>
           <div className="case-steps">
-            {steps.map((step, i) => (
-              <div key={step}>
+            {steps.length > 0 ? steps.map((step, i) => (
+              <div key={step.id}>
                 <strong>{String(i + 1).padStart(2, "0")}</strong>
-                <span>{step}</span>
+                <div className="step-content">
+                  <span>{step.text}</span>
+                  {step.files && step.files.length > 0 && (
+                    <div className="step-files">
+                      {step.files.map((f) => (
+                        <a key={f.fileId} className="step-file-link"
+                          href={fileApi.downloadUrl(f.fileId)}
+                          target="_blank" rel="noopener noreferrer"
+                        >{f.name}</a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
+            )) : (
+              <p className="empty-state">暂无展示内容</p>
+            )}
           </div>
         </article>
         <aside className="case-side">
@@ -288,6 +292,17 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           </div>
         </aside>
       </div>
+
+      {canEdit && r.id && (
+        <div className="detail-actions">
+          <button className="edit-button" type="button" onClick={() => navigate(`/resource/${r.id}/edit`)}>
+            编辑
+          </button>
+          <button className="delete-button" type="button" onClick={handleDelete}>
+            <Trash2 size={16} /> 删除
+          </button>
+        </div>
+      )}
     </section>
   )
 }
