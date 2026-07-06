@@ -38,13 +38,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [deleting, setDeleting] = useState<string | null>(null)
   const imageFileRef = useRef<File | null>(null)
   const [imageUploadPct, setImageUploadPct] = useState<number | undefined>(undefined)
+  const [coverFileId, setCoverFileId] = useState<string | null>(null)
+  const [coverDeleting, setCoverDeleting] = useState(false)
 
   useEffect(() => {
     if (!isEdit || !editResource) return
     fileApi.list(String(editResource.id)).then((files) => {
       const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
       for (const f of files) {
-        if (f.materialLabel === "cover") continue
+        if (f.materialLabel === "cover") {
+          setCoverFileId(f.id)
+          continue
+        }
         const key = f.materialLabel || "其他"
         if (!grouped[key]) grouped[key] = []
         grouped[key].push({ id: f.id, name: f.originalName, size: f.size })
@@ -60,6 +65,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setDurationMode(parseDuration(editResource.duration).mode)
       setResourceType((editResource.type as "normal" | "campaign") || "normal")
     }
+    setCoverFileId(null)
     setErrorMsg("")
   }, [editResource])
 
@@ -210,7 +216,21 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 {editResource?.image && (
                   <div className="image-preview">
                     <img src={editResource.image} alt="当前封面" />
-                    <span>当前封面</span>
+                    <span>
+                      当前封面
+                      {coverFileId && (
+                        <button type="button" className="file-delete-btn" disabled={coverDeleting}
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            setCoverDeleting(true)
+                            await fileApi.remove(String(editResource.id), coverFileId)
+                            setCoverFileId(null)
+                            setCoverDeleting(false)
+                            window.location.reload()
+                          }}
+                        >×</button>
+                      )}
+                    </span>
                   </div>
                 )}
                 {imageUploadPct !== undefined && (

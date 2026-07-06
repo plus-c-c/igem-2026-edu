@@ -22,8 +22,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 1024 * 1024 * 1024 } })
 const router = Router()
 
-router.get("/files/:fileId/download", async (req, res: Response) => {
+const downloadTimestamps = new Map<string, number>()
+
+router.get("/files/:fileId/download", authMiddleware, async (req, res: Response) => {
   try {
+    const userId = (req as AuthRequest).userId!
+    const now = Date.now()
+    const last = downloadTimestamps.get(userId)
+    if (last && now - last < 1000) {
+      return res.status(429).json({ message: "下载过于频繁，请稍后再试" })
+    }
+    downloadTimestamps.set(userId, now)
+
     const fileRepo = AppDataSource.getRepository(UploadedFile)
     const record = await fileRepo.findOneBy({ id: req.params.fileId as string })
     if (!record) return res.status(404).json({ message: "文件不存在" })
