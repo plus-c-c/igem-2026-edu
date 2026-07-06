@@ -3,7 +3,7 @@ import type { Resource, User } from "../types"
 import { fileApi } from "../api"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { CheckCircle2, LogIn, Plus, Trash2 } from "lucide-react"
+import { LogIn, Plus, Trash2 } from "lucide-react"
 import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
@@ -11,6 +11,72 @@ import { SectionTitle } from "./SectionTitle"
 interface PageProps {
   resources: Resource[]
   onSubmit: (categoryId?: string) => void
+}
+
+const themeOptions = ["合成生物学科普", "iGEM科普", "其他科普"]
+const materialOptions = ["PPT", "docx", "实践经验", "海报"]
+const audienceOptions = ["中小学", "高校", "公众", "iGEM团队"]
+
+interface ProjectFilterState {
+  theme: string
+  material: string
+  audience: string
+}
+
+const defaultProjectFilters: ProjectFilterState = {
+  theme: "",
+  material: "",
+  audience: "",
+}
+
+function optionMatches(item: Resource, option: string) {
+  if (!option) return true
+  const haystack = [
+    item.title,
+    item.subtitle,
+    item.desc,
+    item.format,
+    item.impact,
+    item.audience,
+    ...(item.materials || []),
+  ].filter(Boolean).join(" ").toLowerCase()
+  return haystack.includes(option.toLowerCase())
+}
+
+function filterProjects(items: Resource[], filters: ProjectFilterState) {
+  return items.filter((item) =>
+    optionMatches(item, filters.theme) &&
+    optionMatches(item, filters.material) &&
+    optionMatches(item, filters.audience)
+  )
+}
+
+function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
+  return (
+    <div className="project-filter-panel" aria-label="项目检索">
+      <label>
+        主题
+        <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
+          <option value="">全部主题</option>
+          {themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+      </label>
+      <label>
+        资源
+        <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
+          <option value="">全部资源</option>
+          {materialOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+      </label>
+      <label>
+        面向人群
+        <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
+          <option value="">全部人群</option>
+          {audienceOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+      </label>
+    </div>
+  )
 }
 
 export function HomePage({ resources }: { resources: Resource[] }) {
@@ -83,7 +149,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Category grid — light */}
       <section className="product-tile light">
         <div className="tile-content wide-container" style={{ maxWidth: 1440, width: "100%" }}>
-          <h2>五个栏目</h2>
+          <h2>四个栏目</h2>
           <p>每个栏目都是一个可持续沉淀的教育专题。</p>
           <div className="category-grid">
             {categories.map((cat) => (
@@ -105,6 +171,8 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
   const category = categories.find((c) => c.id === "cooperation") || categories[0]
   const list = resources.filter((r) => r.category === category.id)
   const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
+  const [filters, setFilters] = useState<ProjectFilterState>(defaultProjectFilters)
+  const filteredCases = filterProjects(cases, filters)
   const Icon = category.icon
   const sectionTitle = category.id === "applications" ? "科普项目" : category.id === "activities" ? "活动主题" : "教育项目"
 
@@ -132,13 +200,14 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
             </button>
           }
         />
-        {cases.length ? (
+        <ProjectFilters filters={filters} onChange={setFilters} />
+        {filteredCases.length ? (
           <div className="campaign-grid">
-            {cases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
+            {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
           </div>
         ) : (
           <div className="empty-state">
-            <p>暂时还没有发布的教育项目。登录后可以添加第一个项目招募。</p>
+            <p>{cases.length ? "没有符合当前检索条件的教育项目。" : "暂时还没有发布的教育项目。登录后可以添加第一个项目招募。"}</p>
           </div>
         )}
       </section>
@@ -164,7 +233,10 @@ export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
 export function CategoryPage({ category, resources, onSubmit }: { category: typeof categories[0]; resources: Resource[]; onSubmit: (categoryId?: string) => void }) {
   const list = resources.filter((r) => r.category === category.id)
   const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
+  const [filters, setFilters] = useState<ProjectFilterState>(defaultProjectFilters)
+  const filteredCases = filterProjects(cases, filters)
   const Icon = category.icon
+  const sectionTitle = category.id === "applications" ? "科普项目" : category.id === "activities" ? "活动主题" : "教育项目"
 
   return (
     <section className="page-shell">
@@ -182,7 +254,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 
       <section className="case-section">
         <SectionTitle
-          title="教育项目"
+          title={sectionTitle}
           action={
             <button className="add-project-button" type="button" onClick={() => onSubmit(category.id)}>
               <Plus size={19} />
@@ -190,22 +262,18 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
             </button>
           }
         />
-        <div className="campaign-grid">
-          {cases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
-        </div>
+        <ProjectFilters filters={filters} onChange={setFilters} />
+        {filteredCases.length ? (
+          <div className="campaign-grid">
+            {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>{cases.length ? "没有符合当前检索条件的项目。" : "暂时还没有发布的项目。"}</p>
+          </div>
+        )}
       </section>
 
-      <aside className="recommend-panel" style={{ marginTop: 48 }}>
-        <h2>推荐材料</h2>
-        <div className="material-list">
-          {category.recommended.map((item) => (
-            <span key={item}><CheckCircle2 size={15} /> {item}</span>
-          ))}
-        </div>
-        <button className="secondary-submit" type="button" onClick={() => onSubmit(category.id)}>
-          发布本栏目项目招募
-        </button>
-      </aside>
     </section>
   )
 }
