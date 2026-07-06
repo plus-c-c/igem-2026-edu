@@ -3,7 +3,8 @@
     "build": "tsc -p backend/tsconfig.json",
     "start": "node backend/dist/index.js",
     "dev": "tsc -p backend/tsconfig.json && node backend/dist/index.js",
-    "seed": "tsc -p backend/tsconfig.json && node backend/dist/seed.js"
+    "seed": "tsc -p backend/tsconfig.json && node backend/dist/seed.js",
+    "seed-data": "node backend/dist/seed-data.js"
   },
   "dependencies": {
     "@types/node": "^25.9.3",

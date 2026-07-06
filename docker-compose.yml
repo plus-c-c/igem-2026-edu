@@ -39,6 +39,23 @@ services:
       PORT: 3000
     volumes:
       - ./backend/uploads:/app/backend/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  seed-data:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: node backend/dist/seed-data.js
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_URL: http://backend:3000
 
   frontend:
     build:
