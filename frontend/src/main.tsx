@@ -6,7 +6,6 @@ import { resourceApi } from "./api"
 import { categories } from "./data/categories"
 import { starterResources } from "./data/resources"
 import { useLocalAuth } from "./hooks/useLocalAuth"
-import { useThemeMode } from "./hooks/useThemeMode"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, ResourceLibraryPage, LoginRequiredPage, CategoryPage, CaseDetailPage, ResourceDetailPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
@@ -15,7 +14,6 @@ import "./styles.css"
 
 function App() {
   const [user, setUser, authLoading] = useLocalAuth()
-  const [themeMode, setThemeMode] = useThemeMode()
   const [resources, setResources] = useState<Resource[]>(starterResources)
   const [loginOpen, setLoginOpen] = useState(false)
   const navigate = useNavigate()
@@ -71,7 +69,7 @@ function App() {
   if (authLoading) return null
 
   return (
-    <AppLayout user={user} setUser={setUser} openLogin={() => setLoginOpen(true)} themeMode={themeMode} setThemeMode={setThemeMode}>
+    <AppLayout user={user} setUser={setUser} openLogin={() => setLoginOpen(true)}>
       <Routes>
         <Route path="/" element={<HomePage resources={resources} onSubmit={requestSubmit} />} />
         <Route path="/resources" element={<ResourceLibraryPage resources={resources} onSubmit={requestSubmit} />} />

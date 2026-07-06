@@ -1,5 +1,3 @@
-import type { Resource } from "../types"
-
 export function SectionTitle({ title, desc, action }: { title: string; desc?: string; action?: React.ReactNode }) {
   return (
     <div className="section-title">

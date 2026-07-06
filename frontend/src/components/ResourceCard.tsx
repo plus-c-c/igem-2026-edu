@@ -8,7 +8,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
   const pct = Math.min(100, Math.round((resource.materials.length / materialTypes.length) * 100))
 
   return (
-    <Link to={`/resource/${resource.id}`} className="resource-card" style={{ "--accent": category?.accent || "#1a9b78" } as React.CSSProperties}>
+    <Link to={`/resource/${resource.id}`} className="resource-card">
       <div className="card-top">
         <span>{category?.name}</span>
         <small>{resource.updatedAt}</small>
