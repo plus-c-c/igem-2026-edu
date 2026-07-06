@@ -52,8 +52,7 @@ docker compose run --rm seed-data
 │   └── src/
 │       ├── entity/     # 数据模型
 │       ├── routes/     # API 路由
-│       ├── seed.ts     # 管理员账号种子
-│       └── seed-data.ts # 示例项目种子脚本
+│       └── seed.ts     # 管理员账号 + 示例项目种子
 ├── frontend/           # Vite + React 前端
 │   └── src/
 │       ├── components/ # 页面组件
