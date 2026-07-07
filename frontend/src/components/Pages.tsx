@@ -137,7 +137,6 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Campaign showcase — product-tile-dark */}
       <section className="showcase-band">
         <div className="tile-content">
-          <p className="eyebrow">教育项目</p>
           <h2 style={{ maxWidth: 500 }}>可直接对外展示的教育活动样板</h2>
           <p style={{ maxWidth: 500 }}>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
           <div className="showcase-strip">
@@ -211,6 +210,34 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
           </div>
         )}
       </section>
+    </section>
+  )
+}
+
+export function AboutPage() {
+  const category = categories.find((c) => c.id === "about") || categories[0]
+
+  return (
+    <section className="page-shell about-page">
+      <div className="category-hero about-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.28)), url(${category.image})` }}>
+        <div>
+          <p className="eyebrow">{category.short}</p>
+          <h1>{category.name}</h1>
+          <p>加入我们，一起点亮世界合成生物学科普的微光。</p>
+        </div>
+      </div>
+
+      <article className="about-story">
+        <p>
+          SynEdu Global 是由 ZJU-China、Westlake、XJTLU-China 三支 iGEM 队伍联合发起的合成生物学教育网站，旨在共享教育资源，启发教育灵感，联合国内外的 iGEMer 共同推动合成生物学教育的发展。
+        </p>
+        <p>
+          我们相信，iGEM 教育板块的核心，从来不是孤军奋战，而是平等、共享、交流与传递。SynEdu Global 从三支国内队伍的微小想法出发，希望可以联合各位优秀 iGEMer 的力量，共同搭建一个纯粹、开放、以启发为核心的科普交流平台。我们希望让每一支热爱科普的 iGEM 队伍都能在此获得支撑、迸发创意、传递科学的温度。
+        </p>
+        <p>
+          在此，我们诚挚邀请 iGEMer、教育公益组织、爱心企业等优秀团队，加入 SynEdu Global。希望你的建议和支持，项目和灵感，可以让 SynEdu 更好成长。期待与你一同上传成果、交流思想、投身教育、联结全球，以协同教育之力，点亮世界各地合成生物学科普的微光。
+        </p>
+      </article>
     </section>
   )
 }
@@ -323,10 +350,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       <div className="case-hero">
         {r.image ? <img src={r.image} alt="" /> : <div className="hero-img-placeholder" />}
         <div>
-          <p className="eyebrow">教育项目</p>
           <h1>{r.title}</h1>
           <p>{r.subtitle}</p>
-          {r.id && <span className="demo-badge">教育项目</span>}
         </div>
       </div>
 
