@@ -7,7 +7,7 @@ const CHECK_INTERVAL = 5 * 60 * 1000
 export function useLocalAuth(): [User | null, (user: User | null) => void, boolean] {
   const [user, setUserState] = useState<User | null>(null)
   const [loading, setLoading] = useState(!!localStorage.getItem("authToken"))
-  const checkRef = useRef<ReturnType<typeof setInterval>>()
+  const checkRef = useRef<number>(0)
 
   const clearAuth = () => {
     localStorage.removeItem("authToken")
@@ -46,8 +46,8 @@ export function useLocalAuth(): [User | null, (user: User | null) => void, boole
     if (!token) { setLoading(false); return }
     setLoading(true)
     verifyToken()
-    checkRef.current = setInterval(verifyToken, CHECK_INTERVAL)
-    return () => clearInterval(checkRef.current)
+    checkRef.current = window.setInterval(verifyToken, CHECK_INTERVAL)
+    return () => window.clearInterval(checkRef.current)
   }, [])
 
   const setUser = (value: User | null) => {

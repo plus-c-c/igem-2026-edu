@@ -1,13 +1,18 @@
 import { Router } from "express"
-import { authMiddleware } from "../middleware/auth"
-import { create, list, get, update, remove } from "../controllers/resourceController"
+import { authMiddleware, optionalAuth } from "../middleware/auth"
+import { create, list, get, update, remove, favorite, unfavorite, like, unlike } from "../controllers/resourceController"
 
 const router = Router()
 
 router.post("/", authMiddleware, create)
 router.get("/", list)
-router.get("/:id", get)
+router.get("/:id", optionalAuth, get)
 router.put("/:id", authMiddleware, update)
 router.delete("/:id", authMiddleware, remove)
+
+router.post("/:id/favorite", authMiddleware, favorite)
+router.delete("/:id/favorite", authMiddleware, unfavorite)
+router.post("/:id/like", authMiddleware, like)
+router.delete("/:id/like", authMiddleware, unlike)
 
 export default router

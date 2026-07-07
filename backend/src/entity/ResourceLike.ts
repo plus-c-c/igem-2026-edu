@@ -7,13 +7,13 @@ import {
 } from "typeorm"
 
 @Entity()
-@Unique(["userId", "commentId"])
-export class CommentLike {
+@Unique(["userId", "resourceId"])
+export class ResourceLike {
   @PrimaryGeneratedColumn("uuid")
   id!: string
 
   @Column()
-  commentId!: string
+  resourceId!: string
 
   @Column()
   userId!: string

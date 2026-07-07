@@ -2,9 +2,10 @@ import { useEffect, useState } from "react"
 import type { Resource, User } from "../types"
 import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
+import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { Download, LogIn, Plus, Trash2 } from "lucide-react"
+import { Download, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
 import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
@@ -324,6 +325,66 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
   const { materialFiles } = useResourceFiles(r.id)
+  const resId = r.id ? String(r.id) : ""
+
+  const [likedByMe, setLikedByMe] = useState(() => {
+    if (!resId || !user) return false
+    return localStorage.getItem(`liked_${resId}`) === "true"
+  })
+  const [favoritedByMe, setFavoritedByMe] = useState(() => {
+    if (!resId || !user) return false
+    return localStorage.getItem(`favorited_${resId}`) === "true"
+  })
+  const [likesCount, setLikesCount] = useState(() => {
+    const n = parseInt(localStorage.getItem(`likesCount_${resId}`) || "0")
+    return isNaN(n) ? 0 : n
+  })
+  const [favoritesCount, setFavoritesCount] = useState(() => {
+    const n = parseInt(localStorage.getItem(`favCount_${resId}`) || "0")
+    return isNaN(n) ? 0 : n
+  })
+
+  const syncLocal = (liked: boolean, favorited: boolean, lCount: number, fCount: number) => {
+    if (!resId || !user) return
+    localStorage.setItem(`liked_${resId}`, String(liked))
+    localStorage.setItem(`favorited_${resId}`, String(favorited))
+    localStorage.setItem(`likesCount_${resId}`, String(lCount))
+    localStorage.setItem(`favCount_${resId}`, String(fCount))
+  }
+
+  useEffect(() => {
+    if (!resId) return
+    resourceService.get(resId).then((data) => {
+      setLikedByMe(data.likedByMe)
+      setFavoritedByMe(data.favoritedByMe)
+      syncLocal(data.likedByMe, data.favoritedByMe, likesCount, favoritesCount)
+    }).catch(() => {})
+  }, [resId, user?.id])
+
+  const handleLike = async () => {
+    if (!user || !resId) return
+    const next = !likedByMe
+    try {
+      const res = await resourceService.toggleLike(resId, likedByMe)
+      setLikedByMe(next)
+      const count = res.likesCount !== undefined ? res.likesCount : likesCount
+      setLikesCount(count)
+      syncLocal(next, favoritedByMe, count, favoritesCount)
+    } catch {}
+  }
+
+  const handleFavorite = async () => {
+    if (!user || !resId) return
+    const next = !favoritedByMe
+    try {
+      const res = await resourceService.toggleFavorite(resId, favoritedByMe)
+      setFavoritedByMe(next)
+      const count = res.favoritesCount !== undefined ? res.favoritesCount : favoritesCount
+      setFavoritesCount(count)
+      syncLocal(likedByMe, next, likesCount, count)
+    } catch {}
+  }
+
   const handleDelete = () => {
     if (!confirm("确定删除此教育项目？此操作不可撤销。")) return
     onDelete(String(r.id))
@@ -373,7 +434,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           <p><strong>活动形式</strong>{r.format}</p>
           <p><strong>展示价值</strong>{r.impact}</p>
           <div className="tags">
-            {r.materials.map((m) => (
+            {(r.materials || []).map((m) => (
               <div key={m} className="tag-group">
                 <span>{m}</span>
                 {materialFiles()[m]?.map((f) => (
@@ -398,6 +459,21 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           </button>
         </div>
       )}
+
+      <div className="detail-footer-bar">
+        <div className="detail-footer-actions">
+          <button className={`detail-action-btn ${likedByMe ? "active" : ""}`} type="button" onClick={handleLike} disabled={!user}>
+            <ThumbsUp size={18} />
+            <span>{likedByMe ? "已赞" : "点赞"}</span>
+            {likesCount > 0 && <span className="count-badge">{likesCount}</span>}
+          </button>
+          <button className={`detail-action-btn ${favoritedByMe ? "active" : ""}`} type="button" onClick={handleFavorite} disabled={!user}>
+            <Star size={18} className={favoritedByMe ? "star-filled" : ""} />
+            <span>{favoritedByMe ? "已收藏" : "收藏"}</span>
+            {favoritesCount > 0 && <span className="count-badge">{favoritesCount}</span>}
+          </button>
+        </div>
+      </div>
 
       {r.id && <CommentSection resourceId={r.id} user={user} />}
     </section>

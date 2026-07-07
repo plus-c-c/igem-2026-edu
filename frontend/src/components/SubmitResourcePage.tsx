@@ -5,8 +5,80 @@ import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
-import { MaterialChecklist } from "./MaterialChecklist"
 import { caseSlug } from "./CampaignCard"
+
+const materialTags = ["PPT", "测量表", "合作书", "海报", "传单", "阅读材料", "其他材料清单", "易拉宝"]
+
+const worldCountries = [
+  { name: "中国" }, { name: "美国" }, { name: "英国" }, { name: "德国" }, { name: "法国" },
+  { name: "日本" }, { name: "韩国" }, { name: "新加坡" }, { name: "澳大利亚" }, { name: "加拿大" },
+  { name: "荷兰" }, { name: "瑞士" }, { name: "瑞典" }, { name: "丹麦" }, { name: "意大利" },
+  { name: "西班牙" }, { name: "马来西亚" }, { name: "泰国" }, { name: "印度" }, { name: "巴西" },
+]
+
+const worldRegions: Record<string, { name: string }[]> = {
+  "中国": [
+    { name: "北京" }, { name: "上海" }, { name: "广东" }, { name: "浙江" }, { name: "江苏" },
+    { name: "四川" }, { name: "湖北" }, { name: "陕西" }, { name: "重庆" }, { name: "天津" },
+    { name: "山东" }, { name: "福建" }, { name: "湖南" }, { name: "河南" }, { name: "河北" },
+  ],
+  "美国": [{ name: "California" }, { name: "New York" }, { name: "Texas" }, { name: "Massachusetts" }, { name: "Illinois" }],
+  "英国": [{ name: "England" }, { name: "Scotland" }, { name: "Wales" }],
+  "德国": [{ name: "Bavaria" }, { name: "Berlin" }, { name: "Hesse" }, { name: "North Rhine-Westphalia" }],
+  "法国": [{ name: "Île-de-France" }, { name: "Auvergne-Rhône-Alpes" }, { name: "Provence-Alpes-Côte d'Azur" }],
+  "日本": [{ name: "Tokyo" }, { name: "Osaka" }, { name: "Kyoto" }, { name: "Kanagawa" }],
+  "韩国": [{ name: "Seoul" }, { name: "Busan" }, { name: "Incheon" }],
+  "新加坡": [{ name: "Singapore" }],
+  "澳大利亚": [{ name: "New South Wales" }, { name: "Victoria" }, { name: "Queensland" }],
+  "加拿大": [{ name: "Ontario" }, { name: "British Columbia" }, { name: "Quebec" }],
+}
+
+const worldCities: Record<string, string[]> = {
+  "中国|北京": ["北京"],
+  "中国|上海": ["上海"],
+  "中国|广东": ["广州", "深圳", "东莞"],
+  "中国|浙江": ["杭州", "宁波", "温州"],
+  "中国|江苏": ["南京", "苏州", "无锡"],
+  "中国|四川": ["成都"],
+  "中国|湖北": ["武汉"],
+  "中国|陕西": ["西安"],
+  "中国|重庆": ["重庆"],
+  "中国|天津": ["天津"],
+  "中国|山东": ["济南", "青岛"],
+  "中国|福建": ["福州", "厦门"],
+  "中国|湖南": ["长沙"],
+  "中国|河南": ["郑州"],
+  "中国|河北": ["石家庄"],
+  "美国|California": ["Los Angeles", "San Francisco", "San Diego"],
+  "美国|New York": ["New York City"],
+  "美国|Texas": ["Houston", "Dallas", "Austin"],
+  "美国|Massachusetts": ["Boston", "Cambridge"],
+  "美国|Illinois": ["Chicago"],
+  "英国|England": ["London", "Manchester", "Cambridge", "Oxford"],
+  "英国|Scotland": ["Edinburgh", "Glasgow"],
+  "英国|Wales": ["Cardiff"],
+  "德国|Bavaria": ["Munich"],
+  "德国|Berlin": ["Berlin"],
+  "德国|Hesse": ["Frankfurt"],
+  "德国|North Rhine-Westphalia": ["Cologne"],
+  "法国|Île-de-France": ["Paris"],
+  "法国|Auvergne-Rhône-Alpes": ["Lyon"],
+  "法国|Provence-Alpes-Côte d'Azur": ["Marseille"],
+  "日本|Tokyo": ["Tokyo"],
+  "日本|Osaka": ["Osaka"],
+  "日本|Kyoto": ["Kyoto"],
+  "日本|Kanagawa": ["Yokohama"],
+  "韩国|Seoul": ["Seoul"],
+  "韩国|Busan": ["Busan"],
+  "韩国|Incheon": ["Incheon"],
+  "新加坡|Singapore": ["Singapore"],
+  "澳大利亚|New South Wales": ["Sydney"],
+  "澳大利亚|Victoria": ["Melbourne"],
+  "澳大利亚|Queensland": ["Brisbane"],
+  "加拿大|Ontario": ["Toronto", "Ottawa"],
+  "加拿大|British Columbia": ["Vancouver"],
+  "加拿大|Quebec": ["Montreal"],
+}
 
 interface SubmitResourcePageProps {
   user: User
@@ -19,13 +91,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const location = useLocation()
   const params = new URLSearchParams(location.search)
   const isEdit = !!editResource
-  const [selected, setSelected] = useState<string[]>(editResource?.materials || [])
-  const fileInputs = useRef<Record<string, File | null>>({})
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
-  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({})
-  const [existingFiles, setExistingFiles] = useState<Record<string, { id: string; name: string; size: number }[]>>({})
-  const [deleting, setDeleting] = useState<string | null>(null)
   const imageFileRef = useRef<File | null>(null)
   const [imageUploadPct, setImageUploadPct] = useState<number | undefined>(undefined)
   const [coverFileId, setCoverFileId] = useState<string | null>(null)
@@ -41,10 +108,26 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [existingStepFiles, setExistingStepFiles] = useState<Record<string, { id: string; name: string }[]>>({})
   const [draftId, setDraftId] = useState<string | null>(null)
 
+  // 活动信息
+  const [canParticipate, setCanParticipate] = useState(editResource?.canParticipate || "yes")
+  const [locationTypes, setLocationTypes] = useState<string[]>(editResource?.locationType ? editResource.locationType.split(",") : [])
+  const [locationCountry, setLocationCountry] = useState(editResource?.locationCountry || "")
+  const [locationProvince, setLocationProvince] = useState(editResource?.locationProvince || "")
+  const [locationCity, setLocationCity] = useState(editResource?.locationCity || "")
+  const [eventDate, setEventDate] = useState(editResource?.eventDate || "")
+  const [timeLimitType, setTimeLimitType] = useState(editResource?.timeLimitType || "")
+  // 现场照片
+  const [sitePhotosFormat, setSitePhotosFormat] = useState(editResource?.sitePhotosFormat || "")
+  const [sitePhotoFiles, setSitePhotoFiles] = useState<Record<string, { fileId: string; url: string }>>({})
+  const [sitePhotoUploading, setSitePhotoUploading] = useState<string | null>(null)
+  // 项目Tips
+  const [tips, setTips] = useState(editResource?.tips || "")
+  // 项目介绍书
+  const [introductionContent, setIntroductionContent] = useState(editResource?.introductionContent || "")
+
   useEffect(() => {
     if (!isEdit || !editResource) return
     fileService.list(String(editResource.id)).then((files) => {
-      const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
       const stepFiles: Record<string, { id: string; name: string }[]> = {}
       for (const f of files) {
         if (f.materialLabel === "cover") {
@@ -57,11 +140,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           stepFiles[stepId].push({ id: f.id, name: f.originalName })
           continue
         }
-        const key = f.materialLabel || "其他"
-        if (!grouped[key]) grouped[key] = []
-        grouped[key].push({ id: f.id, name: f.originalName, size: f.size })
       }
-      setExistingFiles(grouped)
       setExistingStepFiles(stepFiles)
     }).catch(() => {})
   }, [isEdit, editResource])
@@ -71,7 +150,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
   useEffect(() => {
     if (editResource) {
-      setSelected(editResource.materials || [])
       setCampaignSteps(editResource.campaignSteps || [])
     }
     setCoverFileId(null)
@@ -81,17 +159,27 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     coverUploadedUrl.current = undefined
     setDraftId(null)
     setSelectedCategory(defaultCategory)
+    setCanParticipate(editResource?.canParticipate || "yes")
+    setLocationTypes(editResource?.locationType ? editResource.locationType.split(",") : [])
+    setLocationCountry(editResource?.locationCountry || "")
+    setLocationProvince(editResource?.locationProvince || "")
+    setLocationCity(editResource?.locationCity || "")
+    setEventDate(editResource?.eventDate || "")
+    setTimeLimitType(editResource?.timeLimitType || "")
+    setSitePhotosFormat(editResource?.sitePhotosFormat || "")
+    setSitePhotoFiles({})
+    setTips(editResource?.tips || "")
+    setIntroductionContent(editResource?.introductionContent || "")
   }, [editResource])
-
-  const toggleMaterial = (material: string) => {
-    setSelected((prev) =>
-      prev.includes(material) ? prev.filter((m) => m !== material) : [...prev, material]
-    )
-  }
 
   const addStep = () => {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
     setCampaignSteps((prev) => [...prev, { id, text: "", files: [] }])
+  }
+
+  const addStepWithTag = (tag: string) => {
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
+    setCampaignSteps((prev) => [...prev, { id, text: tag, files: [] }])
   }
 
   const removeStep = (stepId: string) => {
@@ -147,30 +235,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     return res.resource.id
   }
 
-  const handleMaterialFileChange = async (material: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    fileInputs.current[material] = file
-    setUploadProgress((p) => ({ ...p, [material]: 0 }))
-    try {
-      const rid = await ensureRid()
-      const upRes = await fileService.uploadWithProgress(
-        rid, file, material,
-        (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
-      )
-      setExistingFiles((prev) => {
-        const next = { ...prev }
-        if (!next[material]) next[material] = []
-        next[material] = [...next[material], { id: upRes.file.id, name: upRes.file.originalName, size: upRes.file.size }]
-        return next
-      })
-      fileInputs.current[material] = null
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : `${material} 文件上传失败`
-      setErrorMsg(msg)
-    }
-  }
-
   const handleStepFileChange = async (stepId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -220,25 +284,53 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     return `/api/resources/files/${upRes.file.id}/download`
   }
 
+  const handleSitePhotoUpload = async (slotIndex: number, file: File) => {
+    const slotKey = String(slotIndex)
+    setSitePhotoUploading(slotKey)
+    try {
+      const rid = await ensureRid()
+      const objectUrl = URL.createObjectURL(file)
+      setSitePhotoFiles((prev) => ({ ...prev, [slotKey]: { fileId: "", url: objectUrl } }))
+      const upRes = await fileService.uploadWithProgress(rid, file, "site-photo")
+      const url = `/api/resources/files/${upRes.file.id}/download`
+      setSitePhotoFiles((prev) => ({ ...prev, [slotKey]: { fileId: upRes.file.id, url } }))
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "现场照片上传失败"
+      setErrorMsg(msg)
+    }
+    setSitePhotoUploading(null)
+  }
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSubmitting(true)
     setErrorMsg("")
     try {
+      const emptyStep = campaignSteps.find((s) => !s.text.trim())
+      if (emptyStep) {
+        throw new Error("请填写所有下载材料的材料类型")
+      }
       const data = new FormData(event.currentTarget)
 
       const payload: Record<string, any> = {
         type: "campaign",
         category: data.get("category") as string,
         title: data.get("title") as string,
-        materials: selected,
         team: data.get("team") as string || user.teamName,
-        subtitle: data.get("subtitle") as string,
         image: editResource?.image || "",
-        format: data.get("format") as string,
-        impact: data.get("impact") as string,
         desc: data.get("desc") as string,
         campaignSteps,
+        canParticipate,
+        locationType: locationTypes.join(","),
+        locationCountry,
+        locationProvince,
+        locationCity,
+        eventDate,
+        timeLimitType,
+        sitePhotosFormat,
+        sitePhotoIds: Object.values(sitePhotoFiles).map((f) => f.fileId).filter(Boolean).join(","),
+        tips,
+        introductionContent,
       }
 
       let rid: string
@@ -250,17 +342,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         const res = await resourceService.create(payload)
         if (!res.resource) throw new Error(res.message || "发布失败")
         rid = res.resource.id
-      }
-
-      for (const material of selected) {
-        const file = fileInputs.current[material]
-        if (file) {
-          await fileService.uploadWithProgress(
-            rid, file, material,
-            (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
-          )
-          fileInputs.current[material] = null
-        }
       }
 
       for (const step of campaignSteps) {
@@ -318,7 +399,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
       <form className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>机构名称<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
+          <label>团队名称<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
           <label>项目名称<input name="title" required placeholder='例如："合成生物学是什么？"' defaultValue={editResource?.title} /></label>
           <label>分类
             <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
@@ -327,23 +408,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </select>
           </label>
 
-          <label>副标题<input name="subtitle" placeholder="例如：从 DNA 到细胞工厂" defaultValue={editResource?.subtitle} /></label>
-          <label>活动形式<input name="format" required placeholder="例如：90 分钟入门课" defaultValue={editResource?.format} /></label>
-          <label>展示价值<input name="impact" required placeholder="例如：适合 40-80 人课堂" defaultValue={editResource?.impact} /></label>
-
-          <div className="image-upload-block">
-            <label className="image-upload-tile">
-              <Upload size={20} />
-              上传封面图片
-              <input type="file" accept="image/*" onChange={handleCoverFileChange} />
-              {imageFileRef.current && !coverUploadedUrl.current && <span>{imageFileRef.current.name}</span>}
-            </label>
-            {coverPreviewUrl && (
-              <div className="image-preview">
-                <img src={coverPreviewUrl} alt="封面预览" />
-                <span>
-                  当前封面
-                  <button type="button" className="file-delete-btn" disabled={coverDeleting}
+          <label className="wide" style={{ display: "grid", gap: "var(--label-spacing)" }}>
+            <span>封面图片</span>
+            <div className="site-photo-slot">
+              {coverPreviewUrl ? (
+                <div className="site-photo-preview">
+                  <img src={coverPreviewUrl} alt="封面预览" />
+                  <button type="button" className="site-photo-remove" disabled={coverDeleting}
                     onClick={async (e) => {
                       e.stopPropagation()
                       setCoverDeleting(true)
@@ -361,39 +432,130 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       coverUploadedUrl.current = undefined
                       setCoverFileId(null)
                       imageFileRef.current = null
-                    }}
-                  >×</button>
-                </span>
-              </div>
-            )}
+                    }}>
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <label className="site-photo-upload">
+                  <Upload size={20} />
+                  <span>上传封面图片</span>
+                  <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+                </label>
+              )}
+            </div>
             {imageUploadPct !== undefined && (
               <div className="upload-progress-bar">
                 <div className="upload-progress-fill" style={{ width: `${imageUploadPct}%` }} />
               </div>
             )}
-          </div>
+          </label>
 
           <label className="wide">简介<textarea name="desc" required placeholder="简要说明活动内容、形式、教育目标和合作要求" defaultValue={editResource?.desc} /></label>
         </div>
 
+        <section className="tips-section">
+          <h2>项目Tips</h2>
+          <textarea className="intro-textarea" placeholder="输入项目提示/备注" value={tips}
+            onChange={(e) => setTips(e.target.value)} rows={4} />
+        </section>
+
+        <section className="event-info-section">
+          <h2>活动信息</h2>
+          <div className="event-info-grid">
+            <label className="choice-group">是否可参与
+              <div>
+                {["可参与", "不可参与"].map((opt) => (
+                  <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
+                    <input type="radio" name="canParticipate" value={opt === "可参与" ? "yes" : "no"}
+                      checked={canParticipate === (opt === "可参与" ? "yes" : "no")}
+                      onChange={(e) => setCanParticipate(e.target.value)} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </label>
+
+            <label className="choice-group">地点
+              <div>
+                {["线上", "线下"].map((opt) => (
+                  <label key={opt} className={locationTypes.includes(opt) ? "active" : ""}>
+                    <input type="checkbox" value={opt}
+                      checked={locationTypes.includes(opt)}
+                      onChange={(e) => {
+                        setLocationTypes((prev) =>
+                          e.target.checked ? [...prev, opt] : prev.filter((v) => v !== opt)
+                        )
+                      }} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+              {locationTypes.includes("线下") && (
+                <div className="location-cascade">
+                  <select value={locationCountry} onChange={(e) => { setLocationCountry(e.target.value); setLocationProvince(""); setLocationCity("") }}>
+                    <option value="">选择国家</option>
+                    {worldCountries.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                  </select>
+                  {locationCountry && worldRegions[locationCountry] && (
+                    <select value={locationProvince} onChange={(e) => { setLocationProvince(e.target.value); setLocationCity("") }}>
+                      <option value="">选择省/州</option>
+                      {worldRegions[locationCountry].map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
+                    </select>
+                  )}
+                  {locationProvince && worldCities[`${locationCountry}|${locationProvince}`] && (
+                    <select value={locationCity} onChange={(e) => setLocationCity(e.target.value)}>
+                      <option value="">选择城市</option>
+                      {worldCities[`${locationCountry}|${locationProvince}`].map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  )}
+                </div>
+              )}
+            </label>
+
+            <label>时间
+              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            </label>
+
+            <label className="choice-group">时限
+              <div>
+                {["有时限", "无时限"].map((opt) => (
+                  <label key={opt} className={timeLimitType === opt ? "active" : ""}>
+                    <input type="radio" name="timeLimitType" value={opt}
+                      checked={timeLimitType === opt}
+                      onChange={(e) => setTimeLimitType(e.target.value)} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </label>
+          </div>
+        </section>
+
         <section className="step-editor">
           <div className="step-editor-header">
-            <h2>展示内容</h2>
-            <button type="button" className="pill-btn primary" style={{ fontSize: 14, padding: "8px 16px" }} onClick={addStep}>
-              <Plus size={16} /> 添加板块
+            <h2>下载材料</h2>
+          </div>
+          <div className="step-button-grid">
+            {materialTags.map((t) => (
+              <button key={t} type="button" className="pill-btn primary" onClick={() => addStepWithTag(t)}>
+                {t}
+              </button>
+            ))}
+            <button type="button" className="pill-btn primary" onClick={addStep}>
+              <Plus size={16} /> 其他材料
             </button>
           </div>
           <div className="step-grid">
             {campaignSteps.map((step, i) => (
               <div key={step.id} className="step-block">
                 <div className="step-block-header">
-                  <strong>{String(i + 1).padStart(2, "0")}</strong>
-                  <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title="删除板块">
+                  <input className="step-text-input" placeholder="材料类型" value={step.text}
+                    onChange={(e) => updateStepText(step.id, e.target.value)} />
+                  <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title="删除">
                     <Trash2 size={14} />
                   </button>
                 </div>
-                <input className="step-text-input" placeholder="输入板块描述" value={step.text}
-                  onChange={(e) => updateStepText(step.id, e.target.value)} />
                 <label className="upload-tile step-upload-tile">
                   <Upload size={16} />
                   上传文件
@@ -425,49 +587,64 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </div>
         </section>
 
-        <MaterialChecklist selected={selected} onToggle={toggleMaterial} />
+        <section className="site-photos-section">
+          <h2>现场照片</h2>
+          <div className="choice-group">
+            <span className="field-label">照片格式</span>
+            <div>
+              {["单图", "双图", "四宫格"].map((opt) => (
+                <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
+                  <input type="radio" name="sitePhotosFormat" value={opt}
+                    checked={sitePhotosFormat === opt}
+                    onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}) }} />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+          {sitePhotosFormat && (
+            <div className={`site-photos-grid format-${sitePhotosFormat === "单图" ? "single" : sitePhotosFormat === "双图" ? "double" : "quad"}`}>
+              {(() => {
+                const slots = sitePhotosFormat === "单图" ? ["照片"] : sitePhotosFormat === "双图" ? ["左", "右"] : ["左上", "右上", "左下", "右下"]
+                return slots.map((label, i) => {
+                  const slotKey = String(i)
+                  const file = sitePhotoFiles[slotKey]
+                  return (
+                    <div key={slotKey} className="site-photo-slot">
+                      {file ? (
+                        <div className="site-photo-preview">
+                          <img src={file.url} alt={label} />
+                          <button type="button" className="site-photo-remove"
+                            onClick={() => {
+                              setSitePhotoFiles((prev) => { const n = { ...prev }; delete n[slotKey]; return n })
+                            }}>×</button>
+                        </div>
+                      ) : (
+                        <label className="site-photo-upload">
+                          <Upload size={20} />
+                          <span>{label}</span>
+                          <input type="file" accept="image/*" disabled={sitePhotoUploading !== null}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSitePhotoUpload(i, f); e.target.value = "" }} />
+                        </label>
+                      )}
+                      {sitePhotoUploading === slotKey && (
+                        <div className="upload-progress-bar">
+                          <div className="upload-progress-fill" style={{ width: "60%" }} />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+              })()}
+            </div>
+          )}
+        </section>
 
-        <div className="upload-grid">
-          {selected.map((material) => {
-            const progress = uploadProgress[material]
-            const existing = existingFiles[material]
-            return (
-              <label key={material} className="upload-tile">
-                <Upload size={18} />
-                {material} 上传
-                <input type="file" onChange={(e) => handleMaterialFileChange(material, e)} />
-                {fileInputs.current[material] && !existing?.length && <span>{fileInputs.current[material]!.name}</span>}
-                {existing?.map((f) => (
-                  <span key={f.id} className="existing-file">
-                    {f.name}
-                    {isEdit && (
-                      <button type="button" className="file-delete-btn" disabled={deleting === f.id}
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          if (!editResource) return
-                          setDeleting(f.id)
-                          await fileService.remove(String(editResource.id), f.id)
-                          setExistingFiles((prev) => {
-                            const next = { ...prev }
-                            next[material] = (next[material] || []).filter((x) => x.id !== f.id)
-                            if (!next[material]?.length) delete next[material]
-                            return next
-                          })
-                          setDeleting(null)
-                        }}
-                      >×</button>
-                    )}
-                  </span>
-                ))}
-                {progress !== undefined && (
-                  <div className="upload-progress-bar">
-                    <div className="upload-progress-fill" style={{ width: `${progress}%` }} />
-                  </div>
-                )}
-              </label>
-            )
-          })}
-        </div>
+        <section className="introduction-section">
+          <h2>项目介绍书</h2>
+          <textarea className="intro-textarea" placeholder="输入项目介绍书内容" value={introductionContent}
+            onChange={(e) => setIntroductionContent(e.target.value)} rows={8} />
+        </section>
 
         {errorMsg && (
           <div className="modal-backdrop" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>
@@ -481,7 +658,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${caseSlug(editResource!.title)}` : "/"}>
             {isEdit ? "返回" : "取消"}
           </Link>
-          <button className="pill-btn primary" type="submit" disabled={!selected.length || submitting}>
+          <button className="pill-btn primary" type="submit" disabled={submitting}>
             {submitting ? <><Loader2 size={16} className="spin" /> 保存中...</> : isEdit ? "保存修改" : "发布教育项目"}
           </button>
         </div>

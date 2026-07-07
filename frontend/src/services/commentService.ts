@@ -15,7 +15,9 @@ export interface CommentData {
 
 export const commentService = {
   list: async (resourceId: string): Promise<CommentData[]> => {
-    const res = await fetch(`${API_BASE}/resources/${resourceId}/comments`)
+    const res = await fetch(`${API_BASE}/resources/${resourceId}/comments`, {
+      headers: authHeaders(),
+    })
     const data = await res.json()
     return data.comments || []
   },
@@ -40,6 +42,17 @@ export const commentService = {
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || "回复失败")
     return data.comment
+  },
+
+  remove: async (resourceId: string, commentId: string): Promise<void> => {
+    const res = await authFetch(`${API_BASE}/resources/${resourceId}/comments/${commentId}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    })
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.message || "删除失败")
+    }
   },
 
   like: async (resourceId: string, commentId: string): Promise<{ likesCount: number }> => {

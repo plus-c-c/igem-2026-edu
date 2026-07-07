@@ -63,7 +63,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
         <p>{item.subtitle}</p>
         <strong>{item.impact}</strong>
         <div className="tags">
-          {item.materials.map((m) => <span key={m}>{m}</span>)}
+          {(item.materials || []).map((m) => <span key={m}>{m}</span>)}
         </div>
         <span className="detail-link">{t.caseDetail.detailLink}</span>
       </div>

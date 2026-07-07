@@ -1,6 +1,12 @@
 import type { Resource } from "../types"
 import { API_BASE, authHeaders, authFetch } from "./client"
 
+export interface ResourceDetailResult {
+  resource: Resource
+  likedByMe: boolean
+  favoritedByMe: boolean
+}
+
 export const resourceService = {
   list: async (filters: { category?: string; material?: string; team?: string; audience?: string } = {}): Promise<Resource[]> => {
     const params = new URLSearchParams()
@@ -28,8 +34,10 @@ export const resourceService = {
     return res.json()
   },
 
-  get: async (id: string) => {
-    const res = await fetch(`${API_BASE}/resources/${id}`)
+  get: async (id: string): Promise<ResourceDetailResult> => {
+    const res = await authFetch(`${API_BASE}/resources/${id}`, {
+      headers: authHeaders(),
+    })
     return res.json()
   },
 
@@ -45,6 +53,36 @@ export const resourceService = {
   remove: async (id: string) => {
     const res = await authFetch(`${API_BASE}/resources/${id}`, {
       method: "DELETE",
+      headers: authHeaders(),
+    })
+    return res.json()
+  },
+
+  toggleFavorite: async (id: string, currentlyFavorited: boolean) => {
+    if (currentlyFavorited) {
+      const res = await authFetch(`${API_BASE}/resources/${id}/favorite`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      })
+      return res.json()
+    }
+    const res = await authFetch(`${API_BASE}/resources/${id}/favorite`, {
+      method: "POST",
+      headers: authHeaders(),
+    })
+    return res.json()
+  },
+
+  toggleLike: async (id: string, currentlyLiked: boolean) => {
+    if (currentlyLiked) {
+      const res = await authFetch(`${API_BASE}/resources/${id}/like`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      })
+      return res.json()
+    }
+    const res = await authFetch(`${API_BASE}/resources/${id}/like`, {
+      method: "POST",
       headers: authHeaders(),
     })
     return res.json()
