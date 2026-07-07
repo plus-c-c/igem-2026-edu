@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: igem_education
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./backend/database/pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -30,15 +30,15 @@ services:
       DB_DATABASE: igem_education
       JWT_SECRET: change-this-in-production
       JWT_EXPIRES_IN: 7d
-      SMTP_HOST: smtp.qq.com
+      SMTP_HOST: smtp.yeah.net
       SMTP_PORT: "465"
       SMTP_SECURE: "true"
-      SMTP_USER: ""
-      SMTP_PASS: ""
-      SMTP_FROM: ""
+      SMTP_USER: syneduglobal@yeah.net
+      SMTP_PASS: EHrQhwc7qvrv6Cz4
+      SMTP_FROM: syneduglobal@yeah.net
       PORT: 3000
     volumes:
-      - ./backend/uploads:/app/backend/uploads
+      - ./backend/database/uploads:/app/backend/uploads
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
       interval: 5s
@@ -70,6 +70,3 @@ services:
       - "80:80"
     depends_on:
       - backend
-
-volumes:
-  pgdata:

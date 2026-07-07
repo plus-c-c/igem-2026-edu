@@ -36,6 +36,43 @@ export class Resource {
   @Column({ default: "yes" })
   acceptsOthers!: string
 
+  // 活动信息
+  @Column({ nullable: true })
+  canParticipate!: string
+
+  @Column({ nullable: true })
+  locationType!: string
+
+  @Column({ nullable: true })
+  locationCountry!: string
+
+  @Column({ nullable: true })
+  locationProvince!: string
+
+  @Column({ nullable: true })
+  locationCity!: string
+
+  @Column({ nullable: true })
+  eventDate!: string
+
+  @Column({ nullable: true })
+  timeLimitType!: string
+
+  // 项目Tips
+  @Column("text", { nullable: true })
+  tips!: string
+
+  // 现场照片
+  @Column({ nullable: true })
+  sitePhotosFormat!: string
+
+  @Column({ nullable: true })
+  sitePhotoIds!: string
+
+  // 项目介绍书
+  @Column("text", { nullable: true })
+  introductionContent!: string
+
   @Column({ nullable: true })
   delivery!: string
 

@@ -45,6 +45,22 @@ export interface Resource {
   format?: string
   impact?: string
   campaignSteps?: { id: string; text: string; files: { fileId: string; name: string }[] }[]
+  // 活动信息
+  canParticipate?: string
+  locationType?: string
+  locationCountry?: string
+  locationProvince?: string
+  locationCity?: string
+  eventDate?: string
+  timeLimitType?: string
+  activityType?: string
+  // 项目Tips
+  tips?: string
+  // 现场照片
+  sitePhotosFormat?: string
+  sitePhotoIds?: string
+  // 项目介绍书
+  introductionContent?: string
   createdAt?: string
   updatedAt?: string
 }

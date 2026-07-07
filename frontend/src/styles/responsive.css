@@ -62,7 +62,7 @@
   .filter-bar,
   .project-filter-panel,
   .material-checklist > div,
-  .choice-group > div,
+  .choice-group > div { flex-direction: column; }
   .project-details { grid-template-columns: 1fr; }
   .stats-panel { grid-template-columns: 1fr 1fr; }
   .page-heading { flex-direction: column; align-items: flex-start; }

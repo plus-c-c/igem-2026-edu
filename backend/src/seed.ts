@@ -9,6 +9,8 @@ import { Resource } from "./entity/Resource"
 import { UploadedFile } from "./entity/File"
 import { Comment } from "./entity/Comment"
 import { CommentLike } from "./entity/CommentLike"
+import { Favorite } from "./entity/Favorite"
+import { ResourceLike } from "./entity/ResourceLike"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
 
@@ -536,7 +538,7 @@ async function deleteAllResources(token: string): Promise<void> {
 
 // ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
-  const ds = new DataSource({
+  const mainDs = new DataSource({
     type: "postgres",
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
@@ -545,12 +547,39 @@ async function seedAdmin() {
     database: process.env.DB_DATABASE || "igem_education",
     synchronize: true,
     logging: false,
-    entities: [User, Resource, UploadedFile, Comment, CommentLike],
+    entities: [User, Resource, UploadedFile],
   })
 
-  await ds.initialize()
+  const tempDs = new DataSource({
+    type: "postgres",
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "5432"),
+    username: process.env.DB_USERNAME || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: "postgres",
+  })
 
-  const userRepo = ds.getRepository(User)
+  await tempDs.initialize()
+  const commentsDb = process.env.COMMENTS_DB_NAME || "igem_comments"
+  await tempDs.query(`CREATE DATABASE "${commentsDb}"`).catch(() => {})
+  await tempDs.destroy()
+
+  const commentDs = new DataSource({
+    type: "postgres",
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "5432"),
+    username: process.env.DB_USERNAME || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: commentsDb,
+    synchronize: true,
+    logging: false,
+    entities: [Comment, CommentLike, Favorite, ResourceLike],
+  })
+
+  await mainDs.initialize()
+  await commentDs.initialize()
+
+  const userRepo = mainDs.getRepository(User)
   const existing = await userRepo.findOneBy({ email: "admin@igem-education.com" })
   if (existing) {
     console.log("管理员账号已存在")
@@ -565,7 +594,22 @@ async function seedAdmin() {
     console.log("管理员账号创建成功: admin@igem-education.com / devAdmin123!")
   }
 
-  await ds.destroy()
+  const testUsers = [
+    { email: "team1@test.com", password: "devTestPass!", name: "San Zhang" },
+    { email: "team2@test.com", password: "devTestPass!", name: "Si Li" },
+  ]
+  for (const u of testUsers) {
+    const exist = await userRepo.findOneBy({ email: u.email })
+    if (!exist) {
+      await userRepo.save(userRepo.create(u))
+      console.log(`测试账号创建成功: ${u.email} / ${u.password}`)
+    } else {
+      console.log(`测试账号已存在: ${u.email}`)
+    }
+  }
+
+  await commentDs.destroy()
+  await mainDs.destroy()
 }
 
 // ========== 示例数据录入（通过 HTTP API） ==========

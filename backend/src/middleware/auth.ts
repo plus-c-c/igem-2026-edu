@@ -25,6 +25,19 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   }
 }
 
+export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1]
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; role?: string }
+      req.userId = decoded.userId
+      req.userRole = decoded.role
+    } catch {}
+  }
+  next()
+}
+
 export async function adminMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   if (!req.userId) {
     return res.status(401).json({ message: "未认证" })

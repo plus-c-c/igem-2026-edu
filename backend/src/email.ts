@@ -49,6 +49,7 @@ export function sendVerificationCode(email: string): Promise<string> {
       html: `<p>您的注册验证码是：<strong>${code}</strong></p><p>验证码有效期为 5 分钟。</p>`,
     }).then(() => resolve(code)).catch((err) => {
       codes.delete(email)
+      console.error("SMTP 发送错误:", err)
       reject(new Error("邮件发送失败，请检查邮箱地址或稍后重试"))
     })
   })

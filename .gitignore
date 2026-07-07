@@ -4,4 +4,4 @@ backend/dist/
 .env
 .DS_Store
 test/
-backend/uploads/
+backend/database/
