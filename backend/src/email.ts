@@ -1,7 +1,16 @@
 import crypto from "crypto"
 import nodemailer from "nodemailer"
 
-const codes = new Map<string, { code: string; data: { email: string; password: string; name: string }; expires: number }>()
+export interface PendingRegistration {
+  email: string
+  password: string
+  name: string
+  registrantName?: string
+  igemRole?: string
+  avatar?: string
+}
+
+const codes = new Map<string, { code: string; data: PendingRegistration; expires: number }>()
 
 function createTransporter() {
   return nodemailer.createTransport({
@@ -45,7 +54,7 @@ export function sendVerificationCode(email: string): Promise<string> {
   })
 }
 
-export function storeVerificationData(email: string, data: { email: string; password: string; name: string }) {
+export function storeVerificationData(email: string, data: PendingRegistration) {
   const existing = codes.get(email)
   if (existing) {
     existing.data = data
@@ -53,7 +62,7 @@ export function storeVerificationData(email: string, data: { email: string; pass
   }
 }
 
-export function verifyCode(email: string, code: string): { valid: boolean; data?: { email: string; password: string; name: string } } {
+export function verifyCode(email: string, code: string): { valid: boolean; data?: PendingRegistration } {
   const entry = codes.get(email)
   if (!entry) return { valid: false }
   if (entry.expires < Date.now()) {

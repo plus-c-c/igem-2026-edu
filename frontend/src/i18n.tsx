@@ -15,6 +15,7 @@ export const translations = {
       about: "关于我们",
       login: "登录",
       logout: "退出登录",
+      confirmLogout: "是否确认退出登录？",
       menu: "菜单",
       admin: "管理员",
     },
@@ -22,7 +23,7 @@ export const translations = {
       eyebrow: "ZJU-China、Westlake、XJTLU-China",
       titleLines: ["SynEdu Global:", "Synthetic Biology Education Global Alliance"],
       subtitle: "加入我们，一起点亮世界合成生物学科普的微光。",
-      recruitButton: "教育项目招募",
+      recruitButton: "在这里添加你的项目",
       showcaseTitle: "可直接对外展示的教育活动样板",
       showcaseDesc: "用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。",
       categoryTitle: "四个栏目",
@@ -97,7 +98,7 @@ export const translations = {
       activities: {
         name: "实践活动",
         short: "Events",
-        intro: "沉淀微生物作画、生物材料体验、开放工作坊等互动式教育活动方案。",
+        intro: "在这里，你可以上传互动性更强的活动方案，比如微生物作画、集市摊位宣传、开放工作坊等。",
       },
       cooperation: {
         name: "教育项目招募",
@@ -120,6 +121,7 @@ export const translations = {
       about: "About",
       login: "Log In",
       logout: "Log out",
+      confirmLogout: "Are you sure you want to log out?",
       menu: "Menu",
       admin: "Admin",
     },
@@ -127,7 +129,7 @@ export const translations = {
       eyebrow: "ZJU-China, Westlake, XJTLU-China",
       titleLines: ["SynEdu Global:", "Synthetic Biology Education Global Alliance"],
       subtitle: "Join us in lighting small sparks of synthetic biology education around the world.",
-      recruitButton: "Project Calls",
+      recruitButton: "Add your project here",
       showcaseTitle: "Education projects ready to share with the public",
       showcaseDesc: "Complete cases show that the alliance is not just collecting materials, but organizing courses, booths, outreach, and public education programs.",
       categoryTitle: "Four Sections",
@@ -202,7 +204,7 @@ export const translations = {
       activities: {
         name: "Practice",
         short: "Events",
-        intro: "Collect plans for microbial art, biomaterial experiences, open workshops, and other hands-on education activities.",
+        intro: "Here, you can upload more interactive activity plans, such as microbial painting, outreach booths, open workshops, and more.",
       },
       cooperation: {
         name: "Project Calls",

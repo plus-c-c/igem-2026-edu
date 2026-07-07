@@ -19,7 +19,13 @@ export function AppLayout({ children, user, setUser, openLogin }: AppLayoutProps
           <span>SynEdu Global</span>
           <img src="/images/logo.jpg" alt="SynEdu Global" />
         </div>
-        <span>ZJU-China&Westlake&XJTLU-China</span>
+        <div className="footer-partners">
+          <span>ZJU-China &amp; Westlake &amp; XJTLU-China</span>
+          <div className="footer-partner-logos">
+            <img src="/images/logoWestlake.png" alt="Westlake" />
+            <img src="/images/logoXJTLU.png" alt="XJTLU-China" />
+          </div>
+        </div>
       </footer>
     </>
   )

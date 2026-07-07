@@ -22,6 +22,15 @@ export class User {
   @Column()
   name!: string
 
+  @Column({ nullable: true })
+  registrantName?: string
+
+  @Column({ nullable: true })
+  igemRole?: string
+
+  @Column({ type: "text", nullable: true })
+  avatar?: string
+
   @Column({ default: "user" })
   role!: string
 

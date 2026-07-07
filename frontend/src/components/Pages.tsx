@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import type { Resource, User } from "../types"
-import { fileApi } from "../api"
+import { fileService } from "../services/fileService"
+import { CommentSection } from "./CommentSection"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, LogIn, Plus, Trash2 } from "lucide-react"
@@ -8,6 +9,7 @@ import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
+import { useResourceFiles } from "../hooks/useResourceFiles"
 
 interface PageProps {
   resources: Resource[]
@@ -119,8 +121,8 @@ export function HomePage({ resources }: { resources: Resource[] }) {
           </h1>
           <p style={{ maxWidth: 600 }}>加入我们，一起点亮世界合成生物学科普的微光。</p>
           <div className="tile-actions">
-            <Link className="pill-btn primary" to="/recruitment">
-              <Plus size={18} /> 教育项目招募
+            <Link className="pill-btn primary" to="/submit">
+              <Plus size={18} /> 在这里添加你的项目
             </Link>
           </div>
         </div>
@@ -321,24 +323,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const category = categories.find((c) => c.id === r.category)
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
-
-  const [materialFiles, setMaterialFiles] = useState<Record<string, { id: string; name: string }[]>>({})
-
-  useEffect(() => {
-    if (!r.id) return
-    fileApi.list(String(r.id)).then((files) => {
-      const grouped: Record<string, { id: string; name: string }[]> = {}
-      for (const f of files) {
-        if (f.materialLabel === "cover") continue
-        if (f.materialLabel?.startsWith("campaign-step-")) continue
-        const key = f.materialLabel || "其他"
-        if (!grouped[key]) grouped[key] = []
-        grouped[key].push({ id: f.id, name: f.originalName })
-      }
-      setMaterialFiles(grouped)
-    }).catch(() => {})
-  }, [r.id])
-
+  const { materialFiles } = useResourceFiles(r.id)
   const handleDelete = () => {
     if (!confirm("确定删除此教育项目？此操作不可撤销。")) return
     onDelete(String(r.id))
@@ -369,7 +354,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
                     <div className="step-files">
                       {step.files.map((f) => (
                         <a key={f.fileId} className="step-file-link"
-                          href={fileApi.downloadUrl(f.fileId)}
+                          href={fileService.downloadUrl(f.fileId)}
                           target="_blank" rel="noopener noreferrer"
                         ><Download size={14} /> {f.name}</a>
                       ))}
@@ -391,9 +376,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
             {r.materials.map((m) => (
               <div key={m} className="tag-group">
                 <span>{m}</span>
-                {materialFiles[m]?.map((f) => (
+                {materialFiles()[m]?.map((f) => (
                   <a key={f.id} className="tag-file-link"
-                    href={fileApi.downloadUrl(f.id)}
+                    href={fileService.downloadUrl(f.id)}
                     target="_blank" rel="noopener noreferrer"
                   ><Download size={12} /> {f.name}</a>
                 ))}
@@ -413,6 +398,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           </button>
         </div>
       )}
+
+      {r.id && <CommentSection resourceId={r.id} user={user} />}
     </section>
   )
 }

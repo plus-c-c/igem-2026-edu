@@ -7,6 +7,8 @@ import { DataSource } from "typeorm"
 import { User } from "./entity/User"
 import { Resource } from "./entity/Resource"
 import { UploadedFile } from "./entity/File"
+import { Comment } from "./entity/Comment"
+import { CommentLike } from "./entity/CommentLike"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
 
@@ -543,7 +545,7 @@ async function seedAdmin() {
     database: process.env.DB_DATABASE || "igem_education",
     synchronize: true,
     logging: false,
-    entities: [User, Resource, UploadedFile],
+    entities: [User, Resource, UploadedFile, Comment, CommentLike],
   })
 
   await ds.initialize()

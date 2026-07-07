@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useState, type ChangeEvent } from "react"
 import { LogIn } from "lucide-react"
-import { authApi } from "../api"
+import { authService } from "../services/authService"
 import type { User } from "../types"
 
 interface LoginModalProps {
@@ -8,6 +8,9 @@ interface LoginModalProps {
   onClose: () => void
   onLogin: (user: User) => void
 }
+
+const defaultAvatar = "/images/logo.jpg"
+const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
 
 export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   if (!open) return null
@@ -17,8 +20,28 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [successMsg, setSuccessMsg] = useState("")
-  const [registerData, setRegisterData] = useState({ email: "", name: "", password: "" })
+  const [registerData, setRegisterData] = useState({
+    email: "",
+    name: "",
+    password: "",
+    registrantName: "",
+    igemRole: igemRoleOptions[0],
+    avatar: defaultAvatar,
+  })
+  const [igemRole, setIgemRole] = useState(igemRoleOptions[0])
+  const [avatarPreview, setAvatarPreview] = useState(defaultAvatar)
+  const [avatarValue, setAvatarValue] = useState(defaultAvatar)
   const [countdown, setCountdown] = useState(0)
+
+  const mapUser = (user: any): User => ({
+    id: user.id,
+    email: user.email,
+    teamName: user.name,
+    role: user.role,
+    registrantName: user.registrantName,
+    igemRole: user.igemRole,
+    avatar: user.avatar || defaultAvatar,
+  })
 
   const startCountdown = () => {
     setCountdown(60)
@@ -30,6 +53,23 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     }, 1000)
   }
 
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      setAvatarPreview(defaultAvatar)
+      setAvatarValue(defaultAvatar)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const value = typeof reader.result === "string" ? reader.result : defaultAvatar
+      setAvatarPreview(value)
+      setAvatarValue(value)
+    }
+    reader.readAsDataURL(file)
+  }
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError("")
@@ -39,10 +79,10 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
 
     try {
       if (mode === "login") {
-        const res = await authApi.login({ email: data.get("email") as string, password: data.get("password") as string })
+        const res = await authService.login({ email: data.get("email") as string, password: data.get("password") as string })
         if (res.token) {
           localStorage.setItem("authToken", res.token)
-          onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
+          onLogin(mapUser(res.user))
           onClose()
         } else {
           setError(res.message || "登录失败")
@@ -52,9 +92,18 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           const email = data.get("email") as string
           const name = data.get("name") as string
           const password = data.get("password") as string
-          const res = await authApi.sendCode({ email, name, password })
+          const registrantName = data.get("registrantName") as string
+          const nextRegisterData = {
+            email,
+            name,
+            password,
+            registrantName,
+            igemRole,
+            avatar: avatarValue || defaultAvatar,
+          }
+          const res = await authService.sendCode(nextRegisterData)
           if (res.message) {
-            setRegisterData({ email, name, password })
+            setRegisterData(nextRegisterData)
             setStep("verify")
             setSuccessMsg(res.message)
             startCountdown()
@@ -63,10 +112,10 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           }
         } else {
           const code = data.get("code") as string
-          const res = await authApi.verifyRegister({ email: registerData.email, code })
+          const res = await authService.verifyRegister({ email: registerData.email, code })
           if (res.token) {
             localStorage.setItem("authToken", res.token)
-            onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
+            onLogin(mapUser(res.user))
             onClose()
           } else {
             setError(res.message || "注册失败")
@@ -90,7 +139,11 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
 
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
-      <form className="login-modal" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+      <form
+        className={`login-modal ${mode === "register" ? "register-modal" : ""}`}
+        onSubmit={submit}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <h2>{mode === "login" ? "团队登录" : step === "form" ? "注册新账号" : "验证邮箱"}</h2>
         {error && <p className="login-error">{error}</p>}
         {successMsg && <p className="login-success">{successMsg}</p>}
@@ -118,7 +171,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                 onClick={async () => {
                   setError(""); setSuccessMsg(""); setLoading(true)
                   try {
-                    const res = await authApi.sendCode(registerData)
+                    const res = await authService.sendCode(registerData)
                     if (res.message) { setSuccessMsg(res.message); startCountdown() }
                     else setError(res.message || "发送失败")
                   } catch (e: any) { setError(e.message) }
@@ -129,7 +182,41 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           </>
         ) : (
           <>
-            {mode === "register" && <label>团队名称<input name="name" required placeholder="例如：Westlake iGEM" /></label>}
+            {mode === "register" && (
+              <div className="register-grid">
+                <div className="avatar-field">
+                  <span>头像</span>
+                  <img className="avatar-preview" src={avatarPreview} alt="头像预览" />
+                  <label className="avatar-upload">
+                    <input name="avatarFile" type="file" accept="image/*" onChange={handleAvatarChange} />
+                    可选添加头像
+                  </label>
+                </div>
+                <div className="register-fields">
+                  <label>姓名（与 iGEM 官网展示一致）
+                    <input name="registrantName" required placeholder="例如：Yingqi Zhou" />
+                  </label>
+                  <label>iGEM 队伍名称
+                    <input name="name" required placeholder="Westlake iGEM" />
+                  </label>
+                  <label>在 iGEM 的职位
+                    <input type="hidden" name="igemRole" value={igemRole} />
+                    <div className="role-tabs" role="tablist" aria-label="在 iGEM 的职位">
+                      {igemRoleOptions.map((option) => (
+                        <button
+                          key={option}
+                          className={option === igemRole ? "active" : ""}
+                          type="button"
+                          onClick={() => setIgemRole(option)}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
             <label>邮箱<input name="email" type="email" required placeholder="team@example.com" /></label>
             <label>密码<input name="password" type="password" required placeholder={mode === "login" ? "请输入密码" : "6 位以上密码"} /></label>
             <div className="form-actions">
