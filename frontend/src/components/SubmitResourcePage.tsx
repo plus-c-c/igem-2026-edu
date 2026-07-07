@@ -29,6 +29,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [imageUploadPct, setImageUploadPct] = useState<number | undefined>(undefined)
   const [coverFileId, setCoverFileId] = useState<string | null>(null)
   const [coverDeleting, setCoverDeleting] = useState(false)
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | undefined>(editResource?.image)
+  const coverUploadedUrl = useRef<string | undefined>(undefined)
   const [campaignSteps, setCampaignSteps] = useState<{ id: string; text: string; files: { fileId: string; name: string }[] }[]>(
     (editResource?.campaignSteps || [])
   )
@@ -36,6 +38,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [stepUploadProgress, setStepUploadProgress] = useState<Record<string, number>>({})
   const [stepDeleting, setStepDeleting] = useState<string | null>(null)
   const [existingStepFiles, setExistingStepFiles] = useState<Record<string, { id: string; name: string }[]>>({})
+  const [draftId, setDraftId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isEdit || !editResource) return
@@ -71,6 +74,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setCoverFileId(null)
     setExistingStepFiles({})
     setErrorMsg("")
+    setCoverPreviewUrl(editResource?.image)
+    coverUploadedUrl.current = undefined
+    setDraftId(null)
   }, [editResource])
 
   const toggleMaterial = (material: string) => {
@@ -122,6 +128,88 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setStepDeleting(null)
   }
 
+  const ensureRid = async (): Promise<string> => {
+    if (isEdit) return String(editResource!.id)
+    if (draftId) return draftId
+    const res = await resourceApi.create({ type: "campaign", category: defaultCategory })
+    if (!res.resource) throw new Error("无法创建资源")
+    setDraftId(res.resource.id)
+    return res.resource.id
+  }
+
+  const handleMaterialFileChange = async (material: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    fileInputs.current[material] = file
+    setUploadProgress((p) => ({ ...p, [material]: 0 }))
+    try {
+      const rid = await ensureRid()
+      const upRes = await fileApi.uploadWithProgress(
+        rid, file, material,
+        (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
+      )
+      setExistingFiles((prev) => {
+        const next = { ...prev }
+        if (!next[material]) next[material] = []
+        next[material] = [...next[material], { id: upRes.file.id, name: upRes.file.originalName, size: upRes.file.size }]
+        return next
+      })
+      fileInputs.current[material] = null
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : `${material} 文件上传失败`
+      setErrorMsg(msg)
+    }
+  }
+
+  const handleStepFileChange = async (stepId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    stepFileInputs.current[stepId] = file
+    setStepUploadProgress((p) => ({ ...p, [stepId]: 0 }))
+    try {
+      const rid = await ensureRid()
+      await uploadStepFile(rid, stepId, file)
+      stepFileInputs.current[stepId] = null
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "步骤文件上传失败"
+      setErrorMsg(msg)
+    }
+  }
+
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    imageFileRef.current = file
+    setImageUploadPct(0)
+    const objectUrl = URL.createObjectURL(file)
+    setCoverPreviewUrl(objectUrl)
+    try {
+      const rid = await ensureRid()
+      const upRes = await fileApi.uploadWithProgress(
+        rid, file, "cover",
+        (pct) => setImageUploadPct(pct)
+      )
+      const url = `/api/resources/files/${upRes.file.id}/download`
+      coverUploadedUrl.current = url
+      setCoverPreviewUrl(url)
+      setCoverFileId(upRes.file.id)
+      imageFileRef.current = null
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "封面上传失败"
+      setErrorMsg(msg)
+    }
+  }
+
+  const uploadImage = async (rid: string): Promise<string | undefined> => {
+    const imgFile = imageFileRef.current
+    if (!imgFile) return
+    const upRes = await fileApi.uploadWithProgress(
+      rid, imgFile, "cover",
+      (pct) => setImageUploadPct(pct)
+    )
+    return `/api/resources/files/${upRes.file.id}/download`
+  }
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSubmitting(true)
@@ -143,61 +231,62 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         campaignSteps,
       }
 
-      const uploadImage = async (rid: string): Promise<string | undefined> => {
-        const imgFile = imageFileRef.current
-        if (!imgFile) return
-        const upRes = await fileApi.uploadWithProgress(
-          rid, imgFile, "cover",
-          (pct) => setImageUploadPct(pct)
-        )
-        return `/api/resources/files/${upRes.file.id}/download`
-      }
+      let rid: string
+      const hasDraft = isEdit || !!draftId
 
-      const uploadStepFiles = async (rid: string) => {
-        for (const step of campaignSteps) {
-          const file = stepFileInputs.current[step.id]
-          if (file) {
-            await uploadStepFile(rid, step.id, file)
-          }
-        }
-      }
-
-      if (isEdit && editResource) {
-        const rid = String(editResource.id)
-        for (const material of selected) {
-          const file = fileInputs.current[material]
-          if (file) {
-            await fileApi.uploadWithProgress(
-              rid, file, material,
-              (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
-            )
-          }
-        }
-        await uploadStepFiles(rid)
-        const imgUrl = await uploadImage(rid)
-        if (imgUrl) payload.image = imgUrl
-        const res = await resourceApi.update(rid, payload)
-        if (!res.resource) throw new Error(res.message || "修改失败")
-        updateResource?.(rid, res.resource)
+      if (hasDraft) {
+        rid = isEdit ? String(editResource!.id) : draftId!
       } else {
         const res = await resourceApi.create(payload)
         if (!res.resource) throw new Error(res.message || "发布失败")
-        const rid = res.resource.id
-        for (const material of selected) {
-          const file = fileInputs.current[material]
-          if (file) {
-            await fileApi.uploadWithProgress(
-              rid, file, material,
-              (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
-            )
-          }
+        rid = res.resource.id
+      }
+
+      for (const material of selected) {
+        const file = fileInputs.current[material]
+        if (file) {
+          await fileApi.uploadWithProgress(
+            rid, file, material,
+            (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
+          )
+          fileInputs.current[material] = null
         }
-        await uploadStepFiles(rid)
+      }
+
+      for (const step of campaignSteps) {
+        const file = stepFileInputs.current[step.id]
+        if (file) {
+          const upRes = await fileApi.uploadWithProgress(
+            rid, file, `campaign-step-${step.id}`,
+            (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
+          )
+          const newFile = { fileId: upRes.file.id, name: upRes.file.originalName }
+          setCampaignSteps((prev) => prev.map((s) => s.id === step.id ? { ...s, files: [...s.files, newFile] } : s))
+          setExistingStepFiles((prev) => {
+            const next = { ...prev }
+            if (!next[step.id]) next[step.id] = []
+            next[step.id] = [...next[step.id], { id: upRes.file.id, name: upRes.file.originalName }]
+            return next
+          })
+          const targetStep = (payload.campaignSteps as any[]).find((s: any) => s.id === step.id)
+          if (targetStep) targetStep.files = [...targetStep.files, newFile]
+          stepFileInputs.current[step.id] = null
+        }
+      }
+
+      if (!coverUploadedUrl.current) {
         const imgUrl = await uploadImage(rid)
-        if (imgUrl) {
-          const upRes = await resourceApi.update(rid, { ...payload, image: imgUrl })
-          if (upRes.resource) res.resource = upRes.resource
-        }
+        if (imgUrl) payload.image = imgUrl
+      } else {
+        payload.image = coverUploadedUrl.current
+      }
+
+      const res = await resourceApi.update(rid, payload)
+      if (!res.resource) throw new Error(res.message || "保存失败")
+
+      if (isEdit) {
+        updateResource?.(rid, res.resource)
+      } else {
         addResource(res.resource)
       }
     } catch (e) {
@@ -236,12 +325,12 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             <label className="image-upload-tile">
               <Upload size={20} />
               上传封面图片
-              <input type="file" accept="image/*" onChange={(e) => { imageFileRef.current = e.target.files?.[0] || null; setImageUploadPct(undefined) }} />
-              {imageFileRef.current && <span>{imageFileRef.current.name}</span>}
+              <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+              {imageFileRef.current && !coverUploadedUrl.current && <span>{imageFileRef.current.name}</span>}
             </label>
-            {editResource?.image && (
+            {coverPreviewUrl && (
               <div className="image-preview">
-                <img src={editResource.image} alt="当前封面" />
+                <img src={coverPreviewUrl} alt="封面预览" />
                 <span>
                   当前封面
                   <button type="button" className="file-delete-btn" disabled={coverDeleting}
@@ -249,13 +338,19 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       e.stopPropagation()
                       setCoverDeleting(true)
                       try {
-                        if (coverFileId) {
-                          await fileApi.remove(String(editResource.id), coverFileId)
+                        const rid = isEdit ? String(editResource!.id) : draftId
+                        if (rid && coverFileId) {
+                          await fileApi.remove(rid, coverFileId)
                         }
-                        await resourceApi.update(String(editResource.id), { image: "" })
+                        if (isEdit) {
+                          await resourceApi.update(String(editResource!.id), { image: "" })
+                        }
                       } catch {}
                       setCoverDeleting(false)
-                      window.location.reload()
+                      setCoverPreviewUrl(undefined)
+                      coverUploadedUrl.current = undefined
+                      setCoverFileId(null)
+                      imageFileRef.current = null
                     }}
                   >×</button>
                 </span>
@@ -292,7 +387,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 <label className="upload-tile step-upload-tile">
                   <Upload size={16} />
                   上传文件
-                  <input type="file" onChange={(e) => { stepFileInputs.current[step.id] = e.target.files?.[0] || null }} />
+                  <input type="file" onChange={(e) => handleStepFileChange(step.id, e)} />
                   {stepFileInputs.current[step.id] && <span>{stepFileInputs.current[step.id]!.name}</span>}
                 </label>
                 {existingStepFiles[step.id]?.map((f) => (
@@ -330,8 +425,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <label key={material} className="upload-tile">
                 <Upload size={18} />
                 {material} 上传
-                <input type="file" onChange={(e) => { fileInputs.current[material] = e.target.files?.[0] || null }} />
-                {fileInputs.current[material] && <span>{fileInputs.current[material]!.name}</span>}
+                <input type="file" onChange={(e) => handleMaterialFileChange(material, e)} />
+                {fileInputs.current[material] && !existing?.length && <span>{fileInputs.current[material]!.name}</span>}
                 {existing?.map((f) => (
                   <span key={f.id} className="existing-file">
                     {f.name}

@@ -3,7 +3,7 @@ import type { Resource, User } from "../types"
 import { fileApi } from "../api"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { LogIn, Plus, Trash2 } from "lucide-react"
+import { Download, LogIn, Plus, Trash2 } from "lucide-react"
 import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
@@ -296,6 +296,23 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const canEdit = user && (user.role === "admin" || r.userId === user.id)
   const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
 
+  const [materialFiles, setMaterialFiles] = useState<Record<string, { id: string; name: string }[]>>({})
+
+  useEffect(() => {
+    if (!r.id) return
+    fileApi.list(String(r.id)).then((files) => {
+      const grouped: Record<string, { id: string; name: string }[]> = {}
+      for (const f of files) {
+        if (f.materialLabel === "cover") continue
+        if (f.materialLabel?.startsWith("campaign-step-")) continue
+        const key = f.materialLabel || "其他"
+        if (!grouped[key]) grouped[key] = []
+        grouped[key].push({ id: f.id, name: f.originalName })
+      }
+      setMaterialFiles(grouped)
+    }).catch(() => {})
+  }, [r.id])
+
   const handleDelete = () => {
     if (!confirm("确定删除此教育项目？此操作不可撤销。")) return
     onDelete(String(r.id))
@@ -330,7 +347,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
                         <a key={f.fileId} className="step-file-link"
                           href={fileApi.downloadUrl(f.fileId)}
                           target="_blank" rel="noopener noreferrer"
-                        >{f.name}</a>
+                        ><Download size={14} /> {f.name}</a>
                       ))}
                     </div>
                   )}
@@ -347,7 +364,17 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           <p><strong>活动形式</strong>{r.format}</p>
           <p><strong>展示价值</strong>{r.impact}</p>
           <div className="tags">
-            {r.materials.map((m) => <span key={m}>{m}</span>)}
+            {r.materials.map((m) => (
+              <div key={m} className="tag-group">
+                <span>{m}</span>
+                {materialFiles[m]?.map((f) => (
+                  <a key={f.id} className="tag-file-link"
+                    href={fileApi.downloadUrl(f.id)}
+                    target="_blank" rel="noopener noreferrer"
+                  ><Download size={12} /> {f.name}</a>
+                ))}
+              </div>
+            ))}
           </div>
         </aside>
       </div>

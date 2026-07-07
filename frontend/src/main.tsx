@@ -44,13 +44,11 @@ function App() {
   }
 
   const addResource = (resource: Partial<Resource>) => {
-    resourceApi.create(resource).then((res: any) => {
-      if (res.resource) {
-        setResources((items) => [res.resource, ...items])
-        const cat = categories.find((c) => c.id === resource.category)
-        if (cat) navigate(cat.path)
-      }
-    })
+    if (resource.id) {
+      setResources((items) => [resource as Resource, ...items])
+      const cat = categories.find((c) => c.id === resource.category)
+      if (cat) navigate(cat.path)
+    }
   }
 
   const updateResource = (id: string, updated: Partial<Resource>) => {

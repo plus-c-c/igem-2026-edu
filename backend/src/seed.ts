@@ -575,6 +575,15 @@ async function main() {
   await waitForBackend()
   const token = await loginAsAdmin()
 
+  const checkRes = await fetch(`${API_URL}/api/resources`, {
+    headers: { "Authorization": `Bearer ${token}` },
+  })
+  const existing = checkRes.ok ? ((await checkRes.json()).resources || []) : []
+  if (existing.length > 0) {
+    console.log(`检测到 ${existing.length} 个现有项目，跳过示例数据录入（保留已有数据）`)
+    return
+  }
+
   await deleteAllResources(token)
   console.log("")
   await seedResources(token)
