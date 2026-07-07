@@ -7,15 +7,12 @@ import { Download, LogIn, Plus, Trash2 } from "lucide-react"
 import { CampaignCard, caseSlug } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
+import { useI18n } from "../i18n"
 
 interface PageProps {
   resources: Resource[]
   onSubmit: (categoryId?: string) => void
 }
-
-const themeOptions = ["合成生物学科普", "iGEM科普", "其他科普"]
-const materialOptions = ["PPT", "docx", "实践经验", "海报"]
-const audienceOptions = ["中小学", "高校", "公众", "iGEM团队"]
 
 interface ProjectFilterState {
   theme: string
@@ -52,27 +49,29 @@ function filterProjects(items: Resource[], filters: ProjectFilterState) {
 }
 
 function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
+  const { t } = useI18n()
+
   return (
-    <div className="project-filter-panel" aria-label="项目检索">
+    <div className="project-filter-panel" aria-label={t.filters.aria}>
       <label>
-        主题
+        {t.filters.theme}
         <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
-          <option value="">全部主题</option>
-          {themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          <option value="">{t.filters.allThemes}</option>
+          {t.filters.themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
       <label>
-        资源
+        {t.filters.material}
         <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
-          <option value="">全部资源</option>
-          {materialOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          <option value="">{t.filters.allMaterials}</option>
+          {t.filters.materialOptions.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
       <label>
-        面向人群
+        {t.filters.audience}
         <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
-          <option value="">全部人群</option>
-          {audienceOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          <option value="">{t.filters.allAudiences}</option>
+          {t.filters.audienceOptions.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
     </div>

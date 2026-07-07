@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import type { Resource } from "../types"
 import { projectMetaByCategory } from "../data/projectMeta"
+import { useI18n } from "../i18n"
 
 export function caseSlug(title: string) {
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
@@ -19,6 +20,7 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
+  const { t } = useI18n()
   const meta = projectMetaByCategory[item.category as keyof typeof projectMetaByCategory] || projectMetaByCategory.applications
   const project = {
     organization: (item as any).organization || meta.organization,
@@ -46,7 +48,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
             <span>{project.duration}</span>
             <span>{project.venue}</span>
           </div>
-          <span className="detail-link">查看项目详情</span>
+          <span className="detail-link">{t.caseDetail.detailLink}</span>
         </div>
       </Link>
     )
@@ -63,7 +65,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
         <div className="tags">
           {item.materials.map((m) => <span key={m}>{m}</span>)}
         </div>
-        <span className="detail-link">查看项目详情</span>
+        <span className="detail-link">{t.caseDetail.detailLink}</span>
       </div>
     </Link>
   )

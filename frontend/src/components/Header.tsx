@@ -1,15 +1,8 @@
 import { Link, NavLink } from "react-router-dom"
-import { LogIn, LogOut, Menu, Shield, X } from "lucide-react"
+import { Globe2, LogIn, LogOut, Menu, Shield, X } from "lucide-react"
 import { useState } from "react"
 import type { User } from "../types"
-
-const navItems = [
-  { path: "/", name: "首页" },
-  { path: "/applications", name: "讲座科普" },
-  { path: "/activities", name: "实践活动" },
-  { path: "/recruitment", name: "教育项目招募" },
-  { path: "/about", name: "关于我们" },
-]
+import { useI18n } from "../i18n"
 
 interface HeaderProps {
   user: User | null
@@ -19,6 +12,14 @@ interface HeaderProps {
 
 export function Header({ user, setUser, openLogin }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { language, toggleLanguage, t } = useI18n()
+  const navItems = [
+    { path: "/", name: t.nav.home },
+    { path: "/applications", name: t.nav.applications },
+    { path: "/activities", name: t.nav.activities },
+    { path: "/recruitment", name: t.nav.recruitment },
+    { path: "/about", name: t.nav.about },
+  ]
 
   return (
     <nav className="global-nav">
@@ -34,20 +35,24 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
         ))}
       </div>
       <div className="nav-actions">
+        <button className="language-toggle" type="button" onClick={toggleLanguage} aria-label={language === "zh" ? "Switch to English" : "切换到中文"}>
+          <Globe2 size={15} />
+          <span>{language === "zh" ? "中 / EN" : "EN / 中"}</span>
+        </button>
         {user ? (
           <>
-            {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> 管理员</span>}
+            {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
             <span className="team-pill">{user.teamName}</span>
-            <button className="icon-btn" type="button" onClick={() => { localStorage.removeItem("authToken"); setUser(null) }} aria-label="退出登录">
+            <button className="icon-btn" type="button" onClick={() => { localStorage.removeItem("authToken"); setUser(null) }} aria-label={t.nav.logout}>
               <LogOut size={14} />
             </button>
           </>
         ) : (
           <button className="login-btn" type="button" onClick={openLogin}>
-            <LogIn size={14} /> 登录
+            <LogIn size={14} /> {t.nav.login}
           </button>
         )}
-        <button className="menu-btn" type="button" onClick={() => setMenuOpen((o) => !o)} aria-label="菜单">
+        <button className="menu-btn" type="button" onClick={() => setMenuOpen((o) => !o)} aria-label={t.nav.menu}>
           {menuOpen ? <X size={16} /> : <Menu size={16} />}
         </button>
       </div>
