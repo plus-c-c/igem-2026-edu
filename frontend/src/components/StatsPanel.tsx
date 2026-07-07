@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import type { Resource } from "../types"
+import { useI18n } from "../i18n"
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0)
@@ -50,12 +51,14 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
 }
 
 export function StatsPanel({ resources }: { resources: Resource[] }) {
+  const { t } = useI18n()
+
   return (
     <section className="stats-panel">
-      <div><AnimatedNumber value={resources.length} /><span>已收录资源</span></div>
-      <div><AnimatedNumber value={5} /><span>核心栏目</span></div>
-      <div><AnimatedNumber value={6} /><span>项目材料</span></div>
-      <div><AnimatedNumber value={3} suffix="+" /><span>高校团队</span></div>
+      <div><AnimatedNumber value={resources.length} /><span>{t.stats.resources}</span></div>
+      <div><AnimatedNumber value={5} /><span>{t.stats.columns}</span></div>
+      <div><AnimatedNumber value={6} /><span>{t.stats.materials}</span></div>
+      <div><AnimatedNumber value={3} suffix="+" /><span>{t.stats.teams}</span></div>
     </section>
   )
 }

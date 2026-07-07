@@ -65,6 +65,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     }).catch(() => {})
   }, [isEdit, editResource])
   const defaultCategory = params.get("category") || editResource?.category || "applications"
+  const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
+  const projectLabel = selectedCategory === "applications" ? "科普项目" : selectedCategory === "activities" ? "实践活动" : "教育项目"
 
   useEffect(() => {
     if (editResource) {
@@ -77,6 +79,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setCoverPreviewUrl(editResource?.image)
     coverUploadedUrl.current = undefined
     setDraftId(null)
+    setSelectedCategory(defaultCategory)
   }, [editResource])
 
   const toggleMaterial = (material: string) => {
@@ -301,7 +304,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       <div className="page-heading">
         <div>
           <p className="eyebrow">{isEdit ? "Edit" : "Submit"}</p>
-          <h1>{isEdit ? "编辑教育项目" : "发布教育项目"}</h1>
+          <h1>{isEdit ? `编辑${projectLabel}` : `发布${projectLabel}`}</h1>
           <p>当前登录团队：{user.teamName}。</p>
         </div>
       </div>
@@ -311,7 +314,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <label>机构名称<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
           <label>项目名称<input name="title" required placeholder='例如："合成生物学是什么？"' defaultValue={editResource?.title} /></label>
           <label>分类
-            <select name="category" required defaultValue={defaultCategory}>
+            <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
               <option value="" disabled>请选择分类</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>

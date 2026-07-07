@@ -10,6 +10,7 @@ import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentP
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { caseSlug } from "./components/CampaignCard"
 import { LoginModal } from "./components/LoginModal"
+import { LanguageProvider } from "./i18n"
 import "./styles.css"
 
 function App() {
@@ -98,6 +99,8 @@ function App() {
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </BrowserRouter>
 )
