@@ -1,0 +1,97 @@
+/* ========== Buttons ========== */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.374px;
+  transition: transform 0.1s, opacity 0.2s;
+  white-space: nowrap;
+}
+.pill-btn:active {
+  transform: scale(0.95);
+}
+.pill-btn:focus-visible {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
+}
+
+.pill-btn.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.pill-btn.primary:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
+.pill-btn.primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.pill-btn.primary:disabled:active {
+  transform: none;
+}
+
+.pill-btn.secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+.pill-btn.secondary:hover {
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.pill-btn.utility {
+  background: var(--ink);
+  color: var(--on-dark);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.224px;
+  padding: 8px 15px;
+  border-radius: var(--radius-sm);
+}
+.pill-btn.utility:hover {
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+.pill-btn.pearl {
+  background: var(--surface-pearl);
+  color: var(--ink-muted-80);
+  border: 1px solid var(--divider-soft);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.224px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+}
+.pill-btn.pearl:hover {
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+.pill-btn.store-hero {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  padding: 14px 28px;
+}
+
+.text-link {
+  color: var(--primary);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+}
+.text-link:hover { text-decoration: underline; }
+.text-link.on-dark { color: var(--primary-on-dark); }
