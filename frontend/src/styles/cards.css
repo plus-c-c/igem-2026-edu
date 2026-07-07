@@ -1,0 +1,347 @@
+/* ========== Resource Grid (Utility Cards) ========== */
+.section-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+  padding: var(--space-section) clamp(22px, 4vw, 40px);
+  width: 100%;
+  background: var(--canvas-parchment);
+  color: var(--ink);
+}
+.section-block .tile-content {
+  max-width: 980px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin-top: 24px;
+}
+.resource-grid.one-column { grid-template-columns: 1fr; }
+
+.resource-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--space-lg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.resource-card:hover {
+  border-color: var(--primary);
+  text-decoration: none;
+}
+
+.resource-card .card-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.224px;
+  color: var(--primary);
+}
+.resource-card .card-top small {
+  color: var(--ink-muted-48);
+  font-weight: 400;
+}
+
+.resource-card h3 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.231px;
+  margin: 0;
+}
+
+.resource-card .meta {
+  font-size: 14px;
+  color: var(--ink-muted-48);
+}
+
+.resource-card p {
+  font-size: 14px;
+  color: var(--ink-muted-48);
+  line-height: 1.43;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resource-card .progress {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--divider-soft);
+  overflow: hidden;
+  margin: 4px 0;
+}
+.resource-card .progress span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-pill);
+}
+
+.resource-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.resource-card .tags span {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--canvas-parchment);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.12px;
+}
+
+/* Project details inside cards */
+.project-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin: 8px 0;
+}
+.project-details div {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--canvas-parchment);
+}
+.project-details dt {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: -0.08px;
+  color: var(--ink-muted-48);
+}
+.project-details dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.12px;
+  color: var(--ink);
+}
+
+/* ========== Campaign / Project Cards (Product Tile variant) ========== */
+.campaign-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.campaign-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface-tile-1);
+  color: var(--body-on-dark);
+  text-decoration: none;
+  transition: transform 0.2s, border-color 0.2s;
+  border: 1px solid transparent;
+}
+.campaign-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-on-dark);
+  text-decoration: none;
+}
+
+.campaign-card img,
+.card-img-placeholder {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+.card-img-placeholder {
+  background: var(--parchment);
+  display: block;
+}
+.hero-img-placeholder {
+  width: 100%;
+  height: 260px;
+  background: var(--parchment);
+  border-radius: 18px;
+}
+
+.campaign-card > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--space-lg);
+}
+
+.campaign-card .campaign-format {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.12);
+  color: var(--body-on-dark);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.12px;
+}
+
+.campaign-card h3 {
+  color: var(--body-on-dark);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.231px;
+  margin: 0;
+}
+
+.campaign-card p {
+  color: var(--body-muted);
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+.campaign-card strong {
+  color: var(--primary-on-dark);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campaign-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+}
+.campaign-card .tags span {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.08);
+  color: var(--body-muted);
+  font-size: 12px;
+}
+
+.campaign-card .detail-link {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.224px;
+  color: var(--primary-on-dark);
+  margin-top: 8px;
+}
+
+/* Project variant */
+.campaign-card.project-card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+}
+.campaign-card.project-card:hover {
+  border-color: var(--primary);
+}
+.campaign-card.project-card h3 { color: var(--ink); }
+.campaign-card.project-card p { color: var(--ink-muted-48); }
+.campaign-card.project-card .project-org {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--canvas-parchment);
+  color: var(--ink-muted-80);
+  font-size: 12px;
+  font-weight: 600;
+}
+.campaign-card.project-card .project-subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  color: var(--ink-muted-48);
+}
+.campaign-card.project-card .project-quick-info {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+}
+.campaign-card.project-card .project-quick-info span,
+.campaign-card.project-card .project-quick-info strong {
+  color: var(--ink-muted-48);
+  font-weight: 400;
+}
+.campaign-card.project-card .project-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.campaign-card.project-card .project-meta-pills span {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--canvas-parchment);
+  color: var(--ink);
+  font-size: 12px;
+}
+.campaign-card.project-card .detail-link {
+  color: var(--primary);
+  font-size: 14px;
+}
+
+/* ========== Category Grid ========== */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 1180px;
+  margin: 24px auto 0;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-lg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.category-card:hover {
+  border-color: var(--primary);
+  text-decoration: none;
+}
+
+.category-card img {
+  width: calc(100% + 48px);
+  height: 100px;
+  object-fit: cover;
+  margin: -24px -24px 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.category-card svg {
+  color: var(--primary);
+  width: 24px;
+  height: 24px;
+}
+
+.category-card strong {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.374px;
+  color: var(--ink);
+}
+
+.category-card span {
+  font-size: 14px;
+  color: var(--ink-muted-48);
+  line-height: 1.43;
+}
+

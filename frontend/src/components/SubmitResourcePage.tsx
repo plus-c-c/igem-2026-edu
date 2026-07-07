@@ -3,7 +3,8 @@ import { Link, useLocation } from "react-router-dom"
 import { Upload, Loader2, Plus, Trash2 } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
-import { resourceApi, fileApi } from "../api"
+import { resourceService } from "../services/resourceService"
+import { fileService } from "../services/fileService"
 import { MaterialChecklist } from "./MaterialChecklist"
 import { caseSlug } from "./CampaignCard"
 
@@ -42,7 +43,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
   useEffect(() => {
     if (!isEdit || !editResource) return
-    fileApi.list(String(editResource.id)).then((files) => {
+    fileService.list(String(editResource.id)).then((files) => {
       const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
       const stepFiles: Record<string, { id: string; name: string }[]> = {}
       for (const f of files) {
@@ -99,7 +100,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }
 
   const uploadStepFile = async (rid: string, stepId: string, file: File) => {
-    const upRes = await fileApi.uploadWithProgress(
+    const upRes = await fileService.uploadWithProgress(
       rid, file, `campaign-step-${stepId}`,
       (pct) => setStepUploadProgress((p) => ({ ...p, [stepId]: pct }))
     )
@@ -115,7 +116,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
   const deleteStepFile = async (rid: string, stepId: string, fileId: string) => {
     setStepDeleting(fileId)
-    await fileApi.remove(rid, fileId)
+    await fileService.remove(rid, fileId)
     setCampaignSteps((prev) => prev.map((s) =>
       s.id === stepId ? { ...s, files: s.files.filter((f) => f.fileId !== fileId) } : s
     ))
@@ -131,7 +132,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const ensureRid = async (): Promise<string> => {
     if (isEdit) return String(editResource!.id)
     if (draftId) return draftId
-    const res = await resourceApi.create({ type: "campaign", category: defaultCategory })
+    const res = await resourceService.create({
+      type: "campaign",
+      category: defaultCategory,
+      team: user.teamName,
+      title: "",
+      desc: "",
+    })
     if (!res.resource) throw new Error("无法创建资源")
     setDraftId(res.resource.id)
     return res.resource.id
@@ -144,7 +151,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setUploadProgress((p) => ({ ...p, [material]: 0 }))
     try {
       const rid = await ensureRid()
-      const upRes = await fileApi.uploadWithProgress(
+      const upRes = await fileService.uploadWithProgress(
         rid, file, material,
         (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
       )
@@ -185,7 +192,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setCoverPreviewUrl(objectUrl)
     try {
       const rid = await ensureRid()
-      const upRes = await fileApi.uploadWithProgress(
+      const upRes = await fileService.uploadWithProgress(
         rid, file, "cover",
         (pct) => setImageUploadPct(pct)
       )
@@ -203,7 +210,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const uploadImage = async (rid: string): Promise<string | undefined> => {
     const imgFile = imageFileRef.current
     if (!imgFile) return
-    const upRes = await fileApi.uploadWithProgress(
+    const upRes = await fileService.uploadWithProgress(
       rid, imgFile, "cover",
       (pct) => setImageUploadPct(pct)
     )
@@ -237,7 +244,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       if (hasDraft) {
         rid = isEdit ? String(editResource!.id) : draftId!
       } else {
-        const res = await resourceApi.create(payload)
+        const res = await resourceService.create(payload)
         if (!res.resource) throw new Error(res.message || "发布失败")
         rid = res.resource.id
       }
@@ -245,7 +252,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       for (const material of selected) {
         const file = fileInputs.current[material]
         if (file) {
-          await fileApi.uploadWithProgress(
+          await fileService.uploadWithProgress(
             rid, file, material,
             (pct) => setUploadProgress((p) => ({ ...p, [material]: pct }))
           )
@@ -256,7 +263,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       for (const step of campaignSteps) {
         const file = stepFileInputs.current[step.id]
         if (file) {
-          const upRes = await fileApi.uploadWithProgress(
+          const upRes = await fileService.uploadWithProgress(
             rid, file, `campaign-step-${step.id}`,
             (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
           )
@@ -281,7 +288,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         payload.image = coverUploadedUrl.current
       }
 
-      const res = await resourceApi.update(rid, payload)
+      const res = await resourceService.update(rid, payload)
       if (!res.resource) throw new Error(res.message || "保存失败")
 
       if (isEdit) {
@@ -340,10 +347,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       try {
                         const rid = isEdit ? String(editResource!.id) : draftId
                         if (rid && coverFileId) {
-                          await fileApi.remove(rid, coverFileId)
+                          await fileService.remove(rid, coverFileId)
                         }
                         if (isEdit) {
-                          await resourceApi.update(String(editResource!.id), { image: "" })
+                          await resourceService.update(String(editResource!.id), { image: "" })
                         }
                       } catch {}
                       setCoverDeleting(false)
@@ -436,7 +443,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                           e.stopPropagation()
                           if (!editResource) return
                           setDeleting(f.id)
-                          await fileApi.remove(String(editResource.id), f.id)
+                          await fileService.remove(String(editResource.id), f.id)
                           setExistingFiles((prev) => {
                             const next = { ...prev }
                             next[material] = (next[material] || []).filter((x) => x.id !== f.id)

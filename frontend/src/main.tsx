@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { BrowserRouter, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom"
-import type { Resource } from "./types"
-import { resourceApi, setOnUnauthorized } from "./api"
+import { BrowserRouter, Route, Routes, useNavigate, useParams } from "react-router-dom"
+import { setOnUnauthorized } from "./services/client"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
+import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
-import { caseSlug } from "./components/CampaignCard"
 import { LoginModal } from "./components/LoginModal"
-import "./styles.css"
+import "./styles/index.css"
 
 function App() {
   const [user, setUser, authLoading] = useLocalAuth()
-  const [resources, setResources] = useState<Resource[]>([])
+  const { resources, addResource, updateResource, deleteResource, findById } = useResources()
   const [loginOpen, setLoginOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -23,15 +22,8 @@ function App() {
       localStorage.removeItem("authToken")
       localStorage.removeItem("hpEduUser")
       setUser(null)
-      navigate("/")
     })
-  }, [setUser, navigate])
-
-  useEffect(() => {
-    resourceApi.list().then((items) => {
-      if (items.length) setResources(items)
-    })
-  }, [])
+  }, [setUser])
 
   const requestSubmit = (categoryId?: string) => {
     if (!user) {
@@ -43,31 +35,9 @@ function App() {
     navigate(`/submit${params.toString() ? `?${params.toString()}` : ""}`)
   }
 
-  const addResource = (resource: Partial<Resource>) => {
-    if (resource.id) {
-      setResources((items) => [resource as Resource, ...items])
-      const cat = categories.find((c) => c.id === resource.category)
-      if (cat) navigate(cat.path)
-    }
-  }
-
-  const updateResource = (id: string, updated: Partial<Resource>) => {
-    setResources((items) => items.map((r) => String(r.id) === id ? { ...r, ...updated } : r))
-    navigate(`/cases/${caseSlug(updated.title || "")}`)
-  }
-
-  const deleteResource = (id: string) => {
-    resourceApi.remove(id).then((res: any) => {
-      if (res.message) {
-        setResources((items) => items.filter((r) => String(r.id) !== id))
-        navigate("/")
-      }
-    })
-  }
-
   const EditResourceRoute = () => {
     const { resourceId } = useParams<{ resourceId: string }>()
-    const resource = resources.find((r) => String(r.id) === resourceId) || null
+    const resource = findById(resourceId!)
     return user
       ? <SubmitResourcePage key={resource?.id || "edit"} user={user} addResource={addResource} updateResource={updateResource} editResource={resource} />
       : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />

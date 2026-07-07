@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { LogIn } from "lucide-react"
-import { authApi } from "../api"
+import { authService } from "../services/authService"
 import type { User } from "../types"
 
 interface LoginModalProps {
@@ -39,7 +39,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
 
     try {
       if (mode === "login") {
-        const res = await authApi.login({ email: data.get("email") as string, password: data.get("password") as string })
+        const res = await authService.login({ email: data.get("email") as string, password: data.get("password") as string })
         if (res.token) {
           localStorage.setItem("authToken", res.token)
           onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
@@ -52,7 +52,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           const email = data.get("email") as string
           const name = data.get("name") as string
           const password = data.get("password") as string
-          const res = await authApi.sendCode({ email, name, password })
+          const res = await authService.sendCode({ email, name, password })
           if (res.message) {
             setRegisterData({ email, name, password })
             setStep("verify")
@@ -63,7 +63,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           }
         } else {
           const code = data.get("code") as string
-          const res = await authApi.verifyRegister({ email: registerData.email, code })
+          const res = await authService.verifyRegister({ email: registerData.email, code })
           if (res.token) {
             localStorage.setItem("authToken", res.token)
             onLogin({ id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role })
@@ -118,7 +118,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                 onClick={async () => {
                   setError(""); setSuccessMsg(""); setLoading(true)
                   try {
-                    const res = await authApi.sendCode(registerData)
+                    const res = await authService.sendCode(registerData)
                     if (res.message) { setSuccessMsg(res.message); startCountdown() }
                     else setError(res.message || "发送失败")
                   } catch (e: any) { setError(e.message) }

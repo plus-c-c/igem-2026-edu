@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import type { User } from "../types"
-import { authApi } from "../api"
+import { authService } from "../services/authService"
 
 const CHECK_INTERVAL = 5 * 60 * 1000
 
@@ -19,7 +19,7 @@ export function useLocalAuth(): [User | null, (user: User | null) => void, boole
     const token = localStorage.getItem("authToken")
     if (!token) { clearAuth(); return }
     try {
-      const res = await authApi.getMe(token)
+      const res = await authService.getMe(token)
       if (res.user) {
         const u: User = { id: res.user.id, email: res.user.email, teamName: res.user.name, role: res.user.role }
         setUserState(u)
