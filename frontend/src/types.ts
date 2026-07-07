@@ -5,6 +5,9 @@ export interface User {
   email: string
   teamName: string
   role?: string
+  registrantName?: string
+  igemRole?: string
+  avatar?: string
 }
 
 export interface Category {

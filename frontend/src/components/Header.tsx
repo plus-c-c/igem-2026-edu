@@ -15,11 +15,17 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
   const { language, toggleLanguage, t } = useI18n()
   const navItems = [
     { path: "/", name: t.nav.home },
-    { path: "/applications", name: t.nav.applications },
+    { path: "/lecture", name: t.nav.applications },
     { path: "/activities", name: t.nav.activities },
     { path: "/recruitment", name: t.nav.recruitment },
     { path: "/about", name: t.nav.about },
   ]
+  const handleLogout = () => {
+    if (!confirm(t.nav.confirmLogout)) return
+    localStorage.removeItem("authToken")
+    localStorage.removeItem("hpEduUser")
+    setUser(null)
+  }
 
   return (
     <nav className="global-nav">
@@ -43,7 +49,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
             <span className="team-pill">{user.teamName}</span>
-            <button className="icon-btn" type="button" onClick={() => { localStorage.removeItem("authToken"); setUser(null) }} aria-label={t.nav.logout}>
+            <button className="icon-btn" type="button" onClick={handleLogout} aria-label={t.nav.logout}>
               <LogOut size={14} />
             </button>
           </>

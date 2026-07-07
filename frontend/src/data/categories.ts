@@ -14,7 +14,7 @@ const imageAssets = {
 export const categories: Category[] = [
   {
     id: "applications",
-    path: "/applications",
+    path: "/lecture",
     name: "讲座科普",
     short: "Lecture",
     icon: FlaskConical,
@@ -29,7 +29,7 @@ export const categories: Category[] = [
     name: "实践活动",
     short: "Events",
     icon: Sparkles,
-    intro: "沉淀微生物作画、生物材料体验、开放工作坊等互动式教育活动方案。",
+    intro: "在这里，你可以上传互动性更强的活动方案，比如微生物作画、集市摊位宣传、开放工作坊等。",
     accent: "#d69b18",
     image: imageAssets.petri,
     recommended: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],

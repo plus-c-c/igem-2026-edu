@@ -8,9 +8,12 @@ import { DataSource } from "typeorm"
 import { User } from "./entity/User"
 import { Resource } from "./entity/Resource"
 import { UploadedFile } from "./entity/File"
+import { Comment } from "./entity/Comment"
+import { CommentLike } from "./entity/CommentLike"
 import authRoutes from "./routes/auth"
 import resourceRoutes from "./routes/resource"
 import fileRoutes from "./routes/file"
+import commentRoutes from "./routes/comment"
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -21,7 +24,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || "igem_education",
   synchronize: true,
   logging: true,
-  entities: [User, Resource, UploadedFile],
+  entities: [User, Resource, UploadedFile, Comment, CommentLike],
 })
 
 const app = express()
@@ -32,6 +35,7 @@ app.use(express.json())
 app.use("/api/auth", authRoutes)
 app.use("/api/resources", resourceRoutes)
 app.use("/api/resources", fileRoutes)
+app.use("/api/resources", commentRoutes)
 
 app.get("/", (_req, res) => {
   res.json({ message: "iGEM 2026 Education API" })
