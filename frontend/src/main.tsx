@@ -6,7 +6,7 @@ import { resourceApi, setOnUnauthorized } from "./api"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { AppLayout } from "./components/AppLayout"
-import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage } from "./components/Pages"
+import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { caseSlug } from "./components/CampaignCard"
 import { LoginModal } from "./components/LoginModal"
@@ -80,13 +80,14 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage resources={resources} />} />
         <Route path="/recruitment" element={<RecruitmentPage resources={resources} onSubmit={requestSubmit} />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route
           path="/submit"
           element={user ? <SubmitResourcePage key="new" user={user} addResource={addResource} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />}
         />
         <Route path="/cases/:caseId" element={<CaseDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
         <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
-        {categories.map((cat) => (
+        {categories.filter((cat) => cat.id !== "about").map((cat) => (
           <Route key={cat.id} path={cat.path} element={<CategoryPage category={cat} resources={resources} onSubmit={requestSubmit} />} />
         ))}
       </Routes>

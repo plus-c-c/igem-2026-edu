@@ -16,7 +16,7 @@ export const categories: Category[] = [
     id: "applications",
     path: "/applications",
     name: "讲座科普",
-    short: "Projects",
+    short: "Lecture",
     icon: FlaskConical,
     intro: "开展各种主题的讲座，让大众走进合成生物学，了解 iGEM 和合成生物学的各种应用，降低学生和大众对新技术的误解。",
     accent: "#2776b8",
