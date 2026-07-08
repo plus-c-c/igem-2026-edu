@@ -896,33 +896,22 @@ main {
   font-size: 12px;
   font-weight: 600;
 }
-.campaign-card.project-card .project-subtitle {
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: -0.374px;
-  color: var(--ink-muted-48);
-}
-.campaign-card.project-card .project-quick-info {
-  display: flex;
-  gap: 12px;
-  font-size: 14px;
-}
-.campaign-card.project-card .project-quick-info span,
-.campaign-card.project-card .project-quick-info strong {
-  color: var(--ink-muted-48);
-  font-weight: 400;
-}
-.campaign-card.project-card .project-meta-pills {
+.campaign-card.project-card .project-event-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
-.campaign-card.project-card .project-meta-pills span {
+.campaign-card.project-card .project-event-tags span {
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   background: var(--canvas-parchment);
   color: var(--ink);
   font-size: 12px;
+}
+.campaign-card.project-card .project-event-tags .tag-can-join {
+  background: #ffd60a;
+  color: #1d1d1f;
+  font-weight: 600;
 }
 .campaign-card.project-card .detail-link {
   color: var(--primary);
@@ -1217,6 +1206,13 @@ input:focus, select:focus, textarea:focus {
   letter-spacing: 0;
 }
 .case-hero p { color: var(--body-muted); }
+.hero-team {
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-top: -8px;
+  margin-bottom: 4px;
+}
 
 .demo-badge {
   display: inline-block;

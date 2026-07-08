@@ -44,6 +44,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [locationCity, setLocationCity] = useState(editResource?.locationCity || "")
   const [eventDate, setEventDate] = useState(editResource?.eventDate || "")
   const [timeLimitType, setTimeLimitType] = useState(editResource?.timeLimitType || "")
+  const [activityFormat, setActivityFormat] = useState(editResource?.format || "")
   // 现场照片
   const [sitePhotosFormat, setSitePhotosFormat] = useState(editResource?.sitePhotosFormat || "")
   const [sitePhotoFiles, setSitePhotoFiles] = useState<Record<string, { fileId: string; url: string }>>({})
@@ -94,6 +95,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setLocationCity(editResource?.locationCity || "")
     setEventDate(editResource?.eventDate || "")
     setTimeLimitType(editResource?.timeLimitType || "")
+    setActivityFormat(editResource?.format || "")
     setSitePhotosFormat(editResource?.sitePhotosFormat || "")
     setSitePhotoFiles({})
     setTips(editResource?.tips || "")
@@ -255,6 +257,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         locationCity,
         eventDate,
         timeLimitType,
+        format: activityFormat,
         sitePhotosFormat,
         sitePhotoIds: Object.values(sitePhotoFiles).map((f) => f.fileId).filter(Boolean).join(","),
         tips,
@@ -391,6 +394,19 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <section className="event-info-section">
           <h2>活动信息</h2>
           <div className="event-info-grid">
+            <label className="choice-group wide">活动形式
+              <div>
+                {["讲座", "集市摊位", "路演", "其他"].map((opt) => (
+                  <label key={opt} className={activityFormat === opt ? "active" : ""}>
+                    <input type="radio" name="activityFormat" value={opt}
+                      checked={activityFormat === opt}
+                      onChange={(e) => setActivityFormat(e.target.value)} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </label>
+
             <label className="choice-group">是否可参与
               <div>
                 {["可参与", "不可参与"].map((opt) => (
