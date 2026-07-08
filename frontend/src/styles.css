@@ -1176,42 +1176,44 @@ input:focus, select:focus, textarea:focus {
 .case-detail { overflow: hidden; }
 
 .case-hero {
-  display: grid;
-  grid-template-columns: 0.9fr 1fr;
-  gap: 32px;
-  align-items: stretch;
-  margin-bottom: 56px;
-}
-.case-hero img {
-  width: 100%;
+  position: relative;
   height: 360px;
-  object-fit: cover;
   border-radius: var(--radius-lg);
-}
-.case-hero > div {
+  background-size: cover;
+  background-position: center;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  color: var(--body-on-dark);
-  background: var(--surface-tile-1);
-  text-align: center;
+  margin-bottom: 56px;
+  overflow: hidden;
 }
-.case-hero h1, .case-hero p, .case-hero .eyebrow { color: var(--body-on-dark); }
+.case-hero.has-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+.case-hero.no-bg {
+  background: var(--surface-tile-1);
+}
+.case-hero .hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--body-on-dark);
+  padding: 32px;
+}
 .case-hero h1 {
   font-size: clamp(34px, 4vw, 48px);
   line-height: 1.12;
   letter-spacing: 0;
+  color: var(--body-on-dark);
 }
-.case-hero p { color: var(--body-muted); }
-.hero-team {
+.case-hero .hero-team {
   font-size: 15px;
   font-weight: 500;
-  opacity: 0.8;
-  margin-top: -8px;
-  margin-bottom: 4px;
+  color: var(--body-muted);
+  margin-top: 4px;
 }
 
 .demo-badge {
@@ -2072,7 +2074,7 @@ footer {
   .filter-bar { grid-template-columns: 1fr; }
   .step-grid { grid-template-columns: 1fr; }
   .category-hero { padding: 24px; }
-  .case-hero img { height: 240px; }
+  .case-hero { height: 240px; }
   footer { flex-direction: column; text-align: center; align-items: center; }
   .product-tile { padding: 48px clamp(16px, 4vw, 24px); }
   .content-container, .wide-container { padding: 48px 16px; }
@@ -2082,5 +2084,5 @@ footer {
 /* Small phone: ≤ 419px */
 @media (max-width: 419px) {
   .stats-panel { grid-template-columns: 1fr; }
-  .case-hero img { height: 180px; }
+  .case-hero { height: 180px; }
 }
