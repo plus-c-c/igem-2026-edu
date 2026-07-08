@@ -252,12 +252,12 @@
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.12px;
-  color: var(--primary);
+  color: var(--ink-muted-48);
 }
 .image-upload-tile input[type="file"] { display: none; }
 .image-upload-tile svg {
   flex: 0 0 auto;
-  color: var(--primary);
+  color: var(--ink-muted-48);
   stroke-width: 2.25;
 }
 .image-upload-tile span {
