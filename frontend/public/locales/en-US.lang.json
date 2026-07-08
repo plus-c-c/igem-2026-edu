@@ -37,16 +37,24 @@
   },
   "filters": {
     "aria": "Project filters",
-    "searchPlaceholder": "Search by name, content, tags…",
+    "searchPlaceholder": "Search project name, team name or keywords",
+    "filterToggle": "Filters",
     "theme": "Topic",
     "material": "Resource",
     "audience": "Audience",
+    "all": "All",
     "allThemes": "All topics",
     "allMaterials": "All resources",
     "allAudiences": "All audiences",
-    "themeOptions": ["Synthetic Biology", "iGEM Outreach", "Other Science"],
-    "materialOptions": ["PPT", "docx", "Practice Notes", "Poster"],
-    "audienceOptions": ["K-12", "Universities", "Public", "iGEM Teams"]
+    "selected": "selected",
+    "selectAll": "Select All",
+    "canParticipate": "Can Participate",
+    "canJoin": "Available",
+    "cannotJoin": "Not Available",
+    "timeLimit": "Time Limit",
+    "timeLimitOptions": {"有时限": "Limited", "无时限": "Unlimited"},
+    "location": "Location",
+    "locationPlaceholder": "Enter location keyword"
   },
   "pages": {
     "scienceProjects": "Lecture Projects",

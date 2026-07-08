@@ -4,8 +4,9 @@ import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
+import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions } from "../data/constants"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2 } from "lucide-react"
+import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
 import { CategoryHero } from "./CategoryHero"
 import { StatsPanel } from "./StatsPanel"
@@ -23,15 +24,21 @@ interface PageProps {
 interface ProjectFilterState {
   searchText: string
   theme: string
-  material: string
+  materials: string[]
   audience: string
+  canParticipate: string
+  timeLimitType: string
+  location: string
 }
 
 const defaultProjectFilters: ProjectFilterState = {
   searchText: "",
   theme: "",
-  material: "",
+  materials: [],
   audience: "",
+  canParticipate: "",
+  timeLimitType: "",
+  location: "",
 }
 
 function optionMatches(item: Resource, option: string) {
@@ -44,18 +51,34 @@ function optionMatches(item: Resource, option: string) {
     item.format,
     item.impact,
     item.audience,
+    item.team,
+    item.location,
+    item.locationCity,
+    item.locationProvince,
+    item.locationCountry,
     ...(item.materials || []),
   ].filter(Boolean).join(" ").toLowerCase()
   return haystack.includes(option.toLowerCase())
 }
 
 function filterProjects(items: Resource[], filters: ProjectFilterState) {
-  return items.filter((item) =>
-    optionMatches(item, filters.searchText) &&
-    optionMatches(item, filters.theme) &&
-    optionMatches(item, filters.material) &&
-    optionMatches(item, filters.audience)
-  )
+  return items.filter((item) => {
+    if (filters.searchText && !optionMatches(item, filters.searchText)) return false
+    if (filters.theme && !optionMatches(item, filters.theme)) return false
+    if (filters.materials.length > 0) {
+      const itemMaterials = (item.materials || []).map((m) => m.toLowerCase())
+      const hasMatch = filters.materials.some((m) => itemMaterials.includes(m.toLowerCase()))
+      if (!hasMatch) return false
+    }
+    if (filters.audience && item.audience !== filters.audience) return false
+    if (filters.canParticipate && (item.canParticipate || "yes") !== filters.canParticipate) return false
+    if (filters.timeLimitType && (item.timeLimitType || "") !== filters.timeLimitType) return false
+    if (filters.location) {
+      const locHaystack = [item.location, item.locationCity, item.locationProvince, item.locationCountry].filter(Boolean).join(" ").toLowerCase()
+      if (!locHaystack.includes(filters.location.toLowerCase())) return false
+    }
+    return true
+  })
 }
 
 function getProjectSortTime(item: Resource) {
@@ -65,41 +88,129 @@ function getProjectSortTime(item: Resource) {
   return Number(rawDate.replace(/\D/g, "").slice(0, 12)) || 0
 }
 
-function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
+function optLabel(t: any, section: string, value: string): string {
+  return t?.categoryOptions?.[section]?.[value] || value
+}
+
+function MaterialMultiSelect({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const allSelected = value.length === materialOptions.length
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const toggle = (m: string) => {
+    onChange(value.includes(m) ? value.filter((x) => x !== m) : [...value, m])
+  }
+
+  const toggleAll = () => {
+    onChange(allSelected ? [] : [...materialOptions])
+  }
+
+  const displayText = value.length === 0
+    ? t.filters.allMaterials
+    : value.length === 1
+      ? optLabel(t, "materials", value[0])
+      : `${value.length} ${t.filters.selected}`
+
+  return (
+    <div className="multi-select-dropdown" ref={ref}>
+      <button type="button" className="multi-select-trigger" onClick={() => setOpen(!open)}>
+        <span>{displayText}</span>
+        <ChevronDown size={14} />
+      </button>
+      {open && (
+        <div className="multi-select-panel">
+          <label className={allSelected ? "active" : ""}>
+            <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+            {t.filters.selectAll}
+          </label>
+          {materialOptions.map((m) => (
+            <label key={m} className={value.includes(m) ? "active" : ""}>
+              <input type="checkbox" checked={value.includes(m)} onChange={() => toggle(m)} />
+              {optLabel(t, "materials", m)}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ProjectFilters({ filters, onChange, categoryId }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void; categoryId?: string }) {
+  const { t } = useI18n()
+  const themes = categoryId ? categoryThemeOptions[categoryId] || [] : []
+  const [showFilters, setShowFilters] = useState(false)
 
   return (
     <div className="project-filter-panel" aria-label={t.filters.aria}>
-      <div className="search-input">
-        <Search size={16} />
-        <input
-          type="text"
-          placeholder={t.filters.searchPlaceholder}
-          value={filters.searchText}
-          onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
-        />
+      <div className="project-filter-search-row">
+        <div className="search-input">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder={t.filters.searchPlaceholder}
+            value={filters.searchText}
+            onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
+          />
+          <button className="filter-toggle-btn" type="button" onClick={() => setShowFilters(!showFilters)}>
+            {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
       </div>
-      <label>
-        {t.filters.theme}
-        <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
-          <option value="">{t.filters.allThemes}</option>
-          {t.filters.themeOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
-        </select>
-      </label>
-      <label>
-        {t.filters.material}
-        <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
-          <option value="">{t.filters.allMaterials}</option>
-          {t.filters.materialOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
-        </select>
-      </label>
-      <label>
-        {t.filters.audience}
-        <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
-          <option value="">{t.filters.allAudiences}</option>
-          {t.filters.audienceOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
-        </select>
-      </label>
+
+      {showFilters && (
+        <div className="project-filter-fields">
+          <div className="filter-row">
+            <label>
+              {t.filters.theme}
+              <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
+                <option value="">{t.filters.allThemes}</option>
+                {themes.map((item: string) => <option key={item} value={item}>{optLabel(t, "themes", item)}</option>)}
+              </select>
+            </label>
+            <label className="filter-multi-label">
+              <span>{t.filters.material}</span>
+              <MaterialMultiSelect value={filters.materials} onChange={(v) => onChange({ ...filters, materials: v })} />
+            </label>
+            <label>
+              {t.filters.canParticipate}
+              <select value={filters.canParticipate} onChange={(e) => onChange({ ...filters, canParticipate: e.target.value })}>
+                <option value="">{t.filters.all}</option>
+                <option value="yes">{t.filters.canJoin}</option>
+                <option value="no">{t.filters.cannotJoin}</option>
+              </select>
+            </label>
+          </div>
+          <div className="filter-row">
+            <label>
+              {t.filters.timeLimit}
+              <select value={filters.timeLimitType} onChange={(e) => onChange({ ...filters, timeLimitType: e.target.value })}>
+                <option value="">{t.filters.all}</option>
+                {timeLimitOptions.map((opt: string) => <option key={opt} value={opt}>{optLabel(t, "timeLimitOptions", opt)}</option>)}
+              </select>
+            </label>
+            <label>
+              {t.filters.location}
+              <input type="text" value={filters.location} onChange={(e) => onChange({ ...filters, location: e.target.value })} placeholder={t.filters.locationPlaceholder} />
+            </label>
+            <label>
+              {t.filters.audience}
+              <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
+                <option value="">{t.filters.allAudiences}</option>
+                {audienceOptions.map((item: string) => <option key={item} value={item}>{optLabel(t, "audiences", item)}</option>)}
+              </select>
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -218,7 +329,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
             </button>
           }
         />
-        <ProjectFilters filters={filters} onChange={setFilters} />
+        <ProjectFilters filters={filters} onChange={setFilters} categoryId={category.id} />
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
@@ -311,7 +422,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
             </button>
           }
         />
-        <ProjectFilters filters={filters} onChange={setFilters} />
+        <ProjectFilters filters={filters} onChange={setFilters} categoryId={category.id} />
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}

@@ -44,9 +44,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
         {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
         <span className="project-material-progress" aria-hidden="true">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <span key={index} className={index < uploadedCount ? "active" : ""} />
-          ))}
+          <span className="project-material-progress-fill" style={{ width: `${(uploadedCount / 8) * 100}%` }} />
         </span>
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
