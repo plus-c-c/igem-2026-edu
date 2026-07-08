@@ -3,6 +3,7 @@
    Based on DESIGN.md Apple design language
    ============================================= */
 @import "./styles/forms.css";
+@import "./styles/pages.css";
 
 :root {
   /* Colors */
