@@ -4,7 +4,12 @@ export const materialTags = ["PPT", "测量表", "合作书", "海报", "传单"
 
 export const deliveryOptions = ["线上", "线下", "都可"]
 
-export const audienceOptions = ["小学", "初中", "高中", "大学", "社会公众", "老年人", "通用"]
+export const audienceOptions = ["小学", "初中", "高中", "大学", "社会公众", "老年人"]
+
+export const subcategoryOptions: Record<string, string[]> = {
+  applications: ["合成生物学科普", "iGEM科普", "其他"],
+  activities: ["互动游戏", "现场体验", "其他"],
+}
 
 export const participationOptions = [
   { value: "yes", label: "是" },

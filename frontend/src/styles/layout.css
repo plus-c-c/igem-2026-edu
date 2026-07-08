@@ -73,6 +73,11 @@ main {
   overflow-wrap: anywhere;
 }
 
+.home-subtitle {
+  max-width: 1120px;
+  white-space: nowrap;
+}
+
 .typewriter-text {
   display: block;
   width: 100%;
@@ -147,6 +152,14 @@ main {
 }
 
 /* ========== Stats Section ========== */
+.stats-container {
+  width: 100%;
+  max-width: 1340px;
+}
+.product-tile .tile-content.stats-container {
+  width: 100%;
+  max-width: 1340px;
+}
 .stats-panel {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -175,6 +188,7 @@ main {
   letter-spacing: -0.224px;
   color: var(--ink-muted-48);
   margin-top: 4px;
+  white-space: nowrap;
 }
 
 /* ========== Showcase Section (alternating dark tile) ========== */

@@ -161,13 +161,13 @@
 
 .campaign-card img,
 .card-img-placeholder {
+  display: block;
   width: 100%;
   height: 180px;
   object-fit: cover;
 }
 .card-img-placeholder {
   background: var(--canvas-parchment);
-  display: block;
 }
 .hero-img-placeholder {
   width: 100%;
@@ -249,6 +249,26 @@
 }
 .campaign-card.project-card h3 { color: var(--ink); }
 .campaign-card.project-card p { color: var(--ink-muted-48); }
+.campaign-card.project-card .project-material-progress {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--canvas);
+  overflow: hidden;
+  margin: 0;
+}
+.campaign-card.project-card .project-material-progress span {
+  display: block;
+  height: 100%;
+  border-radius: 0;
+  background: var(--canvas);
+  transition: background-color 0.2s ease;
+}
+.campaign-card.project-card .project-material-progress span.active {
+  background: #ffd60a;
+}
 .campaign-card.project-card .project-org {
   display: inline-block;
   width: fit-content;
@@ -333,4 +353,3 @@
   color: var(--ink-muted-48);
   line-height: 1.43;
 }
-

@@ -12,7 +12,8 @@
   gap: 24px;
   margin-bottom: 40px;
 }
-.page-heading p { margin-bottom: 0; }
+.page-heading p:not(.eyebrow) { margin-bottom: 0; }
+.page-heading .eyebrow { margin-bottom: 18px; }
 
 .recruitment-page {
   max-width: 980px;
@@ -120,16 +121,24 @@
   padding: 32px;
 }
 .case-hero h1 {
-  font-size: clamp(34px, 4vw, 48px);
+  font-size: clamp(36px, 4vw, 50px);
   line-height: 1.12;
   letter-spacing: 0;
   color: var(--body-on-dark);
 }
 .case-hero .hero-team {
-  font-size: 15px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--body-muted);
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+.case-hero .hero-contact {
+  font-size: 16px;
   font-weight: 500;
   color: var(--body-muted);
   margin-top: 4px;
+  margin-bottom: 0;
 }
 
 .demo-badge {
@@ -372,9 +381,37 @@
 
 /* ========== Comments ========== */
 .comment-section {
-  margin-top: 48px;
-  padding-top: 32px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid var(--hairline);
+}
+.image-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: rgba(0, 0, 0, 0.72);
+}
+.image-preview-modal img {
+  max-width: min(1100px, 92vw);
+  max-height: 86vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-product);
+}
+.image-preview-close {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
 }
 .comment-section h2 {
   font-size: 21px;
@@ -484,6 +521,10 @@
 }
 
 .detail-footer-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
   margin-top: 32px;
   padding-top: 16px;
   border-top: 1px solid var(--hairline);
@@ -491,6 +532,23 @@
 .detail-footer-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+}
+.detail-footer-team {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+  justify-items: end;
+  color: var(--ink-muted-48);
+}
+.detail-footer-team strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.detail-footer-team span {
+  font-size: 13px;
+  color: var(--ink-muted-48);
 }
 .detail-action-btn {
   display: inline-flex;
@@ -515,5 +573,3 @@
   font-weight: 600;
   color: inherit;
 }
-
-

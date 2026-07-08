@@ -26,6 +26,7 @@ export interface Resource {
   id: string | number
   userId?: string
   category: string
+  subcategory?: string
   team: string
   organization?: string
   title: string
