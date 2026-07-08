@@ -33,6 +33,9 @@ export class Resource {
   @Column()
   category!: string
 
+  @Column({ nullable: true })
+  subcategory!: string
+
   @Column({ default: "yes" })
   acceptsOthers!: string
 

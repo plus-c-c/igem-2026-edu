@@ -37,6 +37,7 @@ function optionMatches(item: Resource, option: string) {
   const haystack = [
     item.title,
     item.subtitle,
+    item.subcategory,
     item.desc,
     item.format,
     item.impact,
@@ -52,6 +53,13 @@ function filterProjects(items: Resource[], filters: ProjectFilterState) {
     optionMatches(item, filters.material) &&
     optionMatches(item, filters.audience)
   )
+}
+
+function getProjectSortTime(item: Resource) {
+  const rawDate = item.eventDate || item.updatedAt || item.createdAt || ""
+  const parsedTime = Date.parse(rawDate)
+  if (!Number.isNaN(parsedTime)) return parsedTime
+  return Number(rawDate.replace(/\D/g, "").slice(0, 12)) || 0
 }
 
 function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
@@ -87,7 +95,9 @@ function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; on
 export function HomePage({ resources }: { resources: Resource[] }) {
   const { t } = useI18n()
   const campaignResources = resources.filter((r) => r.type === "campaign")
-  const displayCampaigns = campaignResources.slice(0, 4)
+  const displayCampaigns = [...campaignResources]
+    .sort((a, b) => getProjectSortTime(b) - getProjectSortTime(a))
+    .slice(0, 4)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
   const fullTitle = titleLines.join("\n")
   const [typedTitle, setTypedTitle] = useState("")
@@ -124,7 +134,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
               <span className="typewriter-line">{typedLines[1] || "\u00a0"}</span>
             </span>
           </h1>
-          <p style={{ maxWidth: 600 }}>{t.home.subtitle}</p>
+          <p className="home-subtitle">{t.home.subtitle}</p>
           <div className="tile-actions">
             <Link className="pill-btn primary" to="/submit">
               <Plus size={18} /> {t.home.recruitButton}
@@ -135,7 +145,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
 
       {/* Stats — parchment section */}
       <section className="product-tile parchment">
-        <div className="tile-content wide-container" style={{ maxWidth: 980, width: "100%" }}>
+        <div className="tile-content wide-container stats-container">
           <StatsPanel resources={resources} />
         </div>
       </section>
@@ -304,6 +314,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const steps = r?.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
   const { materialFiles } = useResourceFiles(r?.id)
   const resId = r?.id ? String(r.id) : ""
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
 
   const [likedByMe, setLikedByMe] = useState(() => {
     if (!resId || !user) return false
@@ -388,6 +399,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <div className="hero-content">
           <h1>{r.title}</h1>
           {r.team && <p className="hero-team">{r.team}</p>}
+          {r.contact && <p className="hero-contact">{r.contact}</p>}
         </div>
       </div>
 
@@ -408,7 +420,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
                     <div key={i} className="site-photo-slot">
                       {sitePhotoIdList[i] ? (
                         <div className="site-photo-preview">
-                          <img src={fileService.downloadUrl(sitePhotoIdList[i])} alt={label} />
+                          <button type="button" className="site-photo-preview-button" onClick={() => setPreviewImageUrl(fileService.downloadUrl(sitePhotoIdList[i]))}>
+                            <img src={fileService.downloadUrl(sitePhotoIdList[i])} alt={label} />
+                          </button>
                         </div>
                       ) : (
                         <div className="site-photo-slot empty" />
@@ -419,18 +433,12 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
               </div>
             </article>
           )}
-
-          {r.tips && (
-            <article className="case-detail-card">
-              <h2>{t.caseDetail.tips}</h2>
-              <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
-            </article>
-          )}
         </div>
 
         <aside className="case-side">
           <h2>{t.caseDetail.info}</h2>
           <p><strong>{t.caseDetail.category}</strong><span>{category?.name}</span></p>
+          {r.subcategory && <p><strong>{t.submitPage.subcategory}</strong><span>{r.subcategory}</span></p>}
           {r.audience && <p><strong>{t.filters.audience}</strong><span>{r.audience}</span></p>}
           {r.canParticipate && <p><strong>{t.caseDetail.canParticipate}</strong><span>{r.canParticipate === "yes" ? t.caseDetail.canJoin : t.caseDetail.cannotJoin}</span></p>}
           {locationLabel && <p><strong>{t.caseDetail.location}</strong><span>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</span></p>}
@@ -471,6 +479,13 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         </section>
       )}
 
+      {r.tips && (
+        <section className="case-detail-card">
+          <h2>{t.caseDetail.tips}</h2>
+          <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
+        </section>
+      )}
+
       {canEdit && r.id && (
         <div className="detail-actions">
           <button className="edit-button" type="button" onClick={() => navigate(`/resource/${r.id}/edit`)}>
@@ -495,9 +510,21 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
             {favoritesCount > 0 && <span className="count-badge">{favoritesCount}</span>}
           </button>
         </div>
+        {(r.team || r.contact) && (
+          <div className="detail-footer-team">
+            {r.team && <strong>{r.team}</strong>}
+            {r.contact && <span>{r.contact}</span>}
+          </div>
+        )}
       </div>
 
       {r.id && <CommentSection resourceId={r.id} user={user} />}
+      {previewImageUrl && (
+        <div className="image-preview-modal" role="dialog" aria-modal="true" onClick={() => setPreviewImageUrl(null)}>
+          <button type="button" className="image-preview-close" onClick={() => setPreviewImageUrl(null)}>×</button>
+          <img src={previewImageUrl} alt={t.caseDetail.sitePhotos} onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </section>
   )
 }

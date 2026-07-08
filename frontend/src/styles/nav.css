@@ -17,6 +17,8 @@
 }
 
 .global-nav .brand {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -36,6 +38,9 @@
 .global-nav .brand small { display: none; }
 
 .global-nav .nav-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 0;
@@ -59,6 +64,8 @@
 }
 
 .global-nav .nav-actions {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;

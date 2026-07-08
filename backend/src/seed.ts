@@ -23,6 +23,7 @@ interface CampaignStep {
 interface SeedResource {
   title: string
   category: string
+  subcategory?: string
   team: string
   desc: string
   type: string
@@ -48,7 +49,8 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 const sampleResources: SeedResource[] = [
 
   {
-    category: "synbio",
+    category: "applications",
+    subcategory: "合成生物学科普",
     title: "细胞工厂——微生物如何帮我们生产药物",
     team: "西湖大学 SynBio 科普组",
     subtitle: "从胰岛素到青蒿素，探秘微生物的超级生产力",
@@ -75,7 +77,8 @@ const sampleResources: SeedResource[] = [
     ],
   },
   {
-    category: "synbio",
+    category: "applications",
+    subcategory: "合成生物学科普",
     title: "DNA 折纸——用分子搭建纳米结构",
     team: "浙江大学 iGEM 科普分队",
     subtitle: "当 DNA 变成建筑材料，微观世界也能搭积木",
@@ -102,7 +105,8 @@ const sampleResources: SeedResource[] = [
     ],
   },
   {
-    category: "synbio",
+    category: "applications",
+    subcategory: "iGEM科普",
     title: "基因编辑 CRISPR——从原理到伦理",
     team: "HP-Education 科普工作组",
     subtitle: "编辑生命密码，技术如何改变世界",
@@ -130,6 +134,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "applications",
+    subcategory: "合成生物学科普",
     title: "微生物燃料电池——用细菌发电",
     team: "Westlake iGEM 2024",
     subtitle: "污水中的细菌也能点亮一盏灯",
@@ -157,6 +162,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "applications",
+    subcategory: "合成生物学科普",
     title: "生物传感器——让检测变得简单",
     team: "ZJU-China iGEM 2024",
     subtitle: "用改造过的微生物快速检测水质",
@@ -184,6 +190,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "applications",
+    subcategory: "其他",
     title: "合成生物学与可持续发展目标",
     team: "HP-Education 科普组",
     subtitle: "用工程生物学应对全球挑战",
@@ -211,6 +218,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "activities",
+    subcategory: "互动游戏",
     title: "微生物作画——用细菌创作艺术",
     team: "Westlake iGEM Art Group",
     subtitle: "在培养皿中，用彩色菌落绘制一幅画",
@@ -238,6 +246,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "activities",
+    subcategory: "现场体验",
     title: "生物材料体验日——探索未来的可持续材料",
     team: "ZJU iGEM Biomaterial Team",
     subtitle: "用蘑菇根、细菌纤维和藻类制作可降解材料",
@@ -265,6 +274,7 @@ const sampleResources: SeedResource[] = [
   },
   {
     category: "activities",
+    subcategory: "互动游戏",
     title: "科学游园会——合成生物学嘉年华",
     team: "HP-Education 活动策划组",
     subtitle: "7 个互动摊位，让科学触手可及",
@@ -486,7 +496,6 @@ async function loginAsAdmin(): Promise<string> {
 
 function formatCategory(cat: string): string {
   const map: Record<string, string> = {
-    synbio: "合成生物学科普",
     applications: "项目应用科普",
     activities: "缤纷开放活动",
     cooperation: "教育合作",
@@ -550,6 +559,26 @@ async function deleteAllResources(token: string): Promise<void> {
     if (delRes.ok) deleted++
   }
   console.log(`已清除 ${deleted} 个现有项目`)
+}
+
+async function publishExistingResources(token: string, resources: any[]): Promise<void> {
+  const drafts = resources.filter((r) => r.status !== "published")
+  if (drafts.length === 0) return
+
+  console.log(`检测到 ${drafts.length} 个非公开项目，正在发布...`)
+  let published = 0
+  for (const resource of drafts) {
+    const res = await fetch(`${API_URL}/api/resources/${resource.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ ...resource, status: "published" }),
+    })
+    if (res.ok) published++
+  }
+  console.log(`发布完毕：${published} 个`)
 }
 
 // ========== 管理员账号创建（直接操作数据库） ==========
@@ -642,6 +671,7 @@ async function main() {
   })
   const existing = checkRes.ok ? ((await checkRes.json()).resources || []) : []
   if (existing.length > 0) {
+    await publishExistingResources(token, existing)
     console.log(`检测到 ${existing.length} 个现有项目，跳过示例数据录入（保留已有数据）`)
     return
   }

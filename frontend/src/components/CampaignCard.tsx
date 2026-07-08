@@ -7,6 +7,12 @@ interface CampaignCardProps {
   variant?: "case" | "project"
 }
 
+function uploadedMaterialCount(item: Resource) {
+  const stepFileCount = item.campaignSteps?.reduce((sum, step) => sum + step.files.length, 0) || 0
+  const sitePhotoCount = item.sitePhotoIds?.split(",").filter(Boolean).length || 0
+  return Math.min(8, stepFileCount + sitePhotoCount)
+}
+
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   const { t } = useI18n()
 
@@ -14,6 +20,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     const row1: string[] = []
     const row2: string[] = []
 
+    if (item.subcategory) row1.push(item.subcategory)
     if (item.timeLimitType) row1.push(item.timeLimitType)
 
     if (item.locationType) {
@@ -31,10 +38,16 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     if (item.eventDate) row2.push(item.eventDate)
     if (item.format) row2.push(item.format)
     const canJoin = item.canParticipate === "yes"
+    const uploadedCount = uploadedMaterialCount(item)
 
     return (
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
         {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+        <span className="project-material-progress" aria-hidden="true">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <span key={index} className={index < uploadedCount ? "active" : ""} />
+          ))}
+        </span>
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
           <h3>{item.title}</h3>

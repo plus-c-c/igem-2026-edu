@@ -10,7 +10,7 @@ import { AuthRequest } from "../middleware/auth"
 export async function create(req: AuthRequest, res: Response) {
   try {
     const {
-      team, title, negotiator, category, acceptsOthers,
+      team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
@@ -26,7 +26,7 @@ export async function create(req: AuthRequest, res: Response) {
     const resourceRepo = AppDataSource.getRepository(Resource)
     const resource = resourceRepo.create({
       userId: req.userId,
-      team, title, negotiator, category, acceptsOthers,
+      team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
@@ -194,7 +194,7 @@ export async function update(req: AuthRequest, res: Response) {
     }
 
     const {
-      team, title, negotiator, category, acceptsOthers,
+      team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
@@ -215,7 +215,7 @@ export async function update(req: AuthRequest, res: Response) {
     }
 
     resourceRepo.merge(resource, {
-      team, title, negotiator, category, acceptsOthers,
+      team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,

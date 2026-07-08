@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom"
 import { Upload, Loader2, Plus, Trash2, Bold, Italic, Heading, List, Link2, Eye, Edit3, ImageIcon } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
-import { materialTags, audienceOptions } from "../data/constants"
+import { materialTags, audienceOptions, subcategoryOptions } from "../data/constants"
 import { worldCountries, worldRegions, worldCities } from "../data/locations"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
@@ -88,8 +88,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }, [isEdit, editResource])
   const defaultCategory = params.get("category") || editResource?.category || "applications"
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
+  const [selectedSubcategory, setSelectedSubcategory] = useState(editResource?.subcategory || "")
   const [audience, setAudience] = useState(editResource?.audience || "")
   const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : (t.submitPage.projectLabelCooperation)
+  const subcategoryChoices = subcategoryOptions[selectedCategory] || []
+
+  useEffect(() => {
+    if (selectedSubcategory && !subcategoryChoices.includes(selectedSubcategory)) {
+      setSelectedSubcategory("")
+    }
+  }, [selectedCategory, selectedSubcategory])
 
   useEffect(() => {
     if (editResource) {
@@ -102,6 +110,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     coverUploadedUrl.current = undefined
     setDraftId(null)
     setSelectedCategory(defaultCategory)
+    setSelectedSubcategory(editResource?.subcategory || "")
     setAudience(editResource?.audience || "")
     setCanParticipate(editResource?.canParticipate || "yes")
     setLocationTypes(editResource?.locationType ? editResource.locationType.split(",") : [])
@@ -176,6 +185,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         status: "draft",
         originalId: String(editResource.id),
         category: selectedCategory,
+        subcategory: selectedSubcategory,
         team: user.teamName,
         title: "",
         desc: "",
@@ -187,9 +197,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (isEdit) return String(editResource!.id)
     if (draftId) return draftId
     const res = await resourceService.create({
-      type: "campaign",
-      category: defaultCategory,
-      team: user.teamName,
+        type: "campaign",
+        category: defaultCategory,
+        subcategory: selectedSubcategory,
+        team: user.teamName,
       title: "",
       desc: "",
     })
@@ -328,9 +339,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         type: "campaign",
         status: isDraft ? "draft" : "published",
         category: formData.get("category") as string || selectedCategory,
+        subcategory: selectedSubcategory,
         audience,
         title: formData.get("title") as string,
         team: formData.get("team") as string || user.teamName,
+        contact: formData.get("contact") as string || user.email,
         image: editResource?.image || "",
         desc,
         campaignSteps,
@@ -463,6 +476,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
           <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
+          <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
           <label>{t.submitPage.projectName}<input name="title" required placeholder={t.submitPage.projectPlaceholder} defaultValue={editResource?.title} /></label>
           <label>{t.submitPage.category}
             <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
@@ -476,46 +490,57 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               {audienceOptions.map((opt, i) => <option key={opt} value={opt}>{t.constants.audienceOptions?.[i] || opt}</option>)}
             </select>
           </label>
-
-          <div className="image-upload-block">
-            <label className="image-upload-tile">
-              <Upload size={20} />
-              <span>{t.submitPage.uploadCover}</span>
-              <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+          {subcategoryChoices.length > 0 && (
+            <label>{t.submitPage.subcategory}
+              <select required value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+                <option value="" disabled>{t.submitPage.selectSubcategory}</option>
+                {subcategoryChoices.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+              </select>
             </label>
-            {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
-            {coverPreviewUrl && (
-              <div className="image-preview">
-                <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
-                <span>
-                  <button type="button" className="file-delete-btn" disabled={coverDeleting}
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      setCoverDeleting(true)
-                      try {
-                        const rid = isEdit ? String(editResource!.id) : draftId
-                        if (rid && coverFileId) {
-                          await fileService.remove(rid, coverFileId)
-                        }
-                        if (isEdit) {
-                          await resourceService.update(String(editResource!.id), { image: "" })
-                        }
-                      } catch {}
-                      setCoverDeleting(false)
-                      setCoverPreviewUrl(undefined)
-                      coverUploadedUrl.current = undefined
-                      setCoverFileId(null)
-                      imageFileRef.current = null
-                    }}
-                  >×</button>
-                </span>
-              </div>
-            )}
-            {imageUploadPct !== undefined && (
-              <div className="upload-progress-bar">
-                <div className="upload-progress-fill" style={{ width: `${imageUploadPct}%` }} />
-              </div>
-            )}
+          )}
+
+          <div className="cover-upload-field wide">
+            <span className="cover-upload-label">{t.submitPage.coverImage}</span>
+            <div className="image-upload-block">
+              <label className="image-upload-tile">
+                <Upload size={24} />
+                <span>{t.submitPage.uploadCover}</span>
+                <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+              </label>
+              {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
+              {coverPreviewUrl && (
+                <div className="image-preview">
+                  <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
+                  <span>
+                    <button type="button" className="file-delete-btn" disabled={coverDeleting}
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        setCoverDeleting(true)
+                        try {
+                          const rid = isEdit ? String(editResource!.id) : draftId
+                          if (rid && coverFileId) {
+                            await fileService.remove(rid, coverFileId)
+                          }
+                          if (isEdit) {
+                            await resourceService.update(String(editResource!.id), { image: "" })
+                          }
+                        } catch {}
+                        setCoverDeleting(false)
+                        setCoverPreviewUrl(undefined)
+                        coverUploadedUrl.current = undefined
+                        setCoverFileId(null)
+                        imageFileRef.current = null
+                      }}
+                    >×</button>
+                  </span>
+                </div>
+              )}
+              {imageUploadPct !== undefined && (
+                <div className="upload-progress-bar">
+                  <div className="upload-progress-fill" style={{ width: `${imageUploadPct}%` }} />
+                </div>
+              )}
+            </div>
           </div>
 
           <label className="wide">{t.submitPage.desc}<textarea name="desc" required placeholder={t.submitPage.descPlaceholder} defaultValue={editResource?.desc} /></label>
