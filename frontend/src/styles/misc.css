@@ -126,7 +126,7 @@ footer {
   gap: 22px;
 }
 .footer-partner-logos img {
-  max-width: 96px;
-  max-height: 68px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
 }
