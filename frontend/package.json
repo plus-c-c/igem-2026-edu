@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node tests/smoke.mjs",
+    "pretest": "playwright install chromium 2>/dev/null; exit 0"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
