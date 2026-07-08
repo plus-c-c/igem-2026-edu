@@ -1,4 +1,4 @@
-/* ========== Filter Bar ========== */
+/* ========== Filter Bar (category page top bar) ========== */
 .filter-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -72,13 +72,184 @@ input:focus, select:focus, textarea:focus {
 }
 .search-input svg {
   position: absolute;
-  left: 20px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--ink-muted-48);
   pointer-events: none;
 }
 .search-input input {
-  padding-left: 44px;
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
+/* ========== Project Filter Panel (recruitment page) ========== */
+.project-filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+}
+
+.project-filter-search-row {
+  position: relative;
+  width: 100%;
+}
+
+.project-filter-search-row .search-input {
+  width: 100%;
+}
+
+.project-filter-search-row .search-input input {
+  padding-right: 44px;
+  box-sizing: border-box;
+}
+
+.filter-toggle-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--ink-muted-48);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.filter-toggle-btn:hover {
+  background: var(--hairline);
+  color: var(--accent);
+}
+
+.project-filter-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.filter-row label,
+.filter-row .filter-multi-label {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-muted-48);
+}
+
+.filter-row label select,
+.filter-row label input[type="text"],
+.multi-select-trigger {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.875rem;
+  color: var(--ink);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.filter-row label select:hover,
+.filter-row label input[type="text"]:hover,
+.multi-select-trigger:hover {
+  border-color: var(--accent);
+}
+
+.filter-row label select:focus,
+.filter-row label input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* ========== Multi-Select Dropdown ========== */
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.multi-select-trigger:hover {
+  border-color: var(--accent);
+}
+
+.multi-select-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, white);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.multi-select-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  white-space: nowrap;
+}
+
+.multi-select-panel label:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.multi-select-panel label.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.multi-select-panel label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}

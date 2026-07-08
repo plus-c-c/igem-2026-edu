@@ -68,21 +68,6 @@
   margin-top: 32px;
 }
 
-.project-filter-panel {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 24px;
-  padding: 20px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--canvas);
-}
-
-.project-filter-panel label {
-  margin: 0;
-}
-
 .category-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
