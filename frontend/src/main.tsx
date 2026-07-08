@@ -13,7 +13,7 @@ import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { ProfilePage } from "./components/ProfilePage"
 import { LoginModal } from "./components/LoginModal"
 import { LanguageProvider } from "./i18n"
-import "./styles.css"
+import "./styles/index.css"
 
 function App() {
   const [user, setUser, authLoading] = useLocalAuth()
