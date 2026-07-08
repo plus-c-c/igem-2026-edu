@@ -482,8 +482,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <Upload size={20} />
               <span>{t.submitPage.uploadCover}</span>
               <input type="file" accept="image/*" onChange={handleCoverFileChange} />
-              {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
             </label>
+            {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
             {coverPreviewUrl && (
               <div className="image-preview">
                 <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
