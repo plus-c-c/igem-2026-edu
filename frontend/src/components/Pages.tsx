@@ -7,6 +7,7 @@ import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
+import { CategoryHero } from "./CategoryHero"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
@@ -179,17 +180,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
 
   return (
     <section className="page-shell recruitment-page">
-      <div className="category-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${category.image})` }}>
-        <div>
-          <p className="eyebrow">{category.short}</p>
-          <h1>{category.name}</h1>
-          <p>{category.intro}</p>
-        </div>
-        <div className="category-badge">
-          <Icon size={34} />
-          <span>{list.length} 个项目</span>
-        </div>
-      </div>
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} 个项目</span></>} />
 
       <section className="case-section">
         <SectionTitle
@@ -221,13 +212,7 @@ export function AboutPage() {
 
   return (
     <section className="page-shell about-page">
-      <div className="category-hero about-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.28)), url(${category.image})` }}>
-        <div>
-          <p className="eyebrow">{category.short}</p>
-          <h1>{category.name}</h1>
-          <p>加入我们，一起点亮世界合成生物学科普的微光。</p>
-        </div>
-      </div>
+      <CategoryHero category={category} className="about-hero" gradient="linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.28))" intro="加入我们，一起点亮世界合成生物学科普的微光。" />
 
       <article className="about-story">
         <p>
@@ -269,17 +254,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 
   return (
     <section className="page-shell">
-      <div className="category-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${category.image})` }}>
-        <div>
-          <p className="eyebrow">{category.short}</p>
-          <h1>{category.name}</h1>
-          <p>{category.intro}</p>
-        </div>
-        <div className="category-badge">
-          <Icon size={34} />
-          <span>{list.length} 个项目</span>
-        </div>
-      </div>
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} 个项目</span></>} />
 
       <section className="case-section">
         <SectionTitle
@@ -381,7 +356,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
     onDelete(String(r!.id))
   }
 
-  if (!item) {
+  if (!r) {
     return (
       <section className="page-shell">
         <h1>教育项目不存在</h1>

@@ -166,13 +166,13 @@
   object-fit: cover;
 }
 .card-img-placeholder {
-  background: var(--parchment);
+  background: var(--canvas-parchment);
   display: block;
 }
 .hero-img-placeholder {
   width: 100%;
   height: 260px;
-  background: var(--parchment);
+  background: var(--canvas-parchment);
   border-radius: 18px;
 }
 

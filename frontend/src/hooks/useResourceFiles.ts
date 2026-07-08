@@ -20,14 +20,14 @@ export function useResourceFiles(resourceId: string | number | undefined) {
     fileService.list(String(resourceId)).then(setFiles).catch(() => {})
   }
 
-  const materialFiles = () => {
-    const grouped: Record<string, { id: string; name: string }[]> = {}
+  const groupedByLabel = () => {
+    const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
     for (const f of files) {
       if (f.materialLabel === "cover") continue
       if (f.materialLabel?.startsWith("campaign-step-")) continue
       const key = f.materialLabel || "其他"
       if (!grouped[key]) grouped[key] = []
-      grouped[key].push({ id: f.id, name: f.originalName })
+      grouped[key].push({ id: f.id, name: f.originalName, size: f.size })
     }
     return grouped
   }
@@ -46,17 +46,5 @@ export function useResourceFiles(resourceId: string | number | undefined) {
 
   const coverFile = () => files.find((f) => f.materialLabel === "cover") || null
 
-  const groupedByLabel = () => {
-    const grouped: Record<string, { id: string; name: string; size: number }[]> = {}
-    for (const f of files) {
-      if (f.materialLabel === "cover") continue
-      if (f.materialLabel?.startsWith("campaign-step-")) continue
-      const key = f.materialLabel || "其他"
-      if (!grouped[key]) grouped[key] = []
-      grouped[key].push({ id: f.id, name: f.originalName, size: f.size })
-    }
-    return grouped
-  }
-
-  return { files, loading, refresh, materialFiles, stepFiles, coverFile, groupedByLabel }
+  return { files, loading, refresh, materialFiles: groupedByLabel, stepFiles, coverFile, groupedByLabel }
 }

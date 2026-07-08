@@ -49,6 +49,10 @@
   --radius-pill: 9999px;
   --radius-full: 9999px;
 
+  /* Surface soft for avatar/role-tabs */
+  --canvas-soft: #f5f5f7;
+  --ink-muted-56: #8a8a8e;
+
   /* Shadows — exactly one in the system */
   --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
 }
