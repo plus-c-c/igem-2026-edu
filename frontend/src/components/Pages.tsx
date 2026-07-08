@@ -423,6 +423,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
           {r.team && <p className="hero-team">{r.team}</p>}
           {r.contact && <p className="hero-contact">{r.contact}</p>}
         </div>
+        <button className="hero-close" type="button" onClick={() => navigate(-1)} aria-label={t.caseDetail.close}>×</button>
       </div>
 
       <div className="case-detail-grid">
