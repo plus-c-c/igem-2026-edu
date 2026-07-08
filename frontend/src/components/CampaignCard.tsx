@@ -19,7 +19,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     if (item.locationType) {
       const types = item.locationType.split(",")
       if (types.includes("线上") && types.includes("线下")) {
-        row1.push("线上/线下")
+        row1.push(t.campaignCard.onlineOffline)
       } else {
         types.forEach((tag) => row1.push(tag))
       }
@@ -43,7 +43,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
           </div>
           <div className="project-event-tags">
             {row2.map((tag) => <span key={tag}>{tag}</span>)}
-            {canJoin && <span className="tag-can-join">可参与</span>}
+            {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
           </div>
           <span className="detail-link">{t.caseDetail.detailLink}</span>
         </div>

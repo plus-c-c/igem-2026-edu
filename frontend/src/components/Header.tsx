@@ -41,9 +41,9 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
         ))}
       </div>
       <div className="nav-actions">
-        <button className="language-toggle" type="button" onClick={toggleLanguage} aria-label={language === "zh" ? "Switch to English" : "切换到中文"}>
+        <button className="language-toggle" type="button" onClick={toggleLanguage} aria-label={language === "zh" ? t.nav.switchToEn : t.nav.switchToZh}>
           <Globe2 size={15} />
-          <span>{language === "zh" ? "中 / EN" : "EN / 中"}</span>
+          <span>{language === "zh" ? t.nav.labelZh : t.nav.labelEn}</span>
         </button>
         {user ? (
           <>

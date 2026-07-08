@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { ThumbsUp, Reply, Send, Trash2 } from "lucide-react"
 import type { User } from "../types"
 import { commentService, type CommentData } from "../services/commentService"
+import { useI18n } from "../i18n"
 
 interface CommentSectionProps {
   resourceId: string | number
@@ -9,6 +10,7 @@ interface CommentSectionProps {
 }
 
 function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; resourceId: string; user: User | null; onDelete: (id: string) => void }) {
+  const { t } = useI18n()
   const [likesCount, setLikesCount] = useState(reply.likesCount)
   const [likedByMe, setLikedByMe] = useState(reply.likedByMe)
 
@@ -28,12 +30,12 @@ function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; 
   }
 
   const handleDelete = async () => {
-    if (!confirm("确定删除此回复？")) return
+    if (!confirm(t.comments.confirmDeleteReply)) return
     try {
       await commentService.remove(resourceId, reply.id)
       onDelete(reply.id)
     } catch (e) {
-      alert(e instanceof Error ? e.message : "删除失败")
+      alert(e instanceof Error ? e.message : t.comments.deleteFailed || "删除失败")
     }
   }
 
@@ -45,7 +47,7 @@ function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; 
         <strong className="comment-author">{reply.user.name}</strong>
         <span className="comment-time">{new Date(reply.createdAt).toLocaleDateString("zh-CN")}</span>
         {canDelete && (
-          <button className="comment-delete-btn" type="button" onClick={handleDelete} title="删除">
+          <button className="comment-delete-btn" type="button" onClick={handleDelete} title={t.comments.delete}>
             <Trash2 size={12} />
           </button>
         )}
@@ -53,7 +55,7 @@ function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; 
       <p className="comment-content">{reply.content}</p>
       <div className="comment-actions">
         <button className={`comment-action-btn ${likedByMe ? "liked" : ""}`} type="button" onClick={handleLike} disabled={!user}>
-          <ThumbsUp size={14} /> {likesCount || "赞"}
+          <ThumbsUp size={14} /> {likesCount || t.comments.like}
         </button>
       </div>
     </div>
@@ -61,6 +63,7 @@ function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; 
 }
 
 function CommentItem({ comment, resourceId, user, onDelete }: { comment: CommentData; resourceId: string; user: User | null; onDelete: (id: string) => void }) {
+  const { t } = useI18n()
   const [likesCount, setLikesCount] = useState(comment.likesCount)
   const [likedByMe, setLikedByMe] = useState(comment.likedByMe)
   const [showReply, setShowReply] = useState(false)
@@ -96,12 +99,12 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
   }
 
   const handleDelete = async () => {
-    if (!confirm("确定删除此评论？")) return
+    if (!confirm(t.comments.confirmDeleteComment)) return
     try {
       await commentService.remove(resourceId, comment.id)
       onDelete(comment.id)
     } catch (e) {
-      alert(e instanceof Error ? e.message : "删除失败")
+      alert(e instanceof Error ? e.message : t.comments.deleteFailed || "删除失败")
     }
   }
 
@@ -117,7 +120,7 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
         <strong className="comment-author">{comment.user.name}</strong>
         <span className="comment-time">{new Date(comment.createdAt).toLocaleDateString("zh-CN")}</span>
         {canDelete && (
-          <button className="comment-delete-btn" type="button" onClick={handleDelete} title="删除">
+          <button className="comment-delete-btn" type="button" onClick={handleDelete} title={t.comments.delete}>
             <Trash2 size={12} />
           </button>
         )}
@@ -125,11 +128,11 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
       <p className="comment-content">{comment.content}</p>
       <div className="comment-actions">
         <button className={`comment-action-btn ${likedByMe ? "liked" : ""}`} type="button" onClick={handleLike} disabled={!user}>
-          <ThumbsUp size={14} /> {likesCount || "赞"}
+          <ThumbsUp size={14} /> {likesCount || t.comments.like}
         </button>
         {user && (
           <button className="comment-action-btn" type="button" onClick={() => setShowReply(!showReply)}>
-            <Reply size={14} /> 回复
+            <Reply size={14} /> {t.comments.reply}
           </button>
         )}
       </div>
@@ -138,11 +141,11 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder={`回复 ${comment.user.name}...`}
+            placeholder={`${t.comments.replyPlaceholder} ${comment.user.name}...`}
             rows={2}
           />
           <button className="pill-btn primary" type="button" onClick={handleReply} disabled={!replyText.trim() || replying}>
-            <Send size={14} /> {replying ? "发送中..." : "回复"}
+            <Send size={14} /> {replying ? t.comments.sending : t.comments.reply}
           </button>
         </div>
       )}
@@ -158,6 +161,7 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
 }
 
 export function CommentSection({ resourceId, user }: CommentSectionProps) {
+  const { t } = useI18n()
   const [comments, setComments] = useState<CommentData[]>([])
   const [commentText, setCommentText] = useState("")
   const [commenting, setCommenting] = useState(false)
@@ -180,7 +184,7 @@ export function CommentSection({ resourceId, user }: CommentSectionProps) {
       setComments((prev) => [...prev, { ...c, replies: [] }])
       setCommentText("")
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "评论失败"
+      const msg = e instanceof Error ? e.message : t.comments.commentFailed || "评论失败"
       alert(msg)
     }
     setCommenting(false)
@@ -188,9 +192,9 @@ export function CommentSection({ resourceId, user }: CommentSectionProps) {
 
   return (
     <section className="comment-section">
-      <h2>评论 ({comments.length})</h2>
+      <h2>{t.comments.title} ({comments.length})</h2>
       <div className="comment-list">
-        {comments.length === 0 && <p className="empty-state">暂无评论，来说两句吧</p>}
+        {comments.length === 0 && <p className="empty-state">{t.comments.empty}</p>}
         {comments.map((c) => (
           <CommentItem key={c.id} comment={c} resourceId={String(resourceId)} user={user} onDelete={handleDelete} />
         ))}
@@ -200,15 +204,15 @@ export function CommentSection({ resourceId, user }: CommentSectionProps) {
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            placeholder="写下你的评论..."
+            placeholder={t.comments.placeholder}
             rows={3}
           />
           <button className="pill-btn primary" type="button" onClick={handleComment} disabled={!commentText.trim() || commenting}>
-            <Send size={16} /> {commenting ? "发送中..." : "发表评论"}
+            <Send size={16} /> {commenting ? t.comments.sending : t.comments.submit}
           </button>
         </div>
       ) : (
-        <p className="login-hint">登录后可以发表评论</p>
+        <p className="login-hint">{t.comments.loginHint}</p>
       )}
     </section>
   )
