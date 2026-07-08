@@ -1,5 +1,12 @@
 /* ========== Responsive ========== */
 
+/* Medium: nav links move left */
+@media (max-width: 1199px) {
+  .global-nav .nav-links {
+    justify-content: flex-start;
+  }
+}
+
 /* Tablet landscape: 834–1023px */
 @media (max-width: 1023px) {
   h1 { font-size: 40px; letter-spacing: 0; }

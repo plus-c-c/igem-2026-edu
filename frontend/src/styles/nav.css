@@ -40,11 +40,12 @@
 .global-nav .nav-links {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0;
   list-style: none;
-  margin: 0 0 0 24px;
+  margin: 0;
   padding: 0;
-  flex: 1 1 auto;
+  flex: 1;
 }
 .global-nav .nav-links a {
   display: block;
