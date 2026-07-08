@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from "react"
 import { useNavigate } from "react-router-dom"
-import { User, Eye, EyeOff, Save, Camera, FileText, Edit, Trash2, Send } from "lucide-react"
+import { User, Eye, EyeOff, Save, Camera, FileText, Edit, Trash2, Send, Heart, ExternalLink } from "lucide-react"
 import { authService } from "../services/authService"
 import { resourceService } from "../services/resourceService"
 import { useI18n } from "../i18n"
@@ -42,6 +42,9 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
   const [draftsLoading, setDraftsLoading] = useState(false)
   const [draftMsg, setDraftMsg] = useState("")
 
+  const [favorites, setFavorites] = useState<Resource[]>([])
+  const [favoritesLoading, setFavoritesLoading] = useState(false)
+
   const loadDrafts = () => {
     if (!user) return
     setDraftsLoading(true)
@@ -51,7 +54,16 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
     }).catch(() => setDraftsLoading(false))
   }
 
-  useEffect(() => { loadDrafts() }, [user])
+  const loadFavorites = () => {
+    if (!user) return
+    setFavoritesLoading(true)
+    resourceService.getMyFavorites().then((items) => {
+      setFavorites(items)
+      setFavoritesLoading(false)
+    }).catch(() => setFavoritesLoading(false))
+  }
+
+  useEffect(() => { loadDrafts(); loadFavorites() }, [user])
 
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -223,6 +235,32 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               <Save size={14} /> {passwordLoading ? t.profile.changing : t.profile.changePassword}
             </button>
           </form>
+        </section>
+
+        <section className="profile-section">
+          <h2><Heart size={18} /> {t.profile.favoritesTitle}</h2>
+          {favoritesLoading ? (
+            <p>{t.profile.loading || "Loading..."}</p>
+          ) : favorites.length === 0 ? (
+            <p>{t.profile.noFavorites}</p>
+          ) : (
+            <div className="drafts-list">
+              {favorites.map((fav) => (
+                <div key={fav.id} className="draft-item">
+                  <div className="draft-info">
+                    <strong>{fav.title || "(untitled)"}</strong>
+                    <span>{categories.find((c) => c.id === fav.category)?.name || fav.category}</span>
+                    <span className="draft-date">{fav.updatedAt ? new Date(fav.updatedAt).toLocaleDateString() : ""}</span>
+                  </div>
+                  <div className="draft-actions">
+                    <button className="pill-btn secondary" onClick={() => navigate(`/cases/${fav.id}`)}>
+                      <ExternalLink size={14} /> {t.profile.viewFavorite}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="profile-section">
