@@ -4,6 +4,10 @@
 @media (max-width: 1023px) {
   h1 { font-size: 40px; letter-spacing: 0; }
   h2 { font-size: 34px; letter-spacing: -0.374px; }
+  .stats-container,
+  .product-tile .tile-content.stats-container {
+    width: min(100%, calc(100vw - 48px));
+  }
   .typewriter-line {
     white-space: normal;
   }

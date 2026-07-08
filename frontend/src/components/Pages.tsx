@@ -254,6 +254,28 @@ export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
   )
 }
 
+export function FavoritesPage({ resources }: { resources: Resource[] }) {
+  const { t } = useI18n()
+  const favorites = resources.filter((item) => item.id && localStorage.getItem(`favorited_${item.id}`) === "true")
+
+  return (
+    <section className="page-shell favorites-page">
+      <SectionTitle title={t.profile.favoritesTitle} />
+      {favorites.length ? (
+        <div className="campaign-grid">
+          {favorites.map((item) => (
+            <CampaignCard key={item.id || item.title} item={item as Resource} variant={item.type === "campaign" ? "project" : "case"} />
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <p>{t.profile.noFavorites}</p>
+        </div>
+      )}
+    </section>
+  )
+}
+
 export function CategoryPage({ category, resources, onSubmit }: { category: typeof categories[0]; resources: Resource[]; onSubmit: (categoryId?: string) => void }) {
   const { t } = useI18n()
   const list = resources.filter((r) => r.category === category.id)

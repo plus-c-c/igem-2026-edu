@@ -153,17 +153,18 @@ main {
 
 /* ========== Stats Section ========== */
 .stats-container {
-  width: 100%;
-  max-width: 1340px;
+  width: min(1120px, calc(100vw - 260px));
+  max-width: 100%;
 }
 .product-tile .tile-content.stats-container {
-  width: 100%;
-  max-width: 1340px;
+  width: min(1120px, calc(100vw - 260px));
+  max-width: 100%;
 }
 .stats-panel {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
+  width: 100%;
   background: var(--hairline);
   border-radius: var(--radius-lg);
   overflow: hidden;

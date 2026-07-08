@@ -69,6 +69,9 @@
   background: var(--canvas-parchment);
   color: var(--ink-muted-48);
 }
+.favorites-page .empty-state {
+  margin-top: 36px;
+}
 
 /* ========== Animations ========== */
 @keyframes spin { to { transform: rotate(360deg); } }

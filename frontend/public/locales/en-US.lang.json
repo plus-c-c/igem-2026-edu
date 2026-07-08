@@ -10,6 +10,10 @@
     "confirmLogout": "Are you sure you want to log out?",
     "menu": "Menu",
     "admin": "Admin",
+    "accountMenu": "Account menu",
+    "profileCenter": "Profile Center",
+    "editProfile": "Edit Profile",
+    "favorites": "Favorites",
     "switchToZh": "切换到中文",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
@@ -150,7 +154,9 @@
     "deleteDraft": "Delete",
     "draftDeleted": "Draft deleted",
     "draftPublished": "Published",
-    "confirmDeleteDraft": "Delete this draft?"
+    "confirmDeleteDraft": "Delete this draft?",
+    "favoritesTitle": "Favorites",
+    "noFavorites": "No favorites yet"
   },
   "loginModal": {
     "teamLogin": "Team Login",

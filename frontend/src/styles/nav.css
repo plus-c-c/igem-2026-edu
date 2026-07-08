@@ -95,6 +95,67 @@
 }
 .global-nav .team-pill:hover { text-decoration: none; opacity: 0.8; }
 
+.global-nav .account-menu {
+  position: relative;
+}
+
+.global-nav .avatar-button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.global-nav .avatar-button:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+}
+.global-nav .avatar-button img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.global-nav .account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 180px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(28,28,30,0.96);
+  box-shadow: var(--shadow-product);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+}
+.global-nav .account-dropdown p {
+  margin: 0;
+  padding: 6px 8px 8px;
+  color: var(--body-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.global-nav .account-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 8px;
+  border-radius: 8px;
+  color: var(--body-on-dark);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.global-nav .account-dropdown a:hover {
+  background: rgba(255,255,255,0.1);
+  text-decoration: none;
+}
+
 .global-nav .login-btn {
   display: inline-flex;
   align-items: center;
