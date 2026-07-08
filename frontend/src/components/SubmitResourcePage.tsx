@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom"
 import { Upload, Loader2, Plus, Trash2, Bold, Italic, Heading, List, Link2, Eye, Edit3, ImageIcon } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
-import { materialTags, audienceOptions, subcategoryOptions } from "../data/constants"
+import { materialOptions, audienceOptions, categoryThemeOptions } from "../data/constants"
 import { worldCountries, worldRegions, worldCities } from "../data/locations"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
@@ -16,6 +16,10 @@ interface SubmitResourcePageProps {
   addResource: (resource: Partial<Resource>) => void
   updateResource?: (id: string, resource: Partial<Resource>) => void
   editResource?: Resource | null
+}
+
+function optLabel(t: any, section: string, value: string): string {
+  return t?.categoryOptions?.[section]?.[value] || value
 }
 
 export function SubmitResourcePage({ user, addResource, updateResource, editResource }: SubmitResourcePageProps) {
@@ -91,10 +95,12 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [selectedSubcategory, setSelectedSubcategory] = useState(editResource?.subcategory || "")
   const [audience, setAudience] = useState(editResource?.audience || "")
   const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : (t.submitPage.projectLabelCooperation)
-  const subcategoryChoices = subcategoryOptions[selectedCategory] || []
+  const themeChoices = categoryThemeOptions[selectedCategory] || []
+  const audienceChoices = audienceOptions
+  const materialChoices = materialOptions
 
   useEffect(() => {
-    if (selectedSubcategory && !subcategoryChoices.includes(selectedSubcategory)) {
+    if (selectedSubcategory && !themeChoices.includes(selectedSubcategory)) {
       setSelectedSubcategory("")
     }
   }, [selectedCategory, selectedSubcategory])
@@ -484,20 +490,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
+          <label>{t.filters.theme}
+            <select required value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+              <option value="" disabled>{t.submitPage.selectSubcategory}</option>
+              {themeChoices.map((opt) => <option key={opt} value={opt}>{optLabel(t, "themes", opt)}</option>)}
+            </select>
+          </label>
           <label>{t.filters.audience}
             <select value={audience} onChange={(e) => setAudience(e.target.value)}>
               <option value="">{t.filters.allAudiences}</option>
-              {audienceOptions.map((opt, i) => <option key={opt} value={opt}>{t.constants.audienceOptions?.[i] || opt}</option>)}
+              {audienceChoices.map((opt) => <option key={opt} value={opt}>{optLabel(t, "audiences", opt)}</option>)}
             </select>
           </label>
-          {subcategoryChoices.length > 0 && (
-            <label>{t.submitPage.subcategory}
-              <select required value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
-                <option value="" disabled>{t.submitPage.selectSubcategory}</option>
-                {subcategoryChoices.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-              </select>
-            </label>
-          )}
 
           <div className="cover-upload-field wide">
             <span className="cover-upload-label">{t.submitPage.coverImage}</span>
@@ -665,9 +669,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <div className="step-editor">
             <h3>{t.submitPage.downloadMaterials}</h3>
           <div className="step-button-grid">
-            {materialTags.map((t) => (
-              <button key={t} type="button" className="pill-btn primary" onClick={() => addStepWithTag(t)}>
-                {t}
+            {materialChoices.map((m) => (
+              <button key={m} type="button" className="pill-btn primary" onClick={() => addStepWithTag(m)}>
+                {optLabel(t, "materials", m)}
               </button>
             ))}
             <button type="button" className="pill-btn primary" onClick={addStep}>

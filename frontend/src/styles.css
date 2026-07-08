@@ -970,24 +970,20 @@ main {
 .campaign-card.project-card h3 { color: var(--ink); }
 .campaign-card.project-card p { color: var(--ink-muted-48); }
 .campaign-card.project-card .project-material-progress {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 0;
+  position: relative;
   width: 100%;
-  height: 6px;
-  background: var(--canvas);
+  height: 4px;
+  border-radius: 2px;
+  background: #e8e8e8;
   overflow: hidden;
   margin: 0;
 }
-.campaign-card.project-card .project-material-progress span {
+.campaign-card.project-card .project-material-progress-fill {
   display: block;
   height: 100%;
-  border-radius: 0;
-  background: var(--canvas);
-  transition: background-color 0.2s ease;
-}
-.campaign-card.project-card .project-material-progress span.active {
-  background: #ffd60a;
+  border-radius: 2px;
+  background: #007AFF;
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .campaign-card.project-card .project-org {
   display: inline-block;
@@ -1271,9 +1267,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .project-filter-panel {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 24px;
   padding: 20px;
   border: 1px solid var(--hairline);
@@ -1281,12 +1277,139 @@ input:focus, select:focus, textarea:focus {
   background: var(--canvas);
 }
 
-.project-filter-panel .search-input {
-  grid-column: 1 / -1;
+.project-filter-search-row {
+  position: relative;
+  width: 100%;
 }
 
-.project-filter-panel label {
+.project-filter-search-row .search-input {
+  width: 100%;
+}
+
+.project-filter-search-row .search-input input {
+  padding-right: 44px;
+  box-sizing: border-box;
+}
+
+.filter-toggle-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--ink-muted-48);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.filter-toggle-btn:hover {
+  background: var(--hairline);
+  color: var(--accent);
+}
+
+.project-filter-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.filter-row label {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-row label select,
+.filter-row label input[type="text"] {
+  width: 100%;
+}
+
+.filter-multi-label > span {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-muted-48);
+}
+
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.875rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.multi-select-trigger:hover {
+  border-color: var(--accent);
+}
+
+.multi-select-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, white);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.multi-select-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  white-space: nowrap;
+}
+
+.multi-select-panel label:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.multi-select-panel label.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.multi-select-panel label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 .category-layout {
