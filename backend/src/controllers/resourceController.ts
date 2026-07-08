@@ -15,7 +15,7 @@ export async function create(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
     } = req.body
 
     const isCampaign = type === "campaign"
@@ -32,10 +32,11 @@ export async function create(req: AuthRequest, res: Response) {
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
       sitePhotosFormat, sitePhotoIds, introductionContent, tips,
+      status: status || "draft",
     })
     await resourceRepo.save(resource)
 
-    return res.status(201).json({ message: "发布成功", resource })
+    return res.status(201).json({ message: "保存成功", resource })
   } catch (error) {
     console.error("创建资源错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
@@ -49,8 +50,20 @@ export async function list(req: AuthRequest, res: Response) {
     const material = req.query.material as string | undefined
     const team = req.query.team as string | undefined
     const audience = req.query.audience as string | undefined
+    const status = req.query.status as string | undefined
 
     const where: any = {}
+
+    if (status === "draft") {
+      if (!req.userId) return res.status(401).json({ message: "请先登录" })
+      where.userId = req.userId
+      where.status = "draft"
+    } else {
+      if (req.userRole !== "admin") {
+        where.status = "published"
+      }
+    }
+
     if (category && category !== "all") where.category = category
     if (team) where.team = team
 
@@ -76,9 +89,14 @@ export async function list(req: AuthRequest, res: Response) {
 export async function get(req: AuthRequest, res: Response) {
   try {
     const userId = (req as AuthRequest).userId
+    const userRole = (req as AuthRequest).userRole
     const resourceRepo = AppDataSource.getRepository(Resource)
     const resource = await resourceRepo.findOneBy({ id: req.params.id as string })
     if (!resource) {
+      return res.status(404).json({ message: "资源不存在" })
+    }
+
+    if (resource.status === "draft" && resource.userId !== userId && userRole !== "admin") {
       return res.status(404).json({ message: "资源不存在" })
     }
 
@@ -181,16 +199,19 @@ export async function update(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
     } = req.body
 
-    const isCampaign = (type || resource.type) === "campaign"
-    if (isCampaign) {
-      if (!title || !category || !desc) {
+    const isDraftSave = status === "draft" || (!status && resource.status === "draft")
+    if (!isDraftSave) {
+      const isCampaign = (type || resource.type) === "campaign"
+      if (isCampaign) {
+        if (!title || !category || !desc) {
+          return res.status(400).json({ message: "请填写必填字段" })
+        }
+      } else if (!team || !title || !category || !delivery || !audience || !location || !reimbursement || !contact || !desc) {
         return res.status(400).json({ message: "请填写必填字段" })
       }
-    } else if (!team || !title || !category || !delivery || !audience || !location || !reimbursement || !contact || !desc) {
-      return res.status(400).json({ message: "请填写必填字段" })
     }
 
     resourceRepo.merge(resource, {
@@ -199,13 +220,28 @@ export async function update(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
     })
     await resourceRepo.save(resource)
 
     return res.json({ message: "修改成功", resource })
   } catch (error) {
     console.error("修改资源错误:", error)
+    return res.status(500).json({ message: "服务器内部错误" })
+  }
+}
+
+export async function getDraftForOriginal(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.userId
+    if (!userId) return res.status(401).json({ message: "请先登录" })
+    const originalId = req.params.originalId as string
+    const resourceRepo = AppDataSource.getRepository(Resource)
+    const draft = await resourceRepo.findOneBy({ originalId, userId, status: "draft" })
+    if (!draft) return res.status(404).json({ message: "草稿不存在" })
+    return res.json({ resource: draft })
+  } catch (error) {
+    console.error("获取草稿错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
   }
 }

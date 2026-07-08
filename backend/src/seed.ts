@@ -26,6 +26,7 @@ interface SeedResource {
   team: string
   desc: string
   type: string
+  status: string
   format: string
   impact: string
   subtitle?: string
@@ -63,6 +64,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "可提供交通补贴",
     type: "campaign",
+    status: "published",
     image: "/images/microscope.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "满意度调查", "实践建议"],
     campaignSteps: [
@@ -89,6 +91,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供材料包",
     type: "campaign",
+    status: "published",
     image: "/images/students.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "宣传材料", "文创"],
     campaignSteps: [
@@ -115,6 +118,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/lab-team.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "满意度调查", "成果测量表", "实践建议"],
     campaignSteps: [
@@ -141,6 +145,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/lab-work.jpg",
     materials: ["PPT", "演讲稿", "宣传材料", "文创", "实践建议"],
     campaignSteps: [
@@ -167,6 +172,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供实验耗材",
     type: "campaign",
+    status: "published",
     image: "/images/petri.jpg",
     materials: ["PPT", "演讲稿", "阅读材料", "实践建议", "项目介绍书"],
     campaignSteps: [
@@ -193,6 +199,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/classroom.jpg",
     materials: ["PPT", "阅读材料", "宣传材料", "文创", "现场照片"],
     campaignSteps: [
@@ -219,6 +226,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供培养基和菌株",
     type: "campaign",
+    status: "published",
     image: "/images/petri.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
     campaignSteps: [
@@ -245,6 +253,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/students.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "安全说明", "现场照片"],
     campaignSteps: [
@@ -271,6 +280,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供志愿者餐补和交通补贴",
     type: "campaign",
+    status: "published",
     image: "/images/classroom.jpg",
     materials: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
     campaignSteps: [
@@ -297,6 +307,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供住宿和交通补贴",
     type: "campaign",
+    status: "published",
     image: "/images/classroom.jpg",
     materials: ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
@@ -323,6 +334,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "提供教师稿酬和教材印刷费",
     type: "campaign",
+    status: "published",
     image: "/images/lab-team.jpg",
     materials: ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
@@ -349,6 +361,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/students.jpg",
     materials: ["反馈记录", "覆盖人数", "后续计划"],
     campaignSteps: [
@@ -375,6 +388,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/alliance.jpg",
     materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
     campaignSteps: [
@@ -401,6 +415,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/lab-team.jpg",
     materials: ["参与队伍", "分工", "联系方式"],
     campaignSteps: [
@@ -427,6 +442,7 @@ const sampleResources: SeedResource[] = [
     acceptsOthers: "yes",
     reimbursement: "",
     type: "campaign",
+    status: "published",
     image: "/images/classroom.jpg",
     materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
     campaignSteps: [

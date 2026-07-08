@@ -40,6 +40,8 @@ export interface Resource {
   desc: string
   materials: string[]
   type?: string
+  status?: string
+  originalId?: string
   subtitle?: string
   image?: string
   format?: string

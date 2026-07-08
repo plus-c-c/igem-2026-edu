@@ -139,7 +139,15 @@
     "networkError": "Network error",
     "avatarAlt": "Avatar",
     "currentPasswordPlaceholder": "Enter current password",
-    "newPasswordPlaceholder": "New password (6+ characters)"
+    "newPasswordPlaceholder": "New password (6+ characters)",
+    "draftsTitle": "My Drafts",
+    "noDrafts": "No drafts",
+    "publishDraft": "Publish",
+    "editDraft": "Edit",
+    "deleteDraft": "Delete",
+    "draftDeleted": "Draft deleted",
+    "draftPublished": "Published",
+    "confirmDeleteDraft": "Delete this draft?"
   },
   "loginModal": {
     "teamLogin": "Team Login",
@@ -263,7 +271,11 @@
     "emptyStepType": "Please fill in all material types",
     "publishFailed": "Publish failed",
     "saveFailed": "Save failed",
-    "operationFailed": "Operation failed, please try again"
+    "operationFailed": "Operation failed, please try again",
+    "saveDraft": "Save Draft",
+    "draftSaved": "Draft saved!",
+    "viewDrafts": "View Drafts",
+    "continue": "Continue Editing"
   },
   "comments": {
     "title": "Comments",

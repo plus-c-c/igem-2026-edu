@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom"
-import { setOnUnauthorized } from "./services/client"
+import { setOnUnauthorized, authHeaders } from "./services/client"
+import { resourceService } from "./services/resourceService"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage } from "./components/Pages"
+import type { Resource } from "./types"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { ProfilePage } from "./components/ProfilePage"
 import { LoginModal } from "./components/LoginModal"
@@ -39,9 +41,35 @@ function App() {
 
   const EditResourceRoute = () => {
     const { resourceId } = useParams<{ resourceId: string }>()
-    const resource = findById(resourceId!)
+    const [editRes, setEditRes] = useState<Resource | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+      if (!resourceId) { setLoading(false); return }
+      const loadEditRes = async () => {
+        try {
+          const data = await resourceService.get(resourceId)
+          const res = data.resource
+          if (!res) { setLoading(false); return }
+          if (res.status === "published") {
+            const draftRes = await fetch(`/api/resources/draft-for/${resourceId}`, { headers: authHeaders() })
+            if (draftRes.ok) {
+              const draftData = await draftRes.json()
+              if (draftData.resource) { setEditRes(draftData.resource); setLoading(false); return }
+            }
+          }
+          setEditRes(res)
+        } catch {
+          setEditRes(findById(resourceId!))
+        }
+        setLoading(false)
+      }
+      loadEditRes()
+    }, [resourceId])
+
+    if (loading) return null
     return user
-      ? <SubmitResourcePage key={resource?.id || "edit"} user={user} addResource={addResource} updateResource={updateResource} editResource={resource} />
+      ? <SubmitResourcePage key={editRes?.id || "edit"} user={user} addResource={addResource} updateResource={updateResource} editResource={editRes} />
       : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />
   }
 

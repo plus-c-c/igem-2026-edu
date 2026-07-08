@@ -100,6 +100,12 @@ export class Resource {
   @Column({ default: "normal" })
   type!: string
 
+  @Column({ default: "draft" })
+  status!: string
+
+  @Column({ nullable: true })
+  originalId!: string
+
   @Column({ nullable: true })
   subtitle!: string
 

@@ -60,6 +60,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [showIntroPreview, setShowIntroPreview] = useState(false)
   const [introImageUploading, setIntroImageUploading] = useState(false)
   const introTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const savingDraft = useRef(false)
+  const [draftSaved, setDraftSaved] = useState(false)
 
   useEffect(() => {
     if (!isEdit || !editResource) return
@@ -158,6 +161,21 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }
 
   const ensureRid = async (): Promise<string> => {
+    if (isEdit && editResource?.status === "published") {
+      if (draftId) return draftId
+      const res = await resourceService.create({
+        type: "campaign",
+        status: "draft",
+        originalId: String(editResource.id),
+        category: selectedCategory,
+        team: user.teamName,
+        title: "",
+        desc: "",
+      })
+      if (!res.resource) throw new Error("创建草稿失败")
+      setDraftId(res.resource.id)
+      return res.resource.id
+    }
     if (isEdit) return String(editResource!.id)
     if (draftId) return draftId
     const res = await resourceService.create({
@@ -274,24 +292,29 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setIntroImageUploading(false)
   }
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const doSubmit = async (isDraft: boolean) => {
+    savingDraft.current = isDraft
     setSubmitting(true)
     setErrorMsg("")
+    setDraftSaved(false)
     try {
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
       if (emptyStep) {
         throw new Error(t.submitPage.emptyStepType || "请填写所有下载材料的材料类型")
       }
-      const data = new FormData(event.currentTarget)
+
+      const form = formRef.current
+      if (!form) return
+      const formData = new FormData(form)
 
       const payload: Record<string, any> = {
         type: "campaign",
-        category: data.get("category") as string,
-        title: data.get("title") as string,
-        team: data.get("team") as string || user.teamName,
+        status: isDraft ? "draft" : "published",
+        category: formData.get("category") as string || selectedCategory,
+        title: formData.get("title") as string,
+        team: formData.get("team") as string || user.teamName,
         image: editResource?.image || "",
-        desc: data.get("desc") as string,
+        desc: formData.get("desc") as string,
         campaignSteps,
         canParticipate,
         locationType: locationTypes.join(","),
@@ -307,15 +330,42 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         introductionContent,
       }
 
-      let rid: string
-      const hasDraft = isEdit || !!draftId
+      const isEditingPublished = isEdit && editResource?.status === "published"
+      const isEditingDraft = isEdit && editResource?.status === "draft"
 
-      if (hasDraft) {
-        rid = isEdit ? String(editResource!.id) : draftId!
+      let rid: string
+
+      if (isDraft && isEditingPublished) {
+        if (draftId) {
+          rid = draftId
+          await resourceService.update(rid, payload)
+        } else {
+          const res = await resourceService.create({
+            ...payload,
+            status: "draft",
+            originalId: String(editResource!.id),
+          })
+          if (!res.resource) throw new Error("创建草稿失败")
+          rid = res.resource.id
+          setDraftId(rid)
+        }
+      } else if (!isDraft && isEditingDraft && editResource?.originalId) {
+        await resourceService.update(editResource.originalId, { ...payload, status: "published" })
+        await resourceService.remove(String(editResource.id))
+        const original = await resourceService.get(editResource.originalId)
+        updateResource?.(editResource.originalId, original.resource)
+        return
       } else {
-        const res = await resourceService.create(payload)
-        if (!res.resource) throw new Error(res.message || (t.submitPage.publishFailed || "发布失败"))
-        rid = res.resource.id
+        const hasDraft = isEdit || !!draftId
+        if (hasDraft) {
+          rid = isEditingDraft ? String(editResource!.id) : (isEdit ? String(editResource!.id) : draftId!)
+          const res = await resourceService.update(rid, payload)
+          if (!res.resource) throw new Error(res.message || (t.submitPage.saveFailed || "保存失败"))
+        } else {
+          const res = await resourceService.create(payload)
+          if (!res.resource) throw new Error(res.message || (t.submitPage.publishFailed || "发布失败"))
+          rid = res.resource.id
+        }
       }
 
       for (const step of campaignSteps) {
@@ -346,19 +396,37 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         payload.image = coverUploadedUrl.current
       }
 
-      const res = await resourceService.update(rid, payload)
-      if (!res.resource) throw new Error(res.message || (t.submitPage.saveFailed || "保存失败"))
+      if (isDraft && !isEditingPublished) {
+        await resourceService.update(rid, { image: payload.image })
+      } else if (!isDraft && !isEditingDraft) {
+        const res = await resourceService.update(rid, payload)
+        if (!res.resource) throw new Error(res.message || "保存失败")
+      }
 
-      if (isEdit) {
-        updateResource?.(rid, res.resource)
-      } else {
-        addResource(res.resource)
+      if (isDraft) {
+        setDraftSaved(true)
+        setSubmitting(false)
+        return
+      }
+
+      if (!isEditingDraft || !editResource?.originalId) {
+        const final = await resourceService.get(rid)
+        if (isEdit) {
+          updateResource?.(rid, final.resource)
+        } else {
+          addResource(final.resource)
+        }
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : (t.submitPage.operationFailed || "操作失败，请重试")
       setErrorMsg(msg)
       setSubmitting(false)
     }
+  }
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    doSubmit(false)
   }
 
   return (
@@ -371,7 +439,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         </div>
       </div>
 
-      <form className="submit-form" onSubmit={submit}>
+      <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
           <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
           <label>{t.submitPage.projectName}<input name="title" required placeholder={t.submitPage.projectPlaceholder} defaultValue={editResource?.title} /></label>
@@ -660,6 +728,17 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           )}
         </section>
 
+        {draftSaved && (
+          <div className="modal-backdrop" onClick={() => setDraftSaved(false)}>
+            <div className="error-modal" onClick={(e) => e.stopPropagation()}>
+              <p>{t.submitPage.draftSaved}</p>
+              <div style={{ display: "flex", gap: 8, marginTop: 12, justifyContent: "center" }}>
+                <Link className="pill-btn secondary" to="/profile">{t.submitPage.viewDrafts}</Link>
+                <button className="pill-btn primary" onClick={() => setDraftSaved(false)}>{t.submitPage.continue}</button>
+              </div>
+            </div>
+          </div>
+        )}
         {errorMsg && (
           <div className="modal-backdrop" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>
             <div className="error-modal" onClick={(e) => e.stopPropagation()}>
@@ -672,9 +751,15 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
             {isEdit ? t.submitPage.back : t.submitPage.cancel}
           </Link>
-          <button className="pill-btn primary" type="submit" disabled={submitting}>
-            {submitting ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="pill-btn secondary" type="button" disabled={submitting}
+              onClick={() => doSubmit(true)}>
+              {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
+            </button>
+            <button className="pill-btn primary" type="submit" disabled={submitting}>
+              {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
+            </button>
+          </div>
         </div>
       </form>
     </section>
