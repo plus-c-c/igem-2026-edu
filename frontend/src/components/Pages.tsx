@@ -6,7 +6,7 @@ import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
-import { CampaignCard, caseSlug } from "./CampaignCard"
+import { CampaignCard } from "./CampaignCard"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
@@ -310,7 +310,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 export function CaseDetailPage({ resources, user, onDelete }: { resources: Resource[]; user: User | null; onDelete: (id: string) => void }) {
   const { caseId } = useParams()
   const navigate = useNavigate()
-  const item = resources.find((c) => c.type === "campaign" && caseSlug(c.title) === caseId)
+  const item = resources.find((c) => c.type === "campaign" && String(c.id) === caseId)
   const r = item
   const category = categories.find((c) => c.id === r?.category)
   const canEdit = user && (user.role === "admin" || r?.userId === user.id)

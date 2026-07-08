@@ -3,7 +3,7 @@ import type { Resource } from "../types"
 import { projectMetaByCategory } from "../data/projectMeta"
 import { useI18n } from "../i18n"
 
-export function caseSlug(title: string) {
+function caseSlug(title: string) {
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
   if (slug) return slug
   let hash = 0
@@ -33,7 +33,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
   if (variant === "project") {
     return (
-      <Link className="campaign-card project-card" to={`/cases/${caseSlug(item.title)}`}>
+      <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
         {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
         <div>
           <p className="project-org">{project.organization}</p>
@@ -55,7 +55,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   }
 
   return (
-    <Link className="campaign-card" to={`/cases/${caseSlug(item.title)}`}>
+    <Link className="campaign-card" to={`/cases/${item.id}`}>
       {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
       <div>
         <p className="campaign-format">{item.format}</p>
