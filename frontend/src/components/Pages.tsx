@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Resource, User } from "../types"
 import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { Download, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
+import { Download, ImageIcon, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
 import { CategoryHero } from "./CategoryHero"
 import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
 import { useResourceFiles } from "../hooks/useResourceFiles"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 
 interface PageProps {
   resources: Resource[]
@@ -380,19 +382,14 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       </div>
 
       <div className="case-detail-grid">
-        <article className="case-story">
-          <h2>项目简介</h2>
-          <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的教育项目，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
-
-          {r.introductionContent && (
-            <>
-              <h2>项目介绍书</h2>
-              <p style={{ whiteSpace: "pre-wrap" }}>{r.introductionContent}</p>
-            </>
-          )}
+        <div className="case-detail-left">
+          <article className="case-detail-card">
+            <h2>项目简介</h2>
+            <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的教育项目，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
+          </article>
 
           {sitePhotoIdList.length > 0 && (
-            <>
+            <article className="case-detail-card">
               <h2>现场照片</h2>
               <div className={`site-photos-grid format-${r.sitePhotosFormat === "双图" ? "double" : r.sitePhotosFormat === "四宫格" ? "quad" : "single"}`}>
                 {(() => {
@@ -410,66 +407,56 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
                   ))
                 })()}
               </div>
-            </>
+            </article>
           )}
 
           {r.tips && (
-            <>
-              <h2>温馨提示</h2>
+            <article className="case-detail-card">
+              <h2>项目Tips</h2>
               <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
-            </>
+            </article>
           )}
+        </div>
 
-          <h2>展示内容</h2>
-          <div className="case-steps">
-            {steps.length > 0 ? steps.map((step, i) => (
-              <div key={step.id}>
-                <strong>{String(i + 1).padStart(2, "0")}</strong>
-                <div className="step-content">
-                  <span>{step.text}</span>
-                  {step.files && step.files.length > 0 && (
-                    <div className="step-files">
-                      {step.files.map((f) => (
-                        <a key={f.fileId} className="step-file-link"
-                          href={fileService.downloadUrl(f.fileId)}
-                          target="_blank" rel="noopener noreferrer"
-                        ><Download size={14} /> {f.name}</a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )) : (
-              <p className="empty-state">暂无展示内容</p>
-            )}
-          </div>
-        </article>
         <aside className="case-side">
           <h2>活动信息</h2>
-          <p><strong>所属栏目</strong>{category?.name}</p>
-          {r.canParticipate && <p><strong>是否可参与</strong>{r.canParticipate === "yes" ? "可参与" : "不可参与"}</p>}
-          {locationLabel && <p><strong>活动地点</strong>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</p>}
-          {r.eventDate && <p><strong>活动日期</strong>{r.eventDate}</p>}
-          {r.timeLimitType && <p><strong>时限</strong>{r.timeLimitType}</p>}
-          {r.format && <p><strong>活动形式</strong>{r.format}</p>}
-          {r.impact && <p><strong>展示价值</strong>{r.impact}</p>}
-          {r.materials && r.materials.length > 0 && (
-            <div className="tags">
-              {r.materials.map((m) => (
-                <div key={m} className="tag-group">
-                  <span>{m}</span>
-                  {materialFiles()[m]?.map((f) => (
-                    <a key={f.id} className="tag-file-link"
-                      href={fileService.downloadUrl(f.id)}
-                      target="_blank" rel="noopener noreferrer"
-                    ><Download size={12} /> {f.name}</a>
-                  ))}
-                </div>
-              ))}
+          <p><strong>所属栏目</strong><span>{category?.name}</span></p>
+          {r.canParticipate && <p><strong>是否可参与</strong><span>{r.canParticipate === "yes" ? "可参与" : "不可参与"}</span></p>}
+          {locationLabel && <p><strong>活动地点</strong><span>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</span></p>}
+          {r.eventDate && <p><strong>活动日期</strong><span>{r.eventDate}</span></p>}
+          {r.timeLimitType && <p><strong>时限</strong><span>{r.timeLimitType}</span></p>}
+          {r.format && <p><strong>活动形式</strong><span>{r.format}</span></p>}
+          {steps.length > 0 && (
+            <div className="case-side-materials">
+              <strong>下载材料</strong>
+              {steps.map((step) =>
+                step.files.length > 0 && (
+                  <div key={step.id} className="side-step-files">
+                    <span>{step.text}</span>
+                    {step.files.map((f) => (
+                      <a key={f.fileId} className="tag-file-link"
+                        href={fileService.downloadUrl(f.fileId)}
+                        target="_blank" rel="noopener noreferrer"
+                      ><Download size={12} /> {f.name}</a>
+                    ))}
+                  </div>
+                )
+              )}
             </div>
           )}
         </aside>
       </div>
+
+      {r.introductionContent && (
+        <section className="case-detail-card">
+          <h2>项目介绍书</h2>
+          <div className="markdown-body"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(marked.parse(r.introductionContent) as string)
+            }}
+          />
+        </section>
+      )}
 
       {canEdit && r.id && (
         <div className="detail-actions">
