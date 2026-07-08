@@ -1,8 +1,11 @@
-import { useState, type ChangeEvent } from "react"
-import { User, Eye, EyeOff, Save, Camera } from "lucide-react"
+import { useEffect, useState, type ChangeEvent } from "react"
+import { useNavigate } from "react-router-dom"
+import { User, Eye, EyeOff, Save, Camera, FileText, Edit, Trash2, Send } from "lucide-react"
 import { authService } from "../services/authService"
+import { resourceService } from "../services/resourceService"
 import { useI18n } from "../i18n"
-import type { User as UserType } from "../types"
+import { categories } from "../data/categories"
+import type { User as UserType, Resource } from "../types"
 
 const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
 const defaultAvatar = "/images/logo.jpg"
@@ -14,6 +17,7 @@ interface ProfilePageProps {
 
 export function ProfilePage({ user, setUser }: ProfilePageProps) {
   const { t } = useI18n()
+  const navigate = useNavigate()
   const token = localStorage.getItem("authToken") || ""
 
   const [name, setName] = useState(user.teamName)
@@ -33,6 +37,21 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
   const [profileError, setProfileError] = useState("")
   const [passwordMsg, setPasswordMsg] = useState("")
   const [passwordError, setPasswordError] = useState("")
+
+  const [drafts, setDrafts] = useState<Resource[]>([])
+  const [draftsLoading, setDraftsLoading] = useState(false)
+  const [draftMsg, setDraftMsg] = useState("")
+
+  const loadDrafts = () => {
+    if (!user) return
+    setDraftsLoading(true)
+    resourceService.list({ status: "draft" }).then((items) => {
+      setDrafts(items.filter((r) => r.userId === user.id))
+      setDraftsLoading(false)
+    }).catch(() => setDraftsLoading(false))
+  }
+
+  useEffect(() => { loadDrafts() }, [user])
 
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -95,6 +114,21 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
       setPasswordError(t.profile.networkError || "网络错误")
     }
     setPasswordLoading(false)
+  }
+
+  const handlePublishDraft = async (draft: Resource) => {
+    if (!confirm(t.profile.publishDraft + "?")) return
+    await resourceService.update(String(draft.id), { status: "published" })
+    setDrafts((prev) => prev.filter((r) => r.id !== draft.id))
+    navigate(`/cases/${draft.id}`)
+  }
+
+  const handleDeleteDraft = async (draft: Resource) => {
+    if (!confirm(t.profile.confirmDeleteDraft)) return
+    await resourceService.remove(String(draft.id))
+    setDrafts((prev) => prev.filter((r) => r.id !== draft.id))
+    setDraftMsg(t.profile.draftDeleted)
+    setTimeout(() => setDraftMsg(""), 3000)
   }
 
   return (
@@ -186,6 +220,39 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               <Save size={14} /> {passwordLoading ? t.profile.changing : t.profile.changePassword}
             </button>
           </form>
+        </section>
+
+        <section className="profile-section">
+          <h2><FileText size={18} /> {t.profile.draftsTitle}</h2>
+          {draftMsg && <p className="profile-success">{draftMsg}</p>}
+          {draftsLoading ? (
+            <p>{t.profile.loading || "Loading..."}</p>
+          ) : drafts.length === 0 ? (
+            <p>{t.profile.noDrafts}</p>
+          ) : (
+            <div className="drafts-list">
+              {drafts.map((draft) => (
+                <div key={draft.id} className="draft-item">
+                  <div className="draft-info">
+                    <strong>{draft.title || "(untitled)"}</strong>
+                    <span>{categories.find((c) => c.id === draft.category)?.name || draft.category}</span>
+                    <span className="draft-date">{draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : ""}</span>
+                  </div>
+                  <div className="draft-actions">
+                    <button className="pill-btn secondary" onClick={() => navigate(`/resource/${draft.id}/edit`)}>
+                      <Edit size={14} /> {t.profile.editDraft}
+                    </button>
+                    <button className="pill-btn primary" onClick={() => handlePublishDraft(draft)}>
+                      <Send size={14} /> {t.profile.publishDraft}
+                    </button>
+                    <button className="pill-btn secondary draft-delete" onClick={() => handleDeleteDraft(draft)}>
+                      <Trash2 size={14} /> {t.profile.deleteDraft}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

@@ -8,12 +8,18 @@ export interface ResourceDetailResult {
 }
 
 export const resourceService = {
-  list: async (filters: { category?: string; material?: string; team?: string; audience?: string } = {}): Promise<Resource[]> => {
+  list: async (filters: { category?: string; material?: string; team?: string; audience?: string; status?: string } = {}): Promise<Resource[]> => {
     const params = new URLSearchParams()
     if (filters.category && filters.category !== "all") params.set("category", filters.category)
     if (filters.team) params.set("team", filters.team)
+    if (filters.status) params.set("status", filters.status)
     const qs = params.toString()
-    const res = await fetch(`${API_BASE}/resources${qs ? `?${qs}` : ""}`)
+    const token = localStorage.getItem("authToken")
+    const headers: Record<string, string> = {}
+    if (filters.status === "draft" && token) {
+      headers["Authorization"] = `Bearer ${token}`
+    }
+    const res = await fetch(`${API_BASE}/resources${qs ? `?${qs}` : ""}`, { headers })
     const data = await res.json()
     let items: Resource[] = data.resources || []
     if (filters.material && filters.material !== "all") {

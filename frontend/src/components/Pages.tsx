@@ -288,7 +288,17 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const { caseId } = useParams()
   const navigate = useNavigate()
   const item = resources.find((c) => c.type === "campaign" && String(c.id) === caseId)
-  const r = item
+  const [fetchedResource, setFetchedResource] = useState<Resource | null>(null)
+  useEffect(() => {
+    if (!item && caseId && !fetchedResource) {
+      resourceService.get(caseId).then((data) => {
+        if (data.resource?.type === "campaign" || data.resource?.status === "published") {
+          setFetchedResource(data.resource)
+        }
+      }).catch(() => {})
+    }
+  }, [caseId, item])
+  const r = item || fetchedResource
   const category = categories.find((c) => c.id === r?.category)
   const canEdit = user && (user.role === "admin" || r?.userId === user.id)
   const steps = r?.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []

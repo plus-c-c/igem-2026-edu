@@ -139,7 +139,15 @@
     "networkError": "网络错误",
     "avatarAlt": "头像",
     "currentPasswordPlaceholder": "输入当前密码",
-    "newPasswordPlaceholder": "6 位以上新密码"
+    "newPasswordPlaceholder": "6 位以上新密码",
+    "draftsTitle": "我的草稿",
+    "noDrafts": "暂无草稿",
+    "publishDraft": "发布",
+    "editDraft": "编辑",
+    "deleteDraft": "删除",
+    "draftDeleted": "草稿已删除",
+    "draftPublished": "已发布",
+    "confirmDeleteDraft": "确定删除此草稿？"
   },
   "loginModal": {
     "teamLogin": "团队登录",
@@ -263,7 +271,11 @@
     "emptyStepType": "请填写所有下载材料的材料类型",
     "publishFailed": "发布失败",
     "saveFailed": "保存失败",
-    "operationFailed": "操作失败，请重试"
+    "operationFailed": "操作失败，请重试",
+    "saveDraft": "保存草稿",
+    "draftSaved": "草稿已保存！",
+    "viewDrafts": "查看草稿",
+    "continue": "继续编辑"
   },
   "comments": {
     "title": "评论",
