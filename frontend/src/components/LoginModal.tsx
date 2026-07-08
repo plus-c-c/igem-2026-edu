@@ -296,16 +296,19 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                   <label>{t.loginModal.igemRole}
                     <input type="hidden" name="igemRole" value={igemRole} />
                     <div className="role-tabs" role="tablist" aria-label={t.loginModal.igemRole}>
-                      {igemRoleOptions.map((option) => (
-                        <button
-                          key={option}
-                          className={option === igemRole ? "active" : ""}
-                          type="button"
-                          onClick={() => setIgemRole(option)}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                      {igemRoleOptions.map((option) => {
+                        const roleLabel: Record<string, string> = { "Wet Lab": t.loginModal.roleWetLab, "Dry Lab": t.loginModal.roleDryLab, "HP": t.loginModal.roleHP, "美工": t.loginModal.roleArt, "Wiki": t.loginModal.roleWiki }
+                        return (
+                          <button
+                            key={option}
+                            className={option === igemRole ? "active" : ""}
+                            type="button"
+                            onClick={() => setIgemRole(option)}
+                          >
+                            {roleLabel[option] || option}
+                          </button>
+                        )
+                      })}
                     </div>
                   </label>
                 </div>

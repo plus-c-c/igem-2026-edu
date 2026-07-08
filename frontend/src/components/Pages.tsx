@@ -431,10 +431,13 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <aside className="case-side">
           <h2>{t.caseDetail.info}</h2>
           <p><strong>{t.caseDetail.category}</strong><span>{category?.name}</span></p>
+          {r.audience && <p><strong>{t.filters.audience}</strong><span>{r.audience}</span></p>}
           {r.canParticipate && <p><strong>{t.caseDetail.canParticipate}</strong><span>{r.canParticipate === "yes" ? t.caseDetail.canJoin : t.caseDetail.cannotJoin}</span></p>}
           {locationLabel && <p><strong>{t.caseDetail.location}</strong><span>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</span></p>}
           {r.eventDate && <p><strong>{t.caseDetail.date}</strong><span>{r.eventDate}</span></p>}
           {r.timeLimitType && <p><strong>{t.caseDetail.timeLimit}</strong><span>{r.timeLimitType}</span></p>}
+          {r.timeRangeStart && r.timeRangeEnd && <p><strong>{t.caseDetail.timeRangeStart} – {t.caseDetail.timeRangeEnd}</strong><span>{r.timeRangeStart} ~ {r.timeRangeEnd}</span></p>}
+          {r.duration && <p><strong>{t.caseDetail.lectureDuration}</strong><span>{r.duration}</span></p>}
           {r.format && <p><strong>{t.caseDetail.format}</strong><span>{r.format}</span></p>}
           {steps.length > 0 && (
             <div className="case-side-materials">
