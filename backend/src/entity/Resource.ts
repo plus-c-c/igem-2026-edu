@@ -58,6 +58,12 @@ export class Resource {
   @Column({ nullable: true })
   timeLimitType!: string
 
+  @Column({ nullable: true })
+  timeRangeStart!: string
+
+  @Column({ nullable: true })
+  timeRangeEnd!: string
+
   // 项目Tips
   @Column("text", { nullable: true })
   tips!: string

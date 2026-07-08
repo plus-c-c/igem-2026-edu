@@ -55,6 +55,9 @@ export interface Resource {
   locationCity?: string
   eventDate?: string
   timeLimitType?: string
+  timeRangeStart?: string
+  timeRangeEnd?: string
+  duration?: string
   // 项目Tips
   tips?: string
   // 现场照片

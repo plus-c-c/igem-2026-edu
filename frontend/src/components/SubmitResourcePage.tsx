@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom"
 import { Upload, Loader2, Plus, Trash2, Bold, Italic, Heading, List, Link2, Eye, Edit3, ImageIcon } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
-import { materialTags } from "../data/constants"
+import { materialTags, audienceOptions } from "../data/constants"
 import { worldCountries, worldRegions, worldCities } from "../data/locations"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
@@ -48,6 +48,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [locationCity, setLocationCity] = useState(editResource?.locationCity || "")
   const [eventDate, setEventDate] = useState(editResource?.eventDate || "")
   const [timeLimitType, setTimeLimitType] = useState(editResource?.timeLimitType || "")
+  const [timeRangeStart, setTimeRangeStart] = useState(editResource?.timeRangeStart || "")
+  const [timeRangeEnd, setTimeRangeEnd] = useState(editResource?.timeRangeEnd || "")
+  const [duration, setDuration] = useState(editResource?.duration || "")
   const [activityFormat, setActivityFormat] = useState(editResource?.format || "")
   // 现场照片
   const [sitePhotosFormat, setSitePhotosFormat] = useState(editResource?.sitePhotosFormat || "")
@@ -85,6 +88,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }, [isEdit, editResource])
   const defaultCategory = params.get("category") || editResource?.category || "applications"
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
+  const [audience, setAudience] = useState(editResource?.audience || "")
   const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : (t.submitPage.projectLabelCooperation)
 
   useEffect(() => {
@@ -98,6 +102,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     coverUploadedUrl.current = undefined
     setDraftId(null)
     setSelectedCategory(defaultCategory)
+    setAudience(editResource?.audience || "")
     setCanParticipate(editResource?.canParticipate || "yes")
     setLocationTypes(editResource?.locationType ? editResource.locationType.split(",") : [])
     setLocationCountry(editResource?.locationCountry || "")
@@ -105,6 +110,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setLocationCity(editResource?.locationCity || "")
     setEventDate(editResource?.eventDate || "")
     setTimeLimitType(editResource?.timeLimitType || "")
+    setTimeRangeStart(editResource?.timeRangeStart || "")
+    setTimeRangeEnd(editResource?.timeRangeEnd || "")
+    setDuration(editResource?.duration || "")
     setActivityFormat(editResource?.format || "")
     setSitePhotosFormat(editResource?.sitePhotosFormat || "")
     setSitePhotoFiles({})
@@ -307,14 +315,24 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       if (!form) return
       const formData = new FormData(form)
 
+      const desc = (formData.get("desc") as string) || ""
+      if (canParticipate === "yes" && (desc.length < 25 || desc.length > 100)) {
+        throw new Error(t.submitPage.descCharLimit || "简介需在25—100字之间")
+      }
+
+      if (introductionContent.length > 500) {
+        throw new Error(t.submitPage.introCharLimit || "项目介绍书不超过500字")
+      }
+
       const payload: Record<string, any> = {
         type: "campaign",
         status: isDraft ? "draft" : "published",
         category: formData.get("category") as string || selectedCategory,
+        audience,
         title: formData.get("title") as string,
         team: formData.get("team") as string || user.teamName,
         image: editResource?.image || "",
-        desc: formData.get("desc") as string,
+        desc,
         campaignSteps,
         canParticipate,
         locationType: locationTypes.join(","),
@@ -322,7 +340,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         locationProvince,
         locationCity,
         eventDate,
-        timeLimitType,
+        timeLimitType: canParticipate === "yes" ? timeLimitType : "",
+        timeRangeStart: timeLimitType === "有时限" ? timeRangeStart : "",
+        timeRangeEnd: timeLimitType === "有时限" ? timeRangeEnd : "",
+        duration: activityFormat === "讲座" ? duration : "",
         format: activityFormat,
         sitePhotosFormat,
         sitePhotoIds: Object.values(sitePhotoFiles).map((f) => f.fileId).filter(Boolean).join(","),
@@ -446,17 +467,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <label>{t.submitPage.category}
             <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
               <option value="" disabled>{t.submitPage.selectCategory}</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </label>
+          <label>{t.filters.audience}
+            <select value={audience} onChange={(e) => setAudience(e.target.value)}>
+              <option value="">{t.filters.allAudiences}</option>
+              {audienceOptions.map((opt, i) => <option key={opt} value={opt}>{t.constants.audienceOptions?.[i] || opt}</option>)}
             </select>
           </label>
 
-          <label className="wide" style={{ display: "grid", gap: "var(--label-spacing)" }}>
-            <span>{t.submitPage.coverImage}</span>
-            <div className="site-photo-slot">
-              {coverPreviewUrl ? (
-                <div className="site-photo-preview">
-                  <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
-                  <button type="button" className="site-photo-remove" disabled={coverDeleting}
+          <div className="image-upload-block">
+            <label className="image-upload-tile">
+              <Upload size={20} />
+              <span>{t.submitPage.uploadCover}</span>
+              <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+              {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
+            </label>
+            {coverPreviewUrl && (
+              <div className="image-preview">
+                <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
+                <span>
+                  <button type="button" className="file-delete-btn" disabled={coverDeleting}
                     onClick={async (e) => {
                       e.stopPropagation()
                       setCoverDeleting(true)
@@ -474,77 +506,108 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       coverUploadedUrl.current = undefined
                       setCoverFileId(null)
                       imageFileRef.current = null
-                    }}>
-                    ×
-                  </button>
-                </div>
-              ) : (
-                <label className="site-photo-upload">
-                  <Upload size={20} />
-                  <span>{t.submitPage.uploadCover}</span>
-                  <input type="file" accept="image/*" onChange={handleCoverFileChange} />
-                </label>
-              )}
-            </div>
+                    }}
+                  >×</button>
+                </span>
+              </div>
+            )}
             {imageUploadPct !== undefined && (
               <div className="upload-progress-bar">
                 <div className="upload-progress-fill" style={{ width: `${imageUploadPct}%` }} />
               </div>
             )}
-          </label>
+          </div>
 
           <label className="wide">{t.submitPage.desc}<textarea name="desc" required placeholder={t.submitPage.descPlaceholder} defaultValue={editResource?.desc} /></label>
         </div>
-
-        <section className="tips-section">
-          <h2>{t.submitPage.tips}</h2>
-          <textarea className="intro-textarea" placeholder={t.submitPage.tipsPlaceholder} value={tips}
-            onChange={(e) => setTips(e.target.value)} rows={4} />
-        </section>
 
         <section className="event-info-section">
           <h2>{t.submitPage.eventInfo}</h2>
           <div className="event-info-grid">
             <label className="choice-group wide">{t.submitPage.activityFormat}
               <div>
-                {["讲座", "集市摊位", "路演", "其他"].map((opt) => (
-                  <label key={opt} className={activityFormat === opt ? "active" : ""}>
-                    <input type="radio" name="activityFormat" value={opt}
-                      checked={activityFormat === opt}
-                      onChange={(e) => setActivityFormat(e.target.value)} />
-                    {opt}
-                  </label>
-                ))}
+                {["讲座", "集市摊位", "路演", "其他"].map((opt) => {
+                  const label = opt === "讲座" ? t.submitPage.formatLecture : opt === "集市摊位" ? t.submitPage.formatBooth : opt === "路演" ? t.submitPage.formatRoadshow : t.submitPage.formatOther
+                  return (
+                    <label key={opt} className={activityFormat === opt ? "active" : ""}>
+                      <input type="radio" name="activityFormat" value={opt}
+                        checked={activityFormat === opt}
+                        onChange={(e) => setActivityFormat(e.target.value)} />
+                      {label}
+                    </label>
+                  )
+                })}
               </div>
             </label>
 
             <label className="choice-group">{t.submitPage.canParticipate}
               <div>
-                {["可参与", "不可参与"].map((opt) => (
-                  <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
-                    <input type="radio" name="canParticipate" value={opt === "可参与" ? "yes" : "no"}
-                      checked={canParticipate === (opt === "可参与" ? "yes" : "no")}
-                      onChange={(e) => setCanParticipate(e.target.value)} />
-                    {opt}
-                  </label>
-                ))}
+                {["可参与", "不可参与"].map((opt) => {
+                  const label = opt === "可参与" ? t.submitPage.canJoin : t.submitPage.cannotJoin
+                  return (
+                    <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
+                      <input type="radio" name="canParticipate" value={opt === "可参与" ? "yes" : "no"}
+                        checked={canParticipate === (opt === "可参与" ? "yes" : "no")}
+                        onChange={(e) => { setCanParticipate(e.target.value); if (e.target.value === "no") { setTimeLimitType(""); setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                      {label}
+                    </label>
+                  )
+                })}
               </div>
             </label>
 
+            {canParticipate === "yes" && (
+              <label className="choice-group">{t.submitPage.timeLimit}
+                <div>
+                  {["有时限", "无时限"].map((opt) => {
+                    const label = opt === "有时限" ? t.submitPage.timeLimitYes : t.submitPage.timeLimitNo
+                    return (
+                      <label key={opt} className={timeLimitType === opt ? "active" : ""}>
+                        <input type="radio" name="timeLimitType" value={opt}
+                          checked={timeLimitType === opt}
+                          onChange={(e) => { setTimeLimitType(e.target.value); if (e.target.value === "无时限") { setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                        {label}
+                      </label>
+                    )
+                  })}
+                </div>
+              </label>
+            )}
+
+            {canParticipate === "yes" && timeLimitType === "有时限" && (
+              <label className="wide" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--label-spacing)" }}>
+                <label>{t.submitPage.timeRangeStart}
+                  <input type="date" value={timeRangeStart} onChange={(e) => setTimeRangeStart(e.target.value)} />
+                </label>
+                <label>{t.submitPage.timeRangeEnd}
+                  <input type="date" value={timeRangeEnd} onChange={(e) => setTimeRangeEnd(e.target.value)} />
+                </label>
+              </label>
+            )}
+
+            {activityFormat === "讲座" && (
+              <label>{t.submitPage.lectureDuration}
+                <input type="text" placeholder={t.submitPage.lectureDurationPlaceholder} value={duration} onChange={(e) => setDuration(e.target.value)} />
+              </label>
+            )}
+
             <label className="choice-group">{t.submitPage.location}
               <div>
-                {["线上", "线下"].map((opt) => (
-                  <label key={opt} className={locationTypes.includes(opt) ? "active" : ""}>
-                    <input type="checkbox" value={opt}
-                      checked={locationTypes.includes(opt)}
-                      onChange={(e) => {
-                        setLocationTypes((prev) =>
-                          e.target.checked ? [...prev, opt] : prev.filter((v) => v !== opt)
-                        )
-                      }} />
-                    {opt}
-                  </label>
-                ))}
+                {["线上", "线下"].map((opt) => {
+                  const label = opt === "线上" ? t.submitPage.locationOnline : t.submitPage.locationOffline
+                  return (
+                    <label key={opt} className={locationTypes.includes(opt) ? "active" : ""}>
+                      <input type="checkbox" value={opt}
+                        checked={locationTypes.includes(opt)}
+                        onChange={(e) => {
+                          setLocationTypes((prev) =>
+                            e.target.checked ? [...prev, opt] : prev.filter((v) => v !== opt)
+                          )
+                        }} />
+                      {label}
+                    </label>
+                  )
+                })}
               </div>
               {locationTypes.includes("线下") && (
                 <div className="location-cascade">
@@ -572,18 +635,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
             </label>
 
-            <label className="choice-group">{t.submitPage.timeLimit}
-              <div>
-                {["有时限", "无时限"].map((opt) => (
-                  <label key={opt} className={timeLimitType === opt ? "active" : ""}>
-                    <input type="radio" name="timeLimitType" value={opt}
-                      checked={timeLimitType === opt}
-                      onChange={(e) => setTimeLimitType(e.target.value)} />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </label>
           </div>
 
           <div className="step-editor">
@@ -645,14 +696,17 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <div className="choice-group">
             <span className="field-label">{t.submitPage.photoFormat}</span>
             <div>
-              {["单图", "双图", "四宫格"].map((opt) => (
-                <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
-                  <input type="radio" name="sitePhotosFormat" value={opt}
-                    checked={sitePhotosFormat === opt}
-                    onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}) }} />
-                  {opt}
-                </label>
-              ))}
+              {["单图", "双图", "四宫格"].map((opt) => {
+                const label = opt === "单图" ? t.submitPage.formatSingle : opt === "双图" ? t.submitPage.formatDouble : t.submitPage.formatQuad
+                return (
+                  <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
+                    <input type="radio" name="sitePhotosFormat" value={opt}
+                      checked={sitePhotosFormat === opt}
+                      onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}) }} />
+                    {label}
+                  </label>
+                )
+              })}
             </div>
           </div>
           {sitePhotosFormat && (
@@ -726,6 +780,12 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 onPaste={handleIntroImagePaste} rows={10} />
             </>
           )}
+        </section>
+
+        <section className="tips-section">
+          <h2>{t.submitPage.tips}</h2>
+          <textarea className="intro-textarea" placeholder={t.submitPage.tipsPlaceholder} value={tips}
+            onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
 
         {draftSaved && (

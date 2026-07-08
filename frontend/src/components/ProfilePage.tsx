@@ -170,16 +170,19 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
                 {t.profile.igemRole}
                 <input type="hidden" value={igemRole} readOnly />
                 <div className="role-tabs" role="tablist">
-                  {igemRoleOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className={option === igemRole ? "active" : ""}
-                      onClick={() => setIgemRole(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
+                  {igemRoleOptions.map((option) => {
+                    const roleLabel: Record<string, string> = { "Wet Lab": t.loginModal.roleWetLab, "Dry Lab": t.loginModal.roleDryLab, "HP": t.loginModal.roleHP, "美工": t.loginModal.roleArt, "Wiki": t.loginModal.roleWiki }
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        className={option === igemRole ? "active" : ""}
+                        onClick={() => setIgemRole(option)}
+                      >
+                        {roleLabel[option] || option}
+                      </button>
+                    )
+                  })}
                 </div>
               </label>
             </div>
