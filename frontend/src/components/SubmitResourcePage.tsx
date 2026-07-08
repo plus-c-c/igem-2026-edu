@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Upload, Loader2, Plus, Trash2 } from "lucide-react"
+import { Upload, Loader2, Plus, Trash2, Bold, Italic, Heading, List, Link2, Eye, Edit3, ImageIcon } from "lucide-react"
 import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
 import { materialTags } from "../data/constants"
 import { worldCountries, worldRegions, worldCities } from "../data/locations"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 
 interface SubmitResourcePageProps {
   user: User
@@ -53,6 +55,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [tips, setTips] = useState(editResource?.tips || "")
   // 项目介绍书
   const [introductionContent, setIntroductionContent] = useState(editResource?.introductionContent || "")
+  const [showIntroPreview, setShowIntroPreview] = useState(false)
+  const [introImageUploading, setIntroImageUploading] = useState(false)
+  const introTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (!isEdit || !editResource) return
@@ -229,6 +234,42 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setErrorMsg(msg)
     }
     setSitePhotoUploading(null)
+  }
+
+  const insertMarkdown = (before: string, after = "") => {
+    const ta = introTextareaRef.current
+    if (!ta) return
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    setIntroductionContent((prev) => {
+      const selected = prev.slice(start, end)
+      const inserted = before + selected + after
+      return prev.slice(0, start) + inserted + prev.slice(end)
+    })
+    requestAnimationFrame(() => {
+      ta.focus()
+      ta.setSelectionRange(start + before.length, start + before.length + (end - start))
+    })
+  }
+
+  const handleIntroImagePaste = async (e: React.ClipboardEvent) => {
+    const file = e.clipboardData.files?.[0]
+    if (!file?.type.startsWith("image/")) return
+    e.preventDefault()
+    const rid = draftId || editResource?.id
+    if (!rid) return
+    setIntroImageUploading(true)
+    try {
+      const upRes = await fileService.uploadWithProgress(String(rid), file, "intro-image")
+      const url = fileService.downloadUrl(upRes.file.id)
+      const ta = introTextareaRef.current
+      if (ta) {
+        const start = ta.selectionStart
+        const md = `\n![${file.name}](${url})\n`
+        setIntroductionContent((prev) => prev.slice(0, start) + md + prev.slice(ta.selectionEnd))
+      }
+    } catch { setErrorMsg("图片上传失败") }
+    setIntroImageUploading(false)
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -474,12 +515,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </div>
             </label>
           </div>
-        </section>
 
-        <section className="step-editor">
-          <div className="step-editor-header">
-            <h2>下载材料</h2>
-          </div>
+          <div className="step-editor">
+            <h3>下载材料</h3>
           <div className="step-button-grid">
             {materialTags.map((t) => (
               <button key={t} type="button" className="pill-btn primary" onClick={() => addStepWithTag(t)}>
@@ -529,9 +567,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </div>
             ))}
           </div>
+        </div>
         </section>
 
-        <section className="site-photos-section">
+        <section className="site-photos-section" style={{ marginTop: 0 }}>
           <h2>现场照片</h2>
           <div className="choice-group">
             <span className="field-label">照片格式</span>
@@ -585,9 +624,38 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         </section>
 
         <section className="introduction-section">
-          <h2>项目介绍书</h2>
-          <textarea className="intro-textarea" placeholder="输入项目介绍书内容" value={introductionContent}
-            onChange={(e) => setIntroductionContent(e.target.value)} rows={8} />
+          <div className="intro-header">
+            <h2>项目介绍书</h2>
+            <div className="intro-header-actions">
+              <span className="intro-upload-status">{introImageUploading ? "图片上传中..." : ""}</span>
+              <button type="button" className={`pill-btn ${showIntroPreview ? "secondary" : "primary"}`}
+                onClick={() => setShowIntroPreview((p) => !p)}>
+                {showIntroPreview ? <><Edit3 size={14} /> 编辑</> : <><Eye size={14} /> 预览</>}
+              </button>
+            </div>
+          </div>
+          {showIntroPreview ? (
+            <div className="markdown-preview"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(marked.parse(introductionContent || "*暂无内容*") as string)
+              }}
+            />
+          ) : (
+            <>
+              <div className="md-toolbar">
+                <button type="button" onClick={() => insertMarkdown("**", "**")} title="加粗"><Bold size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("*", "*")} title="斜体"><Italic size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("### ", "")} title="标题"><Heading size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("- ")} title="列表"><List size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("[", "](url)")} title="链接"><Link2 size={14} /></button>
+                <span className="md-toolbar-hint">支持 Markdown 语法，可直接粘贴图片</span>
+              </div>
+              <textarea ref={introTextareaRef} className="intro-textarea" placeholder="输入项目介绍书内容（支持 Markdown）"
+                value={introductionContent}
+                onChange={(e) => setIntroductionContent(e.target.value)}
+                onPaste={handleIntroImagePaste} rows={10} />
+            </>
+          )}
         </section>
 
         {errorMsg && (

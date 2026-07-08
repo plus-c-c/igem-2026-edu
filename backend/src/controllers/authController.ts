@@ -1,5 +1,6 @@
 import { Response } from "express"
 import jwt, { type SignOptions } from "jsonwebtoken"
+import bcrypt from "bcrypt"
 import { AppDataSource } from "../index"
 import { User } from "../entity/User"
 import { AuthRequest } from "../middleware/auth"
@@ -137,6 +138,58 @@ export async function getMe(req: AuthRequest, res: Response) {
     return res.json({ user: serializeUser(user) })
   } catch (error) {
     console.error("获取用户信息错误:", error)
+    return res.status(500).json({ message: "服务器内部错误" })
+  }
+}
+
+export async function updateMe(req: AuthRequest, res: Response) {
+  try {
+    const { name, registrantName, igemRole, avatar } = req.body
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOneBy({ id: req.userId })
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" })
+    }
+
+    if (name !== undefined) user.name = name
+    if (registrantName !== undefined) user.registrantName = registrantName
+    if (igemRole !== undefined) user.igemRole = igemRole
+    if (avatar !== undefined) user.avatar = avatar
+
+    await userRepo.save(user)
+    return res.json({ user: serializeUser(user), message: "更新成功" })
+  } catch (error) {
+    console.error("更新用户信息错误:", error)
+    return res.status(500).json({ message: "服务器内部错误" })
+  }
+}
+
+export async function changePassword(req: AuthRequest, res: Response) {
+  try {
+    const { currentPassword, newPassword } = req.body
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "请提供当前密码和新密码" })
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "新密码至少 6 位" })
+    }
+
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOneBy({ id: req.userId })
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" })
+    }
+
+    const isMatch = await user.comparePassword(currentPassword)
+    if (!isMatch) {
+      return res.status(400).json({ message: "当前密码错误" })
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10)
+    await userRepo.save(user)
+    return res.json({ message: "密码修改成功" })
+  } catch (error) {
+    console.error("修改密码错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
   }
 }

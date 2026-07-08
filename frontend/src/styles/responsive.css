@@ -14,7 +14,7 @@
   .stats-panel { grid-template-columns: repeat(2, 1fr); }
   .category-hero { grid-template-columns: 1fr; min-height: auto; }
   .category-layout { grid-template-columns: 1fr; }
-  .case-hero, .case-detail-grid, .detail-grid { grid-template-columns: 1fr; }
+  .case-detail-grid, .detail-grid { grid-template-columns: 1fr; }
 }
 
 /* Tablet portrait: 736–833px */

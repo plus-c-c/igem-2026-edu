@@ -48,7 +48,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
         {user ? (
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
-            <span className="team-pill">{user.teamName}</span>
+            <Link className="team-pill" to="/profile" onClick={() => setMenuOpen(false)}>{user.teamName}</Link>
             <button className="icon-btn" type="button" onClick={handleLogout} aria-label={t.nav.logout}>
               <LogOut size={14} />
             </button>

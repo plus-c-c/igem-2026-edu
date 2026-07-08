@@ -43,4 +43,22 @@ export const authService = {
     })
     return res.json()
   },
+
+  updateMe: async (token: string, data: { name?: string; registrantName?: string; igemRole?: string; avatar?: string }) => {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    })
+    return res.json()
+  },
+
+  changePassword: async (token: string, currentPassword: string, newPassword: string) => {
+    const res = await fetch(`${API_BASE}/auth/change-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+    return res.json()
+  },
 }

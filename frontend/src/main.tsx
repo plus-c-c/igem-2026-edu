@@ -8,6 +8,7 @@ import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
+import { ProfilePage } from "./components/ProfilePage"
 import { LoginModal } from "./components/LoginModal"
 import { LanguageProvider } from "./i18n"
 import "./styles.css"
@@ -58,7 +59,8 @@ function App() {
           element={user ? <SubmitResourcePage key="new" user={user} addResource={addResource} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />}
         />
         <Route path="/cases/:caseId" element={<CaseDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
-        <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
+          <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
+          <Route path="/profile" element={user ? <ProfilePage user={user} setUser={setUser} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
         {categories.filter((cat) => cat.id !== "about").map((cat) => (
           <Route key={cat.id} path={cat.path} element={<CategoryPage category={cat} resources={resources} onSubmit={requestSubmit} />} />
         ))}
