@@ -294,8 +294,10 @@ export function HomePage({ resources }: { resources: Resource[] }) {
               <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
                 <img src={cat.image} alt="" />
                 <div className="category-card-body">
-                  <cat.icon size={24} />
-                  <strong>{cat.name}</strong>
+                  <div className="category-card-header">
+                    <cat.icon size={24} />
+                    <strong>{cat.name}</strong>
+                  </div>
                   <span>{cat.intro}</span>
                 </div>
               </Link>
