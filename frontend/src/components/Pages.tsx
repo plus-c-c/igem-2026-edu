@@ -311,21 +311,12 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const { caseId } = useParams()
   const navigate = useNavigate()
   const item = resources.find((c) => c.type === "campaign" && caseSlug(c.title) === caseId)
-  if (!item) {
-    return (
-      <section className="page-shell">
-        <h1>教育项目不存在</h1>
-        <p>该教育项目可能已被删除或链接无效。</p>
-        <Link className="pill-btn secondary" to="/" style={{ width: "fit-content" }}>返回首页</Link>
-      </section>
-    )
-  }
   const r = item
-  const category = categories.find((c) => c.id === r.category)
-  const canEdit = user && (user.role === "admin" || r.userId === user.id)
-  const steps = r.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
-  const { materialFiles } = useResourceFiles(r.id)
-  const resId = r.id ? String(r.id) : ""
+  const category = categories.find((c) => c.id === r?.category)
+  const canEdit = user && (user.role === "admin" || r?.userId === user.id)
+  const steps = r?.campaignSteps && r.campaignSteps.length > 0 ? r.campaignSteps : []
+  const { materialFiles } = useResourceFiles(r?.id)
+  const resId = r?.id ? String(r.id) : ""
 
   const [likedByMe, setLikedByMe] = useState(() => {
     if (!resId || !user) return false
@@ -387,7 +378,17 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
   const handleDelete = () => {
     if (!confirm("确定删除此教育项目？此操作不可撤销。")) return
-    onDelete(String(r.id))
+    onDelete(String(r!.id))
+  }
+
+  if (!item) {
+    return (
+      <section className="page-shell">
+        <h1>教育项目不存在</h1>
+        <p>该教育项目可能已被删除或链接无效。</p>
+        <Link className="pill-btn secondary" to="/" style={{ width: "fit-content" }}>返回首页</Link>
+      </section>
+    )
   }
 
   return (
