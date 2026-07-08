@@ -10,6 +10,10 @@
     "confirmLogout": "是否确认退出登录？",
     "menu": "菜单",
     "admin": "管理员",
+    "accountMenu": "账户菜单",
+    "profileCenter": "个人中心",
+    "editProfile": "修改个人资料",
+    "favorites": "个人收藏夹",
     "switchToZh": "切换到中文",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
@@ -150,7 +154,9 @@
     "deleteDraft": "删除",
     "draftDeleted": "草稿已删除",
     "draftPublished": "已发布",
-    "confirmDeleteDraft": "确定删除此草稿？"
+    "confirmDeleteDraft": "确定删除此草稿？",
+    "favoritesTitle": "个人收藏夹",
+    "noFavorites": "暂无收藏项目"
   },
   "loginModal": {
     "teamLogin": "团队登录",

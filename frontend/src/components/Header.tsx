@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom"
-import { Globe2, LogIn, LogOut, Menu, Shield, X } from "lucide-react"
-import { useState } from "react"
+import { Globe2, LogIn, LogOut, Menu, Shield, Star, UserRound, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import type { User } from "../types"
 import { useI18n } from "../i18n"
 
@@ -12,6 +12,8 @@ interface HeaderProps {
 
 export function Header({ user, setUser, openLogin }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef<HTMLDivElement | null>(null)
   const { language, toggleLanguage, t } = useI18n()
   const navItems = [
     { path: "/", name: t.nav.home },
@@ -25,7 +27,16 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
     localStorage.removeItem("authToken")
     localStorage.removeItem("hpEduUser")
     setUser(null)
+    setAccountOpen(false)
   }
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!accountRef.current?.contains(event.target as Node)) setAccountOpen(false)
+    }
+    document.addEventListener("pointerdown", handlePointerDown)
+    return () => document.removeEventListener("pointerdown", handlePointerDown)
+  }, [])
 
   return (
     <nav className="global-nav">
@@ -49,6 +60,30 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
             <Link className="team-pill" to="/profile" onClick={() => setMenuOpen(false)}>{user.teamName}</Link>
+            <div className="account-menu" ref={accountRef}>
+              <button
+                className="avatar-button"
+                type="button"
+                onClick={() => setAccountOpen((open) => !open)}
+                aria-label={t.nav.accountMenu}
+                aria-expanded={accountOpen}
+              >
+                <img src={user.avatar || "/images/logo.jpg"} alt={t.profile.avatarAlt} />
+              </button>
+              {accountOpen && (
+                <div className="account-dropdown">
+                  <p>{t.nav.profileCenter}</p>
+                  <Link to="/profile" onClick={() => { setAccountOpen(false); setMenuOpen(false) }}>
+                    <UserRound size={14} />
+                    <span>{t.nav.editProfile}</span>
+                  </Link>
+                  <Link to="/favorites" onClick={() => { setAccountOpen(false); setMenuOpen(false) }}>
+                    <Star size={14} />
+                    <span>{t.nav.favorites}</span>
+                  </Link>
+                </div>
+              )}
+            </div>
             <button className="icon-btn" type="button" onClick={handleLogout} aria-label={t.nav.logout}>
               <LogOut size={14} />
             </button>

@@ -7,7 +7,7 @@ import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
-import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage } from "./components/Pages"
+import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage, FavoritesPage } from "./components/Pages"
 import type { Resource } from "./types"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { ProfilePage } from "./components/ProfilePage"
@@ -89,6 +89,7 @@ function App() {
         <Route path="/cases/:caseId" element={<CaseDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
           <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
           <Route path="/profile" element={user ? <ProfilePage user={user} setUser={setUser} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
+          <Route path="/favorites" element={user ? <FavoritesPage resources={resources} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
         {categories.filter((cat) => cat.id !== "about").map((cat) => (
           <Route key={cat.id} path={cat.path} element={<CategoryPage category={cat} resources={resources} onSubmit={requestSubmit} />} />
         ))}
