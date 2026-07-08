@@ -95,7 +95,8 @@
     "liked": "已赞",
     "like": "点赞",
     "favorited": "已收藏",
-    "favorite": "收藏"
+    "favorite": "收藏",
+    "close": "关闭"
   },
   "loginRequired": {
     "eyebrow": "Login Required",

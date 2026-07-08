@@ -95,7 +95,8 @@
     "liked": "Liked",
     "like": "Like",
     "favorited": "Favorited",
-    "favorite": "Favorite"
+    "favorite": "Favorite",
+    "close": "Close"
   },
   "loginRequired": {
     "eyebrow": "Login Required",
