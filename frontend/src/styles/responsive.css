@@ -1,9 +1,9 @@
 /* ========== Responsive ========== */
 
-/* Medium: nav links move left */
+/* Medium: nav links smoothly move left */
 @media (max-width: 1199px) {
   .global-nav .nav-links {
-    justify-content: flex-start;
+    padding-right: 120px;
   }
 }
 
