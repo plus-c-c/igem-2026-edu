@@ -143,7 +143,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
           <h2 style={{ maxWidth: 500 }}>可直接对外展示的教育活动样板</h2>
           <p style={{ maxWidth: 500 }}>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
           <div className="showcase-strip">
-            {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} />)}
+            {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} variant="project" />)}
           </div>
         </div>
       </section>
@@ -366,13 +366,17 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
     )
   }
 
+  const locationParts = [r.locationCountry, r.locationProvince, r.locationCity].filter(Boolean).join(" / ")
+  const locationLabel = r.locationType?.split(",").join("、")
+  const sitePhotoIdList = r.sitePhotoIds ? r.sitePhotoIds.split(",").filter(Boolean) : []
+
   return (
     <section className="page-shell case-detail">
       <div className="case-hero">
         {r.image ? <img src={r.image} alt="" /> : <div className="hero-img-placeholder" />}
         <div>
           <h1>{r.title}</h1>
-          <p>{r.subtitle}</p>
+          {r.team && <p className="hero-team">{r.team}</p>}
         </div>
       </div>
 
@@ -380,6 +384,43 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <article className="case-story">
           <h2>项目简介</h2>
           <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的教育项目，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
+
+          {r.introductionContent && (
+            <>
+              <h2>项目介绍书</h2>
+              <p style={{ whiteSpace: "pre-wrap" }}>{r.introductionContent}</p>
+            </>
+          )}
+
+          {sitePhotoIdList.length > 0 && (
+            <>
+              <h2>现场照片</h2>
+              <div className={`site-photos-grid format-${r.sitePhotosFormat === "双图" ? "double" : r.sitePhotosFormat === "四宫格" ? "quad" : "single"}`}>
+                {(() => {
+                  const labels = r.sitePhotosFormat === "单图" ? ["照片"] : r.sitePhotosFormat === "双图" ? ["左", "右"] : ["左上", "右上", "左下", "右下"]
+                  return labels.map((label, i) => (
+                    <div key={i} className="site-photo-slot">
+                      {sitePhotoIdList[i] ? (
+                        <div className="site-photo-preview">
+                          <img src={fileService.downloadUrl(sitePhotoIdList[i])} alt={label} />
+                        </div>
+                      ) : (
+                        <div className="site-photo-slot empty" />
+                      )}
+                    </div>
+                  ))
+                })()}
+              </div>
+            </>
+          )}
+
+          {r.tips && (
+            <>
+              <h2>温馨提示</h2>
+              <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
+            </>
+          )}
+
           <h2>展示内容</h2>
           <div className="case-steps">
             {steps.length > 0 ? steps.map((step, i) => (
@@ -407,21 +448,27 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <aside className="case-side">
           <h2>活动信息</h2>
           <p><strong>所属栏目</strong>{category?.name}</p>
-          <p><strong>活动形式</strong>{r.format}</p>
-          <p><strong>展示价值</strong>{r.impact}</p>
-          <div className="tags">
-            {(r.materials || []).map((m) => (
-              <div key={m} className="tag-group">
-                <span>{m}</span>
-                {materialFiles()[m]?.map((f) => (
-                  <a key={f.id} className="tag-file-link"
-                    href={fileService.downloadUrl(f.id)}
-                    target="_blank" rel="noopener noreferrer"
-                  ><Download size={12} /> {f.name}</a>
-                ))}
-              </div>
-            ))}
-          </div>
+          {r.canParticipate && <p><strong>是否可参与</strong>{r.canParticipate === "yes" ? "可参与" : "不可参与"}</p>}
+          {locationLabel && <p><strong>活动地点</strong>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</p>}
+          {r.eventDate && <p><strong>活动日期</strong>{r.eventDate}</p>}
+          {r.timeLimitType && <p><strong>时限</strong>{r.timeLimitType}</p>}
+          {r.format && <p><strong>活动形式</strong>{r.format}</p>}
+          {r.impact && <p><strong>展示价值</strong>{r.impact}</p>}
+          {r.materials && r.materials.length > 0 && (
+            <div className="tags">
+              {r.materials.map((m) => (
+                <div key={m} className="tag-group">
+                  <span>{m}</span>
+                  {materialFiles()[m]?.map((f) => (
+                    <a key={f.id} className="tag-file-link"
+                      href={fileService.downloadUrl(f.id)}
+                      target="_blank" rel="noopener noreferrer"
+                    ><Download size={12} /> {f.name}</a>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </aside>
       </div>
 
