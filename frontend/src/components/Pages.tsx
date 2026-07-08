@@ -5,7 +5,7 @@ import { CommentSection } from "./CommentSection"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { Download, ImageIcon, LogIn, Plus, Star, ThumbsUp, Trash2 } from "lucide-react"
+import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2 } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
 import { CategoryHero } from "./CategoryHero"
 import { StatsPanel } from "./StatsPanel"
@@ -21,12 +21,14 @@ interface PageProps {
 }
 
 interface ProjectFilterState {
+  searchText: string
   theme: string
   material: string
   audience: string
 }
 
 const defaultProjectFilters: ProjectFilterState = {
+  searchText: "",
   theme: "",
   material: "",
   audience: "",
@@ -49,6 +51,7 @@ function optionMatches(item: Resource, option: string) {
 
 function filterProjects(items: Resource[], filters: ProjectFilterState) {
   return items.filter((item) =>
+    optionMatches(item, filters.searchText) &&
     optionMatches(item, filters.theme) &&
     optionMatches(item, filters.material) &&
     optionMatches(item, filters.audience)
@@ -67,6 +70,15 @@ function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; on
 
   return (
     <div className="project-filter-panel" aria-label={t.filters.aria}>
+      <div className="search-input">
+        <Search size={16} />
+        <input
+          type="text"
+          placeholder={t.filters.searchPlaceholder}
+          value={filters.searchText}
+          onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
+        />
+      </div>
       <label>
         {t.filters.theme}
         <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
