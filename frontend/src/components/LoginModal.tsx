@@ -18,8 +18,8 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
 
   const { t } = useI18n()
 
-  const [mode, setMode] = useState<"login" | "register">("login")
-  const [step, setStep] = useState<"form" | "verify">("form")
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login")
+  const [step, setStep] = useState<"form" | "verify" | "done">("form")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [successMsg, setSuccessMsg] = useState("")
@@ -35,6 +35,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   const [avatarPreview, setAvatarPreview] = useState(defaultAvatar)
   const [avatarValue, setAvatarValue] = useState(defaultAvatar)
   const [countdown, setCountdown] = useState(0)
+  const [forgotEmail, setForgotEmail] = useState("")
 
   const mapUser = (user: any): User => ({
     id: user.id,
@@ -90,6 +91,29 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         } else {
           setError(res.message || (t.loginModal.loginFailed || "登录失败"))
         }
+      } else if (mode === "forgot") {
+        if (step === "form") {
+          const email = data.get("email") as string
+          const res = await authService.sendPasswordResetCode(email)
+          if (res.message) {
+            setForgotEmail(email)
+            setStep("verify")
+            setSuccessMsg(res.message)
+            startCountdown()
+          } else {
+            setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
+          }
+        } else {
+          const code = data.get("code") as string
+          const newPassword = data.get("newPassword") as string
+          const res = await authService.resetPassword({ email: forgotEmail, code, newPassword })
+          if (res.message && !res.code) {
+            setSuccessMsg(res.message)
+            setStep("done")
+          } else {
+            setError(res.message || (t.loginModal.resetFailed || "重置密码失败"))
+          }
+        }
       } else {
         if (step === "form") {
           const email = data.get("email") as string
@@ -140,6 +164,15 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     setCountdown(0)
   }
 
+  const openForgotPassword = () => {
+    setMode("forgot")
+    setStep("form")
+    setError("")
+    setSuccessMsg("")
+    setForgotEmail("")
+    setCountdown(0)
+  }
+
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form
@@ -147,11 +180,69 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         onSubmit={submit}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2>{mode === "login" ? t.loginModal.teamLogin : step === "form" ? t.loginModal.register : t.loginModal.verifyEmail}</h2>
+        <h2>{mode === "login" ? t.loginModal.teamLogin : mode === "forgot" ? (step === "done" ? t.loginModal.resetSuccess : step === "verify" ? t.loginModal.resetPassword : t.loginModal.forgotPassword) : step === "form" ? t.loginModal.register : t.loginModal.verifyEmail}</h2>
         {error && <p className="login-error">{error}</p>}
         {successMsg && <p className="login-success">{successMsg}</p>}
 
-        {mode === "register" && step === "verify" ? (
+        {mode === "forgot" && step === "done" ? (
+          <>
+            <p style={{ margin: 0, fontSize: 14, color: "var(--ink-muted-48)" }}>
+              {t.loginModal.passwordResetDone}
+            </p>
+            <div className="form-actions">
+              <button className="pill-btn primary" type="button" onClick={() => { setMode("login"); setStep("form") }}>
+                {t.loginModal.backToLogin}
+              </button>
+            </div>
+          </>
+        ) : mode === "forgot" && step === "verify" ? (
+          <>
+            <p style={{ margin: 0, fontSize: 14, color: "var(--ink-muted-48)" }}>
+              {t.loginModal.verificationSent} <strong>{forgotEmail}</strong>
+            </p>
+            <label>{t.loginModal.verificationCode}
+              <input name="code" type="text" maxLength={6} required placeholder={t.loginModal.codePlaceholder} autoFocus />
+            </label>
+            <label>{t.loginModal.newPassword}
+              <input name="newPassword" type="password" required minLength={6} placeholder={t.loginModal.passwordPlaceholderRegister} />
+            </label>
+            <div className="form-actions">
+              <button className="pill-btn secondary" type="button" onClick={() => { setStep("form"); setError(""); setSuccessMsg("") }}>
+                {t.loginModal.back}
+              </button>
+              <button className="pill-btn primary" type="submit" disabled={loading}>
+                {loading ? t.loginModal.resetting : t.loginModal.resetPassword}
+              </button>
+            </div>
+            {countdown > 0 ? (
+              <p className="login-hint">{countdown} {t.loginModal.resendAfter}</p>
+            ) : (
+              <span className="text-link" style={{ cursor: "pointer", fontSize: 13, textAlign: "center", display: "block", marginTop: 8 }}
+                onClick={async () => {
+                  setError(""); setSuccessMsg(""); setLoading(true)
+                  try {
+                    const res = await authService.sendPasswordResetCode(forgotEmail)
+                    if (res.message) { setSuccessMsg(res.message); startCountdown() }
+                    else setError(res.message || (t.loginModal.sendFailed || "发送失败"))
+                  } catch (e: any) { setError(e.message) }
+                  setLoading(false)
+                }}
+              >{t.loginModal.resend}</span>
+            )}
+          </>
+        ) : mode === "forgot" ? (
+          <>
+            <label>{t.loginModal.email}<input name="email" type="email" required placeholder="team@example.com" /></label>
+            <div className="form-actions">
+              <button className="pill-btn secondary" type="button" onClick={() => { setMode("login"); setStep("form") }}>
+                {t.loginModal.back}
+              </button>
+              <button className="pill-btn primary" type="submit" disabled={loading}>
+                {loading ? t.loginModal.sending : t.loginModal.sendCode}
+              </button>
+            </div>
+          </>
+        ) : mode === "register" && step === "verify" ? (
           <>
             <p style={{ margin: 0, fontSize: 14, color: "var(--ink-muted-48)" }}>
               {t.loginModal.verificationSent} <strong>{registerData.email}</strong>
@@ -221,7 +312,9 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
               </div>
             )}
             <label>{t.loginModal.email}<input name="email" type="email" required placeholder="team@example.com" /></label>
-            <label>{t.loginModal.password}<input name="password" type="password" required placeholder={mode === "login" ? t.loginModal.passwordPlaceholderLogin : t.loginModal.passwordPlaceholderRegister} /></label>
+            <label>{t.loginModal.password}<input name="password" type="password" required placeholder={mode === "login" ? t.loginModal.passwordPlaceholderLogin : t.loginModal.passwordPlaceholderRegister} />
+              {mode === "login" && <span className="text-link forgot-link" onClick={openForgotPassword}>{t.loginModal.forgotPasswordLink}</span>}
+            </label>
             <div className="form-actions">
               <button className="pill-btn secondary" type="button" onClick={onClose}>{t.loginModal.cancel}</button>
               <button className="auth-switch-link" type="button" onClick={switchMode}>
