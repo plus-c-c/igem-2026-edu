@@ -188,7 +188,17 @@
     "roleDryLab": "Dry Lab",
     "roleHP": "HP",
     "roleArt": "美工",
-    "roleWiki": "Wiki"
+    "roleWiki": "Wiki",
+    "forgotPassword": "忘记密码",
+    "forgotPasswordLink": "忘记密码？",
+    "resetPassword": "重置密码",
+    "newPassword": "新密码",
+    "resetSuccess": "密码重置成功",
+    "passwordResetDone": "您的密码已成功重置，请使用新密码登录。",
+    "backToLogin": "返回登录",
+    "sending": "发送中...",
+    "resetting": "重置中...",
+    "resetFailed": "重置密码失败"
   },
   "submitPage": {
     "edit": "编辑",

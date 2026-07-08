@@ -34,7 +34,7 @@ services:
       SMTP_PORT: "465"
       SMTP_SECURE: "true"
       SMTP_USER: syneduglobal@yeah.net
-      SMTP_PASS: EHrQhwc7qvrv6Cz4
+      SMTP_PASS: ZFgPAAiyS4GL56hB
       SMTP_FROM: syneduglobal@yeah.net
       PORT: 3000
     volumes:

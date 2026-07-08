@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"
 import { AppDataSource } from "../index"
 import { User } from "../entity/User"
 import { AuthRequest } from "../middleware/auth"
-import { sendVerificationCode, storeVerificationData, verifyCode } from "../email"
+import { sendVerificationCode, storeVerificationData, verifyCode, sendPasswordResetCode, verifyPasswordResetCode } from "../email"
 
 function serializeUser(user: User) {
   return {
@@ -190,6 +190,57 @@ export async function changePassword(req: AuthRequest, res: Response) {
     return res.json({ message: "密码修改成功" })
   } catch (error) {
     console.error("修改密码错误:", error)
+    return res.status(500).json({ message: "服务器内部错误" })
+  }
+}
+
+export async function sendPasswordReset(req: AuthRequest, res: Response) {
+  try {
+    const { email } = req.body
+    if (!email) {
+      return res.status(400).json({ message: "请提供邮箱" })
+    }
+
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOneBy({ email })
+    if (!user) {
+      return res.status(404).json({ message: "该邮箱未注册" })
+    }
+
+    await sendPasswordResetCode(email)
+    return res.json({ message: "密码重置验证码已发送到您的邮箱" })
+  } catch (error: any) {
+    console.error("发送密码重置码错误:", error)
+    return res.status(400).json({ message: error.message || "发送验证码失败" })
+  }
+}
+
+export async function resetPassword(req: AuthRequest, res: Response) {
+  try {
+    const { email, code, newPassword } = req.body
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ message: "请提供邮箱、验证码和新密码" })
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "新密码至少 6 位" })
+    }
+
+    const valid = verifyPasswordResetCode(email, code)
+    if (!valid) {
+      return res.status(400).json({ message: "验证码错误或已过期" })
+    }
+
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOneBy({ email })
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" })
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10)
+    await userRepo.save(user)
+    return res.json({ message: "密码重置成功" })
+  } catch (error) {
+    console.error("重置密码错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
   }
 }

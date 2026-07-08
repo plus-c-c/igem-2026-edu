@@ -61,4 +61,22 @@ export const authService = {
     })
     return res.json()
   },
+
+  sendPasswordResetCode: async (email: string) => {
+    const res = await fetch(`${API_BASE}/auth/send-password-reset-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    })
+    return res.json()
+  },
+
+  resetPassword: async ({ email, code, newPassword }: { email: string; code: string; newPassword: string }) => {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code, newPassword }),
+    })
+    return res.json()
+  },
 }

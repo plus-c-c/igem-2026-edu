@@ -188,7 +188,17 @@
     "roleDryLab": "Dry Lab",
     "roleHP": "HP",
     "roleArt": "Art",
-    "roleWiki": "Wiki"
+    "roleWiki": "Wiki",
+    "forgotPassword": "Forgot Password",
+    "forgotPasswordLink": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "resetSuccess": "Password Reset Successful",
+    "passwordResetDone": "Your password has been reset. Please log in with your new password.",
+    "backToLogin": "Back to Login",
+    "sending": "Sending...",
+    "resetting": "Resetting...",
+    "resetFailed": "Password reset failed"
   },
   "submitPage": {
     "edit": "Edit",

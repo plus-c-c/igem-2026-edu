@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { authMiddleware } from "../middleware/auth"
-import { sendCode, verifyRegister, login, getMe, updateMe, changePassword } from "../controllers/authController"
+import { sendCode, verifyRegister, login, getMe, updateMe, changePassword, sendPasswordReset, resetPassword } from "../controllers/authController"
 
 const router = Router()
 
@@ -10,5 +10,7 @@ router.post("/login", login)
 router.get("/me", authMiddleware, getMe)
 router.put("/me", authMiddleware, updateMe)
 router.post("/change-password", authMiddleware, changePassword)
+router.post("/send-password-reset-code", sendPasswordReset)
+router.post("/reset-password", resetPassword)
 
 export default router

@@ -1846,6 +1846,7 @@ input:focus, select:focus, textarea:focus {
 .login-error { color: #e53935; font-size: 14px; }
 .login-success { color: #34a853; font-size: 14px; }
 .login-hint { color: var(--ink-muted-48); font-size: 13px; text-align: center; }
+.forgot-link { font-size: 12px; float: right; margin-top: 4px; }
 .register-grid {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
