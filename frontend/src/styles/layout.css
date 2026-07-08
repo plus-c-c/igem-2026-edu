@@ -181,6 +181,7 @@ main {
   font-weight: 600;
   line-height: 1.1;
   color: var(--ink);
+  text-align: center;
 }
 .stats-panel span {
   display: block;

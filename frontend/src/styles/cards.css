@@ -360,3 +360,15 @@
   gap: 10px;
   min-width: 0;
 }
+.category-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.category-card-header svg {
+  flex-shrink: 0;
+}
+.category-card-header strong {
+  flex: 1;
+  text-align: center;
+}
