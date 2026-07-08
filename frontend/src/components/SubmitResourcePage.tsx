@@ -9,6 +9,7 @@ import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { useI18n } from "../i18n"
 
 interface SubmitResourcePageProps {
   user: User
@@ -21,6 +22,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const location = useLocation()
   const params = new URLSearchParams(location.search)
   const isEdit = !!editResource
+  const { t } = useI18n()
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
   const imageFileRef = useRef<File | null>(null)
@@ -80,7 +82,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }, [isEdit, editResource])
   const defaultCategory = params.get("category") || editResource?.category || "applications"
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
-  const projectLabel = selectedCategory === "applications" ? "科普项目" : selectedCategory === "activities" ? "实践活动" : "教育项目"
+  const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : (t.submitPage.projectLabelCooperation)
 
   useEffect(() => {
     if (editResource) {
@@ -165,7 +167,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       title: "",
       desc: "",
     })
-    if (!res.resource) throw new Error("无法创建资源")
+    if (!res.resource) throw new Error(t.submitPage.createFailed || "无法创建资源")
     setDraftId(res.resource.id)
     return res.resource.id
   }
@@ -180,7 +182,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       await uploadStepFile(rid, stepId, file)
       stepFileInputs.current[stepId] = null
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "步骤文件上传失败"
+      const msg = e instanceof Error ? e.message : (t.submitPage.stepFileFailed || "步骤文件上传失败")
       setErrorMsg(msg)
     }
   }
@@ -204,7 +206,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setCoverFileId(upRes.file.id)
       imageFileRef.current = null
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "封面上传失败"
+      const msg = e instanceof Error ? e.message : (t.submitPage.coverUploadFailed || "封面上传失败")
       setErrorMsg(msg)
     }
   }
@@ -230,7 +232,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       const url = `/api/resources/files/${upRes.file.id}/download`
       setSitePhotoFiles((prev) => ({ ...prev, [slotKey]: { fileId: upRes.file.id, url } }))
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "现场照片上传失败"
+      const msg = e instanceof Error ? e.message : (t.submitPage.photoUploadFailed || "现场照片上传失败")
       setErrorMsg(msg)
     }
     setSitePhotoUploading(null)
@@ -268,7 +270,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         const md = `\n![${file.name}](${url})\n`
         setIntroductionContent((prev) => prev.slice(0, start) + md + prev.slice(ta.selectionEnd))
       }
-    } catch { setErrorMsg("图片上传失败") }
+    } catch { setErrorMsg(t.submitPage.imageUploadFailed || "图片上传失败") }
     setIntroImageUploading(false)
   }
 
@@ -279,7 +281,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     try {
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
       if (emptyStep) {
-        throw new Error("请填写所有下载材料的材料类型")
+        throw new Error(t.submitPage.emptyStepType || "请填写所有下载材料的材料类型")
       }
       const data = new FormData(event.currentTarget)
 
@@ -312,7 +314,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         rid = isEdit ? String(editResource!.id) : draftId!
       } else {
         const res = await resourceService.create(payload)
-        if (!res.resource) throw new Error(res.message || "发布失败")
+        if (!res.resource) throw new Error(res.message || (t.submitPage.publishFailed || "发布失败"))
         rid = res.resource.id
       }
 
@@ -345,7 +347,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
 
       const res = await resourceService.update(rid, payload)
-      if (!res.resource) throw new Error(res.message || "保存失败")
+      if (!res.resource) throw new Error(res.message || (t.submitPage.saveFailed || "保存失败"))
 
       if (isEdit) {
         updateResource?.(rid, res.resource)
@@ -353,7 +355,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         addResource(res.resource)
       }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "操作失败，请重试"
+      const msg = e instanceof Error ? e.message : (t.submitPage.operationFailed || "操作失败，请重试")
       setErrorMsg(msg)
       setSubmitting(false)
     }
@@ -364,28 +366,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       <div className="page-heading">
         <div>
           <p className="eyebrow">{isEdit ? "Edit" : "Submit"}</p>
-          <h1>{isEdit ? `编辑${projectLabel}` : `发布${projectLabel}`}</h1>
-          <p>当前登录团队：{user.teamName}。</p>
+          <h1>{isEdit ? `${t.submitPage.edit}${projectLabel}` : `${t.submitPage.submit}${projectLabel}`}</h1>
+          <p>{t.submitPage.currentTeam}{user.teamName}。</p>
         </div>
       </div>
 
       <form className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>团队名称<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
-          <label>项目名称<input name="title" required placeholder='例如："合成生物学是什么？"' defaultValue={editResource?.title} /></label>
-          <label>分类
+          <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
+          <label>{t.submitPage.projectName}<input name="title" required placeholder={t.submitPage.projectPlaceholder} defaultValue={editResource?.title} /></label>
+          <label>{t.submitPage.category}
             <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-              <option value="" disabled>请选择分类</option>
+              <option value="" disabled>{t.submitPage.selectCategory}</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
 
           <label className="wide" style={{ display: "grid", gap: "var(--label-spacing)" }}>
-            <span>封面图片</span>
+            <span>{t.submitPage.coverImage}</span>
             <div className="site-photo-slot">
               {coverPreviewUrl ? (
                 <div className="site-photo-preview">
-                  <img src={coverPreviewUrl} alt="封面预览" />
+                  <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
                   <button type="button" className="site-photo-remove" disabled={coverDeleting}
                     onClick={async (e) => {
                       e.stopPropagation()
@@ -411,7 +413,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               ) : (
                 <label className="site-photo-upload">
                   <Upload size={20} />
-                  <span>上传封面图片</span>
+                  <span>{t.submitPage.uploadCover}</span>
                   <input type="file" accept="image/*" onChange={handleCoverFileChange} />
                 </label>
               )}
@@ -423,19 +425,19 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             )}
           </label>
 
-          <label className="wide">简介<textarea name="desc" required placeholder="简要说明活动内容、形式、教育目标和合作要求" defaultValue={editResource?.desc} /></label>
+          <label className="wide">{t.submitPage.desc}<textarea name="desc" required placeholder={t.submitPage.descPlaceholder} defaultValue={editResource?.desc} /></label>
         </div>
 
         <section className="tips-section">
-          <h2>项目Tips</h2>
-          <textarea className="intro-textarea" placeholder="输入项目提示/备注" value={tips}
+          <h2>{t.submitPage.tips}</h2>
+          <textarea className="intro-textarea" placeholder={t.submitPage.tipsPlaceholder} value={tips}
             onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
 
         <section className="event-info-section">
-          <h2>活动信息</h2>
+          <h2>{t.submitPage.eventInfo}</h2>
           <div className="event-info-grid">
-            <label className="choice-group wide">活动形式
+            <label className="choice-group wide">{t.submitPage.activityFormat}
               <div>
                 {["讲座", "集市摊位", "路演", "其他"].map((opt) => (
                   <label key={opt} className={activityFormat === opt ? "active" : ""}>
@@ -448,7 +450,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </div>
             </label>
 
-            <label className="choice-group">是否可参与
+            <label className="choice-group">{t.submitPage.canParticipate}
               <div>
                 {["可参与", "不可参与"].map((opt) => (
                   <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
@@ -461,7 +463,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </div>
             </label>
 
-            <label className="choice-group">地点
+            <label className="choice-group">{t.submitPage.location}
               <div>
                 {["线上", "线下"].map((opt) => (
                   <label key={opt} className={locationTypes.includes(opt) ? "active" : ""}>
@@ -479,18 +481,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               {locationTypes.includes("线下") && (
                 <div className="location-cascade">
                   <select value={locationCountry} onChange={(e) => { setLocationCountry(e.target.value); setLocationProvince(""); setLocationCity("") }}>
-                    <option value="">选择国家</option>
+                    <option value="">{t.submitPage.selectCountry}</option>
                     {worldCountries.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
                   </select>
                   {locationCountry && worldRegions[locationCountry] && (
                     <select value={locationProvince} onChange={(e) => { setLocationProvince(e.target.value); setLocationCity("") }}>
-                      <option value="">选择省/州</option>
+                      <option value="">{t.submitPage.selectProvince}</option>
                       {worldRegions[locationCountry].map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
                     </select>
                   )}
                   {locationProvince && worldCities[`${locationCountry}|${locationProvince}`] && (
                     <select value={locationCity} onChange={(e) => setLocationCity(e.target.value)}>
-                      <option value="">选择城市</option>
+                      <option value="">{t.submitPage.selectCity}</option>
                       {worldCities[`${locationCountry}|${locationProvince}`].map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   )}
@@ -498,11 +500,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               )}
             </label>
 
-            <label>时间
+            <label>{t.submitPage.date}
               <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
             </label>
 
-            <label className="choice-group">时限
+            <label className="choice-group">{t.submitPage.timeLimit}
               <div>
                 {["有时限", "无时限"].map((opt) => (
                   <label key={opt} className={timeLimitType === opt ? "active" : ""}>
@@ -517,7 +519,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </div>
 
           <div className="step-editor">
-            <h3>下载材料</h3>
+            <h3>{t.submitPage.downloadMaterials}</h3>
           <div className="step-button-grid">
             {materialTags.map((t) => (
               <button key={t} type="button" className="pill-btn primary" onClick={() => addStepWithTag(t)}>
@@ -525,22 +527,22 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </button>
             ))}
             <button type="button" className="pill-btn primary" onClick={addStep}>
-              <Plus size={16} /> 其他材料
+              <Plus size={16} /> {t.submitPage.otherMaterial}
             </button>
           </div>
           <div className="step-grid">
             {campaignSteps.map((step, i) => (
               <div key={step.id} className="step-block">
                 <div className="step-block-header">
-                  <input className="step-text-input" placeholder="材料类型" value={step.text}
+                  <input className="step-text-input" placeholder={t.submitPage.materialTypePlaceholder} value={step.text}
                     onChange={(e) => updateStepText(step.id, e.target.value)} />
-                  <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title="删除">
+                  <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title={t.submitPage.delete}>
                     <Trash2 size={14} />
                   </button>
                 </div>
                 <label className="upload-tile step-upload-tile">
                   <Upload size={16} />
-                  上传文件
+                  {t.submitPage.uploadFile}
                   <input type="file" onChange={(e) => handleStepFileChange(step.id, e)} />
                   {stepFileInputs.current[step.id] && <span>{stepFileInputs.current[step.id]!.name}</span>}
                 </label>
@@ -571,9 +573,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         </section>
 
         <section className="site-photos-section" style={{ marginTop: 0 }}>
-          <h2>现场照片</h2>
+          <h2>{t.submitPage.sitePhotos}</h2>
           <div className="choice-group">
-            <span className="field-label">照片格式</span>
+            <span className="field-label">{t.submitPage.photoFormat}</span>
             <div>
               {["单图", "双图", "四宫格"].map((opt) => (
                 <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
@@ -588,7 +590,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           {sitePhotosFormat && (
             <div className={`site-photos-grid format-${sitePhotosFormat === "单图" ? "single" : sitePhotosFormat === "双图" ? "double" : "quad"}`}>
               {(() => {
-                const slots = sitePhotosFormat === "单图" ? ["照片"] : sitePhotosFormat === "双图" ? ["左", "右"] : ["左上", "右上", "左下", "右下"]
+                const slots = sitePhotosFormat === "单图" ? [t.submitPage.slotPhoto] : sitePhotosFormat === "双图" ? [t.submitPage.slotLeft, t.submitPage.slotRight] : [t.submitPage.slotTopLeft, t.submitPage.slotTopRight, t.submitPage.slotBottomLeft, t.submitPage.slotBottomRight]
                 return slots.map((label, i) => {
                   const slotKey = String(i)
                   const file = sitePhotoFiles[slotKey]
@@ -625,32 +627,32 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
         <section className="introduction-section">
           <div className="intro-header">
-            <h2>项目介绍书</h2>
+            <h2>{t.submitPage.introBook}</h2>
             <div className="intro-header-actions">
-              <span className="intro-upload-status">{introImageUploading ? "图片上传中..." : ""}</span>
+              <span className="intro-upload-status">{introImageUploading ? t.submitPage.uploadingImage : ""}</span>
               <button type="button" className={`pill-btn ${showIntroPreview ? "secondary" : "primary"}`}
                 onClick={() => setShowIntroPreview((p) => !p)}>
-                {showIntroPreview ? <><Edit3 size={14} /> 编辑</> : <><Eye size={14} /> 预览</>}
+                {showIntroPreview ? <><Edit3 size={14} /> {t.submitPage.edit}</> : <><Eye size={14} /> {t.submitPage.preview}</>}
               </button>
             </div>
           </div>
           {showIntroPreview ? (
             <div className="markdown-preview"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(marked.parse(introductionContent || "*暂无内容*") as string)
+                __html: DOMPurify.sanitize(marked.parse(introductionContent || t.submitPage.emptyMarkdown) as string)
               }}
             />
           ) : (
             <>
               <div className="md-toolbar">
-                <button type="button" onClick={() => insertMarkdown("**", "**")} title="加粗"><Bold size={14} /></button>
-                <button type="button" onClick={() => insertMarkdown("*", "*")} title="斜体"><Italic size={14} /></button>
-                <button type="button" onClick={() => insertMarkdown("### ", "")} title="标题"><Heading size={14} /></button>
-                <button type="button" onClick={() => insertMarkdown("- ")} title="列表"><List size={14} /></button>
-                <button type="button" onClick={() => insertMarkdown("[", "](url)")} title="链接"><Link2 size={14} /></button>
-                <span className="md-toolbar-hint">支持 Markdown 语法，可直接粘贴图片</span>
+                <button type="button" onClick={() => insertMarkdown("**", "**")} title={t.submitPage.toolbarBold}><Bold size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("*", "*")} title={t.submitPage.toolbarItalic}><Italic size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("### ", "")} title={t.submitPage.toolbarHeading}><Heading size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("- ")} title={t.submitPage.toolbarList}><List size={14} /></button>
+                <button type="button" onClick={() => insertMarkdown("[", "](url)")} title={t.submitPage.toolbarLink}><Link2 size={14} /></button>
+                <span className="md-toolbar-hint">{t.submitPage.toolbarHint}</span>
               </div>
-              <textarea ref={introTextareaRef} className="intro-textarea" placeholder="输入项目介绍书内容（支持 Markdown）"
+              <textarea ref={introTextareaRef} className="intro-textarea" placeholder={t.submitPage.introPlaceholder}
                 value={introductionContent}
                 onChange={(e) => setIntroductionContent(e.target.value)}
                 onPaste={handleIntroImagePaste} rows={10} />
@@ -662,16 +664,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           <div className="modal-backdrop" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>
             <div className="error-modal" onClick={(e) => e.stopPropagation()}>
               <p>{errorMsg}</p>
-              <button className="pill-btn primary" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>确定</button>
+              <button className="pill-btn primary" onClick={() => { setErrorMsg(""); setSubmitting(false) }}>{t.submitPage.ok}</button>
             </div>
           </div>
         )}
         <div className="form-actions">
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
-            {isEdit ? "返回" : "取消"}
+            {isEdit ? t.submitPage.back : t.submitPage.cancel}
           </Link>
           <button className="pill-btn primary" type="submit" disabled={submitting}>
-            {submitting ? <><Loader2 size={16} className="spin" /> 保存中...</> : isEdit ? "保存修改" : "发布教育项目"}
+            {submitting ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
           </button>
         </div>
       </form>

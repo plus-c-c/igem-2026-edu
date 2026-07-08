@@ -63,21 +63,21 @@ function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; on
         {t.filters.theme}
         <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
           <option value="">{t.filters.allThemes}</option>
-          {t.filters.themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          {t.filters.themeOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
       <label>
         {t.filters.material}
         <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
           <option value="">{t.filters.allMaterials}</option>
-          {t.filters.materialOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          {t.filters.materialOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
       <label>
         {t.filters.audience}
         <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
           <option value="">{t.filters.allAudiences}</option>
-          {t.filters.audienceOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          {t.filters.audienceOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
     </div>
@@ -85,6 +85,7 @@ function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; on
 }
 
 export function HomePage({ resources }: { resources: Resource[] }) {
+  const { t } = useI18n()
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = campaignResources.slice(0, 4)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
@@ -116,17 +117,17 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Hero — product-tile-light */}
       <section className="product-tile light home-hero">
         <div className="tile-content">
-          <p className="eyebrow">ZJU-China、Westlake、XJTLU-China</p>
+          <p className="eyebrow">{t.home.eyebrow}</p>
           <h1 className="hero-title" aria-label={fullTitle}>
             <span className="typewriter-text" aria-hidden="true">
               <span className="typewriter-line">{typedLines[0] || "\u00a0"}</span>
               <span className="typewriter-line">{typedLines[1] || "\u00a0"}</span>
             </span>
           </h1>
-          <p style={{ maxWidth: 600 }}>加入我们，一起点亮世界合成生物学科普的微光。</p>
+          <p style={{ maxWidth: 600 }}>{t.home.subtitle}</p>
           <div className="tile-actions">
             <Link className="pill-btn primary" to="/submit">
-              <Plus size={18} /> 在这里添加你的项目
+              <Plus size={18} /> {t.home.recruitButton}
             </Link>
           </div>
         </div>
@@ -142,8 +143,8 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Campaign showcase — product-tile-dark */}
       <section className="showcase-band">
         <div className="tile-content">
-          <h2 style={{ maxWidth: 500 }}>可直接对外展示的教育活动样板</h2>
-          <p style={{ maxWidth: 500 }}>用完整案例展示联盟不是单纯收集资料，而是能组织课程、展台、支教和公众活动的教育协作平台。</p>
+          <h2 style={{ maxWidth: 500 }}>{t.home.showcaseTitle}</h2>
+          <p style={{ maxWidth: 500 }}>{t.home.showcaseDesc}</p>
           <div className="showcase-strip">
             {displayCampaigns.map((item) => <CampaignCard key={item.title} item={item as Resource} variant="project" />)}
           </div>
@@ -153,8 +154,8 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Category grid — light */}
       <section className="product-tile light">
         <div className="tile-content wide-container" style={{ maxWidth: 1440, width: "100%" }}>
-          <h2>四个栏目</h2>
-          <p>每个栏目都是一个可持续沉淀的教育专题。</p>
+          <h2>{t.home.categoryTitle}</h2>
+          <p>{t.home.categoryDesc}</p>
           <div className="category-grid">
             {categories.map((cat) => (
               <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
@@ -172,17 +173,18 @@ export function HomePage({ resources }: { resources: Resource[] }) {
 }
 
 export function RecruitmentPage({ resources, onSubmit }: PageProps) {
+  const { t } = useI18n()
   const category = categories.find((c) => c.id === "cooperation") || categories[0]
   const list = resources.filter((r) => r.category === category.id)
   const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
   const [filters, setFilters] = useState<ProjectFilterState>(defaultProjectFilters)
   const filteredCases = filterProjects(cases, filters)
   const Icon = category.icon
-  const sectionTitle = category.id === "applications" ? "科普项目" : category.id === "activities" ? "活动主题" : "教育项目"
+  const sectionTitle = category.id === "applications" ? t.pages.scienceProjects : category.id === "activities" ? t.pages.activityTopics : t.pages.educationProjects
 
   return (
     <section className="page-shell recruitment-page">
-      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} 个项目</span></>} />
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length}{t.pages.itemCount}</span></>} />
 
       <section className="case-section">
         <SectionTitle
@@ -190,7 +192,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
           action={
             <button className="add-project-button" type="button" onClick={() => onSubmit(category.id)}>
               <Plus size={19} />
-              <span>在这里添加你的项目</span>
+              <span>{t.pages.addProject}</span>
             </button>
           }
         />
@@ -201,7 +203,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
           </div>
         ) : (
           <div className="empty-state">
-            <p>{cases.length ? "没有符合当前检索条件的教育项目。" : "暂时还没有发布的教育项目。登录后可以添加第一个项目招募。"}</p>
+            <p>{cases.length ? t.pages.noRecruitmentMatch : t.pages.noRecruitmentItems}</p>
           </div>
         )}
       </section>
@@ -210,36 +212,32 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
 }
 
 export function AboutPage() {
+  const { t } = useI18n()
   const category = categories.find((c) => c.id === "about") || categories[0]
 
   return (
     <section className="page-shell about-page">
-      <CategoryHero category={category} className="about-hero" gradient="linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.28))" intro="加入我们，一起点亮世界合成生物学科普的微光。" />
+      <CategoryHero category={category} className="about-hero" gradient="linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0.28))" intro={t.about.subtitle} />
 
       <article className="about-story">
-        <p>
-          SynEdu Global 是由 ZJU-China、Westlake、XJTLU-China 三支 iGEM 队伍联合发起的合成生物学教育网站，旨在共享教育资源，启发教育灵感，联合国内外的 iGEMer 共同推动合成生物学教育的发展。
-        </p>
-        <p>
-          我们相信，iGEM 教育板块的核心，从来不是孤军奋战，而是平等、共享、交流与传递。SynEdu Global 从三支国内队伍的微小想法出发，希望可以联合各位优秀 iGEMer 的力量，共同搭建一个纯粹、开放、以启发为核心的科普交流平台。我们希望让每一支热爱科普的 iGEM 队伍都能在此获得支撑、迸发创意、传递科学的温度。
-        </p>
-        <p>
-          在此，我们诚挚邀请 iGEMer、教育公益组织、爱心企业等优秀团队，加入 SynEdu Global。希望你的建议和支持，项目和灵感，可以让 SynEdu 更好成长。期待与你一同上传成果、交流思想、投身教育、联结全球，以协同教育之力，点亮世界各地合成生物学科普的微光。
-        </p>
+        <p>{t.about.paragraphs[0]}</p>
+        <p>{t.about.paragraphs[1]}</p>
+        <p>{t.about.paragraphs[2]}</p>
       </article>
     </section>
   )
 }
 
 export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
+  const { t } = useI18n()
   return (
     <section className="page-shell">
       <div>
-        <p className="eyebrow">Login Required</p>
-        <h1>登录后发布教育项目招募</h1>
-        <p>请先登录团队账号，然后从顶部导航或栏目页进入教育项目发布流程。</p>
+        <p className="eyebrow">{t.loginRequired.eyebrow}</p>
+        <h1>{t.loginRequired.title}</h1>
+        <p>{t.loginRequired.desc}</p>
         <button className="pill-btn primary" type="button" onClick={openLogin}>
-          <LogIn size={18} /> 团队登录
+          <LogIn size={18} /> {t.loginRequired.action}
         </button>
       </div>
     </section>
@@ -247,16 +245,17 @@ export function LoginRequiredPage({ openLogin }: { openLogin: () => void }) {
 }
 
 export function CategoryPage({ category, resources, onSubmit }: { category: typeof categories[0]; resources: Resource[]; onSubmit: (categoryId?: string) => void }) {
+  const { t } = useI18n()
   const list = resources.filter((r) => r.category === category.id)
   const cases = resources.filter((r) => r.category === category.id && r.type === "campaign")
   const [filters, setFilters] = useState<ProjectFilterState>(defaultProjectFilters)
   const filteredCases = filterProjects(cases, filters)
   const Icon = category.icon
-  const sectionTitle = category.id === "applications" ? "科普项目" : category.id === "activities" ? "活动主题" : "教育项目"
+  const sectionTitle = category.id === "applications" ? t.pages.scienceProjects : category.id === "activities" ? t.pages.activityTopics : t.pages.educationProjects
 
   return (
     <section className="page-shell">
-      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} 个项目</span></>} />
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length}{t.pages.itemCount}</span></>} />
 
       <section className="case-section">
         <SectionTitle
@@ -264,7 +263,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
           action={
             <button className="add-project-button" type="button" onClick={() => onSubmit(category.id)}>
               <Plus size={19} />
-              <span>在这里添加你的项目</span>
+              <span>{t.pages.addProject}</span>
             </button>
           }
         />
@@ -275,7 +274,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
           </div>
         ) : (
           <div className="empty-state">
-            <p>{cases.length ? "没有符合当前检索条件的项目。" : "暂时还没有发布的项目。"}</p>
+            <p>{cases.length ? t.pages.noProjectMatch : t.pages.noProjectItems}</p>
           </div>
         )}
       </section>
@@ -285,6 +284,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 }
 
 export function CaseDetailPage({ resources, user, onDelete }: { resources: Resource[]; user: User | null; onDelete: (id: string) => void }) {
+  const { t } = useI18n()
   const { caseId } = useParams()
   const navigate = useNavigate()
   const item = resources.find((c) => c.type === "campaign" && String(c.id) === caseId)
@@ -354,16 +354,16 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   }
 
   const handleDelete = () => {
-    if (!confirm("确定删除此教育项目？此操作不可撤销。")) return
+    if (!confirm(t.caseDetail.confirmDelete)) return
     onDelete(String(r!.id))
   }
 
   if (!r) {
     return (
       <section className="page-shell">
-        <h1>教育项目不存在</h1>
-        <p>该教育项目可能已被删除或链接无效。</p>
-        <Link className="pill-btn secondary" to="/" style={{ width: "fit-content" }}>返回首页</Link>
+        <h1>{t.caseDetail.missingTitle}</h1>
+        <p>{t.caseDetail.missingDesc}</p>
+        <Link className="pill-btn secondary" to="/" style={{ width: "fit-content" }}>{t.caseDetail.backHome}</Link>
       </section>
     )
   }
@@ -384,16 +384,16 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       <div className="case-detail-grid">
         <div className="case-detail-left">
           <article className="case-detail-card">
-            <h2>项目简介</h2>
-            <p>{r.desc || "这是为 HP-Education 联盟网站 demo 生成的教育项目，用于说明一个教育活动如何从主题设计、材料准备、现场执行到反馈收集形成完整闭环。"}</p>
+            <h2>{t.caseDetail.intro}</h2>
+            <p>{r.desc || t.caseDetail.fallbackDesc}</p>
           </article>
 
           {sitePhotoIdList.length > 0 && (
             <article className="case-detail-card">
-              <h2>现场照片</h2>
+              <h2>{t.caseDetail.sitePhotos}</h2>
               <div className={`site-photos-grid format-${r.sitePhotosFormat === "双图" ? "double" : r.sitePhotosFormat === "四宫格" ? "quad" : "single"}`}>
                 {(() => {
-                  const labels = r.sitePhotosFormat === "单图" ? ["照片"] : r.sitePhotosFormat === "双图" ? ["左", "右"] : ["左上", "右上", "左下", "右下"]
+                  const labels = r.sitePhotosFormat === "单图" ? [t.submitPage.slotPhoto] : r.sitePhotosFormat === "双图" ? [t.submitPage.slotLeft, t.submitPage.slotRight] : [t.submitPage.slotTopLeft, t.submitPage.slotTopRight, t.submitPage.slotBottomLeft, t.submitPage.slotBottomRight]
                   return labels.map((label, i) => (
                     <div key={i} className="site-photo-slot">
                       {sitePhotoIdList[i] ? (
@@ -412,23 +412,23 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
           {r.tips && (
             <article className="case-detail-card">
-              <h2>项目Tips</h2>
+              <h2>{t.caseDetail.tips}</h2>
               <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
             </article>
           )}
         </div>
 
         <aside className="case-side">
-          <h2>活动信息</h2>
-          <p><strong>所属栏目</strong><span>{category?.name}</span></p>
-          {r.canParticipate && <p><strong>是否可参与</strong><span>{r.canParticipate === "yes" ? "可参与" : "不可参与"}</span></p>}
-          {locationLabel && <p><strong>活动地点</strong><span>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</span></p>}
-          {r.eventDate && <p><strong>活动日期</strong><span>{r.eventDate}</span></p>}
-          {r.timeLimitType && <p><strong>时限</strong><span>{r.timeLimitType}</span></p>}
-          {r.format && <p><strong>活动形式</strong><span>{r.format}</span></p>}
+          <h2>{t.caseDetail.info}</h2>
+          <p><strong>{t.caseDetail.category}</strong><span>{category?.name}</span></p>
+          {r.canParticipate && <p><strong>{t.caseDetail.canParticipate}</strong><span>{r.canParticipate === "yes" ? t.caseDetail.canJoin : t.caseDetail.cannotJoin}</span></p>}
+          {locationLabel && <p><strong>{t.caseDetail.location}</strong><span>{[locationLabel, locationParts].filter(Boolean).join(" · ")}</span></p>}
+          {r.eventDate && <p><strong>{t.caseDetail.date}</strong><span>{r.eventDate}</span></p>}
+          {r.timeLimitType && <p><strong>{t.caseDetail.timeLimit}</strong><span>{r.timeLimitType}</span></p>}
+          {r.format && <p><strong>{t.caseDetail.format}</strong><span>{r.format}</span></p>}
           {steps.length > 0 && (
             <div className="case-side-materials">
-              <strong>下载材料</strong>
+              <strong>{t.caseDetail.downloadMaterials}</strong>
               {steps.map((step) =>
                 step.files.length > 0 && (
                   <div key={step.id} className="side-step-files">
@@ -449,7 +449,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
       {r.introductionContent && (
         <section className="case-detail-card">
-          <h2>项目介绍书</h2>
+          <h2>{t.caseDetail.introBook}</h2>
           <div className="markdown-body"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(marked.parse(r.introductionContent) as string)
@@ -461,10 +461,10 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       {canEdit && r.id && (
         <div className="detail-actions">
           <button className="edit-button" type="button" onClick={() => navigate(`/resource/${r.id}/edit`)}>
-            编辑
+            {t.caseDetail.edit}
           </button>
           <button className="delete-button" type="button" onClick={handleDelete}>
-            <Trash2 size={16} /> 删除
+            <Trash2 size={16} /> {t.caseDetail.delete}
           </button>
         </div>
       )}
@@ -473,12 +473,12 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <div className="detail-footer-actions">
           <button className={`detail-action-btn ${likedByMe ? "active" : ""}`} type="button" onClick={handleLike} disabled={!user}>
             <ThumbsUp size={18} />
-            <span>{likedByMe ? "已赞" : "点赞"}</span>
+            <span>{likedByMe ? t.caseDetail.liked : t.caseDetail.like}</span>
             {likesCount > 0 && <span className="count-badge">{likesCount}</span>}
           </button>
           <button className={`detail-action-btn ${favoritedByMe ? "active" : ""}`} type="button" onClick={handleFavorite} disabled={!user}>
             <Star size={18} className={favoritedByMe ? "star-filled" : ""} />
-            <span>{favoritedByMe ? "已收藏" : "收藏"}</span>
+            <span>{favoritedByMe ? t.caseDetail.favorited : t.caseDetail.favorite}</span>
             {favoritesCount > 0 && <span className="count-badge">{favoritesCount}</span>}
           </button>
         </div>

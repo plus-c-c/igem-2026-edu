@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from "react"
 import { LogIn } from "lucide-react"
 import { authService } from "../services/authService"
 import type { User } from "../types"
+import { useI18n } from "../i18n"
 
 interface LoginModalProps {
   open: boolean
@@ -14,6 +15,8 @@ const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
 
 export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   if (!open) return null
+
+  const { t } = useI18n()
 
   const [mode, setMode] = useState<"login" | "register">("login")
   const [step, setStep] = useState<"form" | "verify">("form")
@@ -85,7 +88,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           onLogin(mapUser(res.user))
           onClose()
         } else {
-          setError(res.message || "登录失败")
+          setError(res.message || (t.loginModal.loginFailed || "登录失败"))
         }
       } else {
         if (step === "form") {
@@ -108,7 +111,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setSuccessMsg(res.message)
             startCountdown()
           } else {
-            setError(res.message || "发送验证码失败")
+            setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
           }
         } else {
           const code = data.get("code") as string
@@ -118,12 +121,12 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             onLogin(mapUser(res.user))
             onClose()
           } else {
-            setError(res.message || "注册失败")
+            setError(res.message || (t.loginModal.registerFailed || "注册失败"))
           }
         }
       }
     } catch (e: any) {
-      setError(e.message || "网络错误，请检查后端服务")
+      setError(e.message || (t.loginModal.networkError || "网络错误，请检查后端服务"))
     } finally {
       setLoading(false)
     }
@@ -144,28 +147,28 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
         onSubmit={submit}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2>{mode === "login" ? "团队登录" : step === "form" ? "注册新账号" : "验证邮箱"}</h2>
+        <h2>{mode === "login" ? t.loginModal.teamLogin : step === "form" ? t.loginModal.register : t.loginModal.verifyEmail}</h2>
         {error && <p className="login-error">{error}</p>}
         {successMsg && <p className="login-success">{successMsg}</p>}
 
         {mode === "register" && step === "verify" ? (
           <>
             <p style={{ margin: 0, fontSize: 14, color: "var(--ink-muted-48)" }}>
-              验证码已发送至 <strong>{registerData.email}</strong>
+              {t.loginModal.verificationSent} <strong>{registerData.email}</strong>
             </p>
-            <label>验证码
-              <input name="code" type="text" maxLength={6} required placeholder="输入 6 位验证码" autoFocus />
+            <label>{t.loginModal.verificationCode}
+              <input name="code" type="text" maxLength={6} required placeholder={t.loginModal.codePlaceholder} autoFocus />
             </label>
             <div className="form-actions">
               <button className="pill-btn secondary" type="button" onClick={() => { setStep("form"); setError(""); setSuccessMsg("") }}>
-                返回
+                {t.loginModal.back}
               </button>
               <button className="pill-btn primary" type="submit" disabled={loading}>
-                {loading ? "注册中..." : "完成注册"}
+                {loading ? t.loginModal.registering : t.loginModal.completeRegister}
               </button>
             </div>
             {countdown > 0 ? (
-              <p className="login-hint">{countdown} 秒后可重新发送</p>
+              <p className="login-hint">{countdown} {t.loginModal.resendAfter}</p>
             ) : (
               <span className="text-link" style={{ cursor: "pointer", fontSize: 13, textAlign: "center", display: "block", marginTop: 8 }}
                 onClick={async () => {
@@ -173,11 +176,11 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                   try {
                     const res = await authService.sendCode(registerData)
                     if (res.message) { setSuccessMsg(res.message); startCountdown() }
-                    else setError(res.message || "发送失败")
+                    else setError(res.message || (t.loginModal.sendFailed || "发送失败"))
                   } catch (e: any) { setError(e.message) }
                   setLoading(false)
                 }}
-              >重新发送验证码</span>
+              >{t.loginModal.resend}</span>
             )}
           </>
         ) : (
@@ -185,23 +188,23 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             {mode === "register" && (
               <div className="register-grid">
                 <div className="avatar-field">
-                  <span>头像</span>
-                  <img className="avatar-preview" src={avatarPreview} alt="头像预览" />
+                  <span>{t.loginModal.avatar}</span>
+                  <img className="avatar-preview" src={avatarPreview} alt={t.loginModal.avatarPreview} />
                   <label className="avatar-upload">
                     <input name="avatarFile" type="file" accept="image/*" onChange={handleAvatarChange} />
-                    可选添加头像
+                    {t.loginModal.optionalAvatar}
                   </label>
                 </div>
                 <div className="register-fields">
-                  <label>姓名（与 iGEM 官网展示一致）
-                    <input name="registrantName" required placeholder="例如：Yingqi Zhou" />
+                  <label>{t.loginModal.registrantName}
+                    <input name="registrantName" required placeholder={t.loginModal.registrantPlaceholder} />
                   </label>
-                  <label>iGEM 队伍名称
+                  <label>{t.loginModal.teamName}
                     <input name="name" required placeholder="Westlake iGEM" />
                   </label>
-                  <label>在 iGEM 的职位
+                  <label>{t.loginModal.igemRole}
                     <input type="hidden" name="igemRole" value={igemRole} />
-                    <div className="role-tabs" role="tablist" aria-label="在 iGEM 的职位">
+                    <div className="role-tabs" role="tablist" aria-label={t.loginModal.igemRole}>
                       {igemRoleOptions.map((option) => (
                         <button
                           key={option}
@@ -217,15 +220,15 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                 </div>
               </div>
             )}
-            <label>邮箱<input name="email" type="email" required placeholder="team@example.com" /></label>
-            <label>密码<input name="password" type="password" required placeholder={mode === "login" ? "请输入密码" : "6 位以上密码"} /></label>
+            <label>{t.loginModal.email}<input name="email" type="email" required placeholder="team@example.com" /></label>
+            <label>{t.loginModal.password}<input name="password" type="password" required placeholder={mode === "login" ? t.loginModal.passwordPlaceholderLogin : t.loginModal.passwordPlaceholderRegister} /></label>
             <div className="form-actions">
-              <button className="pill-btn secondary" type="button" onClick={onClose}>取消</button>
+              <button className="pill-btn secondary" type="button" onClick={onClose}>{t.loginModal.cancel}</button>
               <button className="auth-switch-link" type="button" onClick={switchMode}>
-                {mode === "login" ? "没有账号？注册" : "已有账号？登录"}
+                {mode === "login" ? t.loginModal.switchToRegister : t.loginModal.switchToLogin}
               </button>
               <button className="pill-btn primary" type="submit" disabled={loading}>
-                {loading ? "处理中..." : mode === "login" ? "登录" : "发送验证码"}
+                {loading ? t.loginModal.processing : mode === "login" ? t.loginModal.login : t.loginModal.sendCode}
               </button>
             </div>
           </>
