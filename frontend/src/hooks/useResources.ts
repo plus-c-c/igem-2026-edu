@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import type { Resource } from "../types"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
-import { caseSlug } from "../components/CampaignCard"
+
 
 export function useResources() {
   const [resources, setResources] = useState<Resource[]>([])
@@ -25,7 +25,7 @@ export function useResources() {
 
   const updateResource = (id: string, updated: Partial<Resource>) => {
     setResources((items) => items.map((r) => String(r.id) === id ? { ...r, ...updated } : r))
-    navigate(`/cases/${caseSlug(updated.title || "")}`)
+    navigate(`/cases/${updated.id}`)
   }
 
   const deleteResource = (id: string) => {

@@ -5,7 +5,7 @@ import type { User, Resource } from "../types"
 import { categories } from "../data/categories"
 import { resourceService } from "../services/resourceService"
 import { fileService } from "../services/fileService"
-import { caseSlug } from "./CampaignCard"
+
 
 const materialTags = ["PPT", "测量表", "合作书", "海报", "传单", "阅读材料", "其他材料清单", "易拉宝"]
 
@@ -655,7 +655,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </div>
         )}
         <div className="form-actions">
-          <Link className="pill-btn secondary" to={isEdit ? `/cases/${caseSlug(editResource!.title)}` : "/"}>
+          <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
             {isEdit ? "返回" : "取消"}
           </Link>
           <button className="pill-btn primary" type="submit" disabled={submitting}>
