@@ -92,29 +92,45 @@
 .case-detail { overflow: hidden; }
 
 .case-hero {
-  display: grid;
-  grid-template-columns: 0.9fr 1fr;
-  gap: 32px;
-  align-items: stretch;
-  margin-bottom: 56px;
-}
-.case-hero img {
-  width: 100%;
+  position: relative;
   height: 360px;
-  object-fit: cover;
   border-radius: var(--radius-lg);
-}
-.case-hero > div {
+  background-size: cover;
+  background-position: center;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  color: var(--body-on-dark);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 56px;
+  overflow: hidden;
+}
+.case-hero.has-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+.case-hero.no-bg {
   background: var(--surface-tile-1);
 }
-.case-hero h1, .case-hero p, .case-hero .eyebrow { color: var(--body-on-dark); }
-.case-hero p { color: var(--body-muted); }
+.case-hero .hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--body-on-dark);
+  padding: 32px;
+}
+.case-hero h1 {
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.12;
+  letter-spacing: 0;
+  color: var(--body-on-dark);
+}
+.case-hero .hero-team {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--body-muted);
+  margin-top: 4px;
+}
 
 .demo-badge {
   display: inline-block;

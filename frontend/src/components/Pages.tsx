@@ -372,9 +372,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
   return (
     <section className="page-shell case-detail">
-      <div className="case-hero">
-        {r.image ? <img src={r.image} alt="" /> : <div className="hero-img-placeholder" />}
-        <div>
+      <div className={`case-hero ${r.image ? "has-bg" : "no-bg"}`} style={r.image ? { backgroundImage: `url(${r.image})` } : undefined}>
+        <div className="hero-content">
           <h1>{r.title}</h1>
           {r.team && <p className="hero-team">{r.team}</p>}
         </div>
