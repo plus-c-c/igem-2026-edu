@@ -12,6 +12,7 @@ import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
 import { useResourceFiles } from "../hooks/useResourceFiles"
+import { audienceOptions, materialTags, subcategoryOptions } from "../data/constants"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
 
@@ -43,6 +44,7 @@ function optionMatches(item: Resource, option: string) {
     item.impact,
     item.audience,
     ...(item.materials || []),
+    ...(item.campaignSteps || []).map((step) => step.text),
   ].filter(Boolean).join(" ").toLowerCase()
   return haystack.includes(option.toLowerCase())
 }
@@ -62,30 +64,59 @@ function getProjectSortTime(item: Resource) {
   return Number(rawDate.replace(/\D/g, "").slice(0, 12)) || 0
 }
 
-function ProjectFilters({ filters, onChange }: { filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
+function getSubcategoryFilterOptions(categoryId: string, items: Resource[]) {
+  const configuredOptions = subcategoryOptions[categoryId] || []
+  if (configuredOptions.length) return configuredOptions
+  return Array.from(new Set(items.map((item) => item.subcategory).filter(Boolean) as string[]))
+}
+
+function getUploadedMaterialOptions(items: Resource[]) {
+  const options = new Set<string>()
+  items.forEach((item) => {
+    item.materials?.forEach((material) => options.add(material))
+    item.campaignSteps?.forEach((step) => {
+      if (step.files.length > 0 && step.text.trim()) options.add(step.text.trim())
+    })
+  })
+  return Array.from(options)
+}
+
+function getMaterialLabel(material: string, translatedMaterials?: string[]) {
+  const index = materialTags.indexOf(material)
+  return index >= 0 ? translatedMaterials?.[index] || material : material
+}
+
+function ProjectFilters({ categoryId, items, filters, onChange }: { categoryId: string; items: Resource[]; filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
   const { t } = useI18n()
+  const themeOptions = getSubcategoryFilterOptions(categoryId, items)
+  const materialOptions = getUploadedMaterialOptions(items)
+  const showThemeFilter = categoryId !== "cooperation"
+  const themeLabel = categoryId === "applications" ? t.filters.scienceTheme : t.filters.activityTheme
+  const allThemeLabel = categoryId === "applications" ? t.filters.allScienceThemes : t.filters.allActivityThemes
 
   return (
     <div className="project-filter-panel" aria-label={t.filters.aria}>
-      <label>
-        {t.filters.theme}
-        <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
-          <option value="">{t.filters.allThemes}</option>
-          {t.filters.themeOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
-        </select>
-      </label>
+      {showThemeFilter && (
+        <label>
+          {themeLabel}
+          <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
+            <option value="">{allThemeLabel}</option>
+            {themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+      )}
       <label>
         {t.filters.material}
         <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
           <option value="">{t.filters.allMaterials}</option>
-          {t.filters.materialOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
+          {materialOptions.map((item) => <option key={item} value={item}>{getMaterialLabel(item, t.constants.materialTags)}</option>)}
         </select>
       </label>
       <label>
         {t.filters.audience}
         <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
           <option value="">{t.filters.allAudiences}</option>
-          {t.filters.audienceOptions.map((item: string) => <option key={item} value={item}>{item}</option>)}
+          {audienceOptions.map((item, index) => <option key={item} value={item}>{t.constants.audienceOptions?.[index] || item}</option>)}
         </select>
       </label>
     </div>
@@ -206,7 +237,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
             </button>
           }
         />
-        <ProjectFilters filters={filters} onChange={setFilters} />
+        <ProjectFilters categoryId={category.id} items={cases} filters={filters} onChange={setFilters} />
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
@@ -299,7 +330,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
             </button>
           }
         />
-        <ProjectFilters filters={filters} onChange={setFilters} />
+        <ProjectFilters categoryId={category.id} items={cases} filters={filters} onChange={setFilters} />
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
