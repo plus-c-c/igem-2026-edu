@@ -37,6 +37,7 @@
   },
   "filters": {
     "aria": "项目检索",
+    "searchPlaceholder": "搜索项目名称、内容、标签…",
     "theme": "主题",
     "material": "资源",
     "audience": "面向人群",

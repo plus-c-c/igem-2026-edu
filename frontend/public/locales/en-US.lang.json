@@ -37,6 +37,7 @@
   },
   "filters": {
     "aria": "Project filters",
+    "searchPlaceholder": "Search by name, content, tags…",
     "theme": "Topic",
     "material": "Resource",
     "audience": "Audience",

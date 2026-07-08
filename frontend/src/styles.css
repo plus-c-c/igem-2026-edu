@@ -1148,14 +1148,25 @@ input:focus, select:focus, textarea:focus {
 }
 .search-input svg {
   position: absolute;
-  left: 20px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--ink-muted-48);
   pointer-events: none;
 }
 .search-input input {
-  padding-left: 44px;
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 /* ========== Page Shell ========== */
@@ -1268,6 +1279,10 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
   background: var(--canvas);
+}
+
+.project-filter-panel .search-input {
+  grid-column: 1 / -1;
 }
 
 .project-filter-panel label {
