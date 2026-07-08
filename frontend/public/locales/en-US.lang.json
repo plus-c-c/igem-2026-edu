@@ -156,7 +156,8 @@
     "draftPublished": "Published",
     "confirmDeleteDraft": "Delete this draft?",
     "favoritesTitle": "Favorites",
-    "noFavorites": "No favorites yet"
+    "noFavorites": "No favorites yet",
+    "viewFavorite": "View"
   },
   "loginModal": {
     "teamLogin": "Team Login",

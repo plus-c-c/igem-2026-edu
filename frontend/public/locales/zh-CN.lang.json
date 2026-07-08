@@ -156,7 +156,8 @@
     "draftPublished": "已发布",
     "confirmDeleteDraft": "确定删除此草稿？",
     "favoritesTitle": "个人收藏夹",
-    "noFavorites": "暂无收藏项目"
+    "noFavorites": "暂无收藏项目",
+    "viewFavorite": "查看"
   },
   "loginModal": {
     "teamLogin": "团队登录",

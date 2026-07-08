@@ -93,4 +93,12 @@ export const resourceService = {
     })
     return res.json()
   },
+
+  getMyFavorites: async (): Promise<Resource[]> => {
+    const res = await authFetch(`${API_BASE}/resources/favorites`, {
+      headers: authHeaders(),
+    })
+    const data = await res.json()
+    return data.resources || []
+  },
 }
