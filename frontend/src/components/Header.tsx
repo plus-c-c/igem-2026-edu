@@ -59,7 +59,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
         {user ? (
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
-            <Link className="team-pill" to="/profile" onClick={() => setMenuOpen(false)}>{user.teamName}</Link>
+            <span className="team-pill">{user.teamName}</span>
             <div className="account-menu" ref={accountRef}>
               <button
                 className="avatar-button"
