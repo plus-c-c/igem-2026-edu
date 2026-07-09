@@ -12,8 +12,8 @@
     "admin": "管理员",
     "accountMenu": "账户菜单",
     "profileCenter": "个人中心",
-    "editProfile": "修改个人资料",
-    "favorites": "个人收藏夹",
+    "editProfile": "个人信息",
+    "favorites": "我的收藏",
     "switchToZh": "切换到中文",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
@@ -37,6 +37,7 @@
   },
   "filters": {
     "aria": "项目检索",
+<<<<<<< HEAD
     "theme": "活动主题",
     "scienceTheme": "科普主题",
     "activityTheme": "活动主题",
@@ -45,11 +46,26 @@
     "allThemes": "全部活动主题",
     "allScienceThemes": "全部科普主题",
     "allActivityThemes": "全部活动主题",
+=======
+    "searchPlaceholder": "搜索项目名称、团队名称或其他关键词",
+    "filterToggle": "筛选",
+    "theme": "主题",
+    "material": "资源",
+    "audience": "面向人群",
+    "all": "全部",
+    "allThemes": "全部主题",
+>>>>>>> origin/master
     "allMaterials": "全部资源",
     "allAudiences": "全部人群",
-    "themeOptions": ["合成生物学科普", "iGEM科普", "其他科普"],
-    "materialOptions": ["PPT", "docx", "实践经验", "海报"],
-    "audienceOptions": ["中小学", "高校", "公众", "iGEM团队"]
+    "selected": "项已选",
+    "selectAll": "全选",
+    "canParticipate": "是否可参与",
+    "canJoin": "可参与",
+    "cannotJoin": "不可参与",
+    "timeLimit": "时限",
+    "timeLimitOptions": {"有时限": "有时限", "无时限": "无时限"},
+    "location": "地点",
+    "locationPlaceholder": "输入地点关键词"
   },
   "pages": {
     "scienceProjects": "科普项目",
@@ -99,7 +115,8 @@
     "liked": "已赞",
     "like": "点赞",
     "favorited": "已收藏",
-    "favorite": "收藏"
+    "favorite": "收藏",
+    "close": "关闭"
   },
   "loginRequired": {
     "eyebrow": "Login Required",
@@ -160,7 +177,8 @@
     "draftPublished": "已发布",
     "confirmDeleteDraft": "确定删除此草稿？",
     "favoritesTitle": "个人收藏夹",
-    "noFavorites": "暂无收藏项目"
+    "noFavorites": "暂无收藏项目",
+    "viewFavorite": "查看"
   },
   "loginModal": {
     "teamLogin": "团队登录",
@@ -346,6 +364,37 @@
       "activities": ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
       "cooperation": ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
       "about": ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"]
+    }
+  },
+  "categoryOptions": {
+    "themes": {
+      "合成生物学科普": "合成生物学科普",
+      "iGEM科普": "iGEM科普",
+      "其他": "其他",
+      "互动游戏": "互动游戏",
+      "现场体验": "现场体验",
+      "支教合作": "支教合作",
+      "公益教育": "公益教育",
+      "课程共建": "课程共建"
+    },
+    "materials": {
+      "PPT": "PPT",
+      "测量表": "测量表",
+      "合作书": "合作书",
+      "海报": "海报",
+      "阅读材料": "阅读材料",
+      "实践活动材料清单": "实践活动材料清单",
+      "易拉宝": "易拉宝",
+      "传单": "传单",
+      "其他": "其他"
+    },
+    "audiences": {
+      "小学": "小学",
+      "初中": "初中",
+      "高中": "高中",
+      "大学": "大学",
+      "社会公众": "社会公众",
+      "iGEM团队": "iGEM团队"
     }
   },
   "constants": {

@@ -54,12 +54,12 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
       <div className="nav-actions">
         <button className="language-toggle" type="button" onClick={toggleLanguage} aria-label={language === "zh" ? t.nav.switchToEn : t.nav.switchToZh}>
           <Globe2 size={15} />
-          <span>{language === "zh" ? t.nav.labelZh : t.nav.labelEn}</span>
+          <span>{language === "zh" ? "中文" : "EN"}</span>
         </button>
         {user ? (
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
-            <Link className="team-pill" to="/profile" onClick={() => setMenuOpen(false)}>{user.teamName}</Link>
+            <span className="team-pill">{user.teamName}</span>
             <div className="account-menu" ref={accountRef}>
               <button
                 className="avatar-button"

@@ -1,5 +1,6 @@
 import { Response } from "express"
 import fs from "fs"
+import { In } from "typeorm"
 import { AppDataSource, CommentDataSource } from "../index"
 import { Resource } from "../entity/Resource"
 import { UploadedFile } from "../entity/File"
@@ -147,6 +148,32 @@ export async function unfavorite(req: AuthRequest, res: Response) {
     return res.json({ message: "取消收藏成功", favoritesCount: count })
   } catch (error) {
     console.error("取消收藏错误:", error)
+    return res.status(500).json({ message: "服务器内部错误" })
+  }
+}
+
+export async function getMyFavorites(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.userId!
+    const favRepo = CommentDataSource.getRepository(Favorite)
+    const favorites = await favRepo.find({
+      where: { userId },
+      order: { createdAt: "DESC" },
+    })
+    if (favorites.length === 0) return res.json({ resources: [] })
+
+    const resourceIds = favorites.map((f) => f.resourceId)
+    const resourceRepo = AppDataSource.getRepository(Resource)
+    const resources = await resourceRepo.find({ where: { id: In(resourceIds) } })
+    const resourceMap = new Map(resources.map((r) => [r.id, r]))
+
+    const ordered = favorites
+      .map((f) => resourceMap.get(f.resourceId))
+      .filter(Boolean)
+
+    return res.json({ resources: ordered })
+  } catch (error) {
+    console.error("获取收藏列表错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
   }
 }
