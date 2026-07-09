@@ -592,6 +592,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const handleDelete = () => {
     if (!confirm(t.caseDetail.confirmDelete)) return
     onDelete(String(r!.id))
+    navigate(category?.path || "/")
   }
 
   if (!r) {

@@ -240,6 +240,7 @@
 
 /* Project variant */
 .campaign-card.project-card {
+  position: relative;
   background: var(--canvas);
   border: 1px solid var(--hairline);
   color: var(--ink);
@@ -249,22 +250,6 @@
 }
 .campaign-card.project-card h3 { color: var(--ink); }
 .campaign-card.project-card p { color: var(--ink-muted-48); }
-.campaign-card.project-card .project-material-progress {
-  width: 100%;
-  height: 4px;
-  background: var(--canvas);
-  border-radius: 2px;
-  overflow: hidden;
-  display: block;
-  margin: 0;
-}
-.campaign-card.project-card .project-material-progress-fill {
-  display: block;
-  height: 100%;
-  background: var(--primary);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
 .campaign-card.project-card .project-org {
   display: inline-block;
   width: fit-content;
@@ -287,24 +272,25 @@
   color: var(--ink);
   font-size: 12px;
 }
-.campaign-card-cover {
-  position: relative;
-}
-.campaign-card .tag-can-join {
+.campaign-card.project-card .tag-can-join {
   position: absolute;
   top: 8px;
   right: 8px;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: var(--primary);
-  color: #fff;
+  background: #ffd60a;
+  color: #1d1d1f;
   font-size: 12px;
   font-weight: 600;
   z-index: 1;
+  pointer-events: none;
 }
 .campaign-card.project-card .detail-link {
   color: var(--primary);
   font-size: 14px;
+}
+.campaign-card.project-card > div {
+  padding-bottom: 12px;
 }
 
 /* ========== Category Grid ========== */

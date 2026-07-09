@@ -7,12 +7,6 @@ interface CampaignCardProps {
   variant?: "case" | "project"
 }
 
-function uploadedMaterialCount(item: Resource) {
-  const stepFileCount = item.campaignSteps?.reduce((sum, step) => sum + step.files.length, 0) || 0
-  const sitePhotoCount = item.sitePhotoIds?.split(",").filter(Boolean).length || 0
-  return Math.min(8, stepFileCount + sitePhotoCount)
-}
-
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   const { t } = useI18n()
 
@@ -38,17 +32,11 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     if (item.eventDate) row2.push(item.eventDate)
     if (item.format) row2.push(item.format)
     const canJoin = item.canParticipate === "yes"
-    const uploadedCount = uploadedMaterialCount(item)
 
     return (
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
-        <div className="campaign-card-cover">
-          {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
-          {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
-        </div>
-        <span className="project-material-progress" aria-hidden="true">
-          <span className="project-material-progress-fill" style={{ width: `${(uploadedCount / 8) * 100}%` }} />
-        </span>
+        {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+        {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
           <h3>{item.title}</h3>
@@ -58,6 +46,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
           <div className="project-event-tags">
             {row2.map((tag) => <span key={tag}>{tag}</span>)}
           </div>
+          <div style={{ flex: 1 }} />
           <span className="detail-link">{t.caseDetail.detailLink}</span>
         </div>
       </Link>
