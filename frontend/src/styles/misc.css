@@ -102,10 +102,11 @@ footer {
   color: var(--ink-muted-80);
 }
 .footer-brand img {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  object-fit: cover;
+  width: 96px;
+  height: auto;
+  max-height: 68px;
+  border-radius: 10px;
+  object-fit: contain;
 }
 .footer-partners {
   display: grid;
@@ -126,7 +127,7 @@ footer {
   gap: 22px;
 }
 .footer-partner-logos img {
-  width: 44px;
-  height: 44px;
+  width: auto;
+  height: 68px;
   object-fit: contain;
 }

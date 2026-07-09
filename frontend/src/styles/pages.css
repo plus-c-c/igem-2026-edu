@@ -19,6 +19,34 @@
   max-width: 980px;
 }
 
+.about-page {
+  max-width: 980px;
+}
+
+.about-story {
+  display: grid;
+  gap: 22px;
+}
+.about-story p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.85;
+  letter-spacing: 0;
+  text-align: justify;
+  text-indent: 2em;
+}
+
+.about-hero {
+  grid-template-columns: 1fr;
+}
+.about-hero > div {
+  max-width: none;
+}
+.about-hero p:not(.eyebrow) {
+  white-space: nowrap;
+}
+
 /* ========== Category Hero ========== */
 .category-hero {
   display: grid;
@@ -239,9 +267,9 @@
 .case-side p span { font-size: 13px; color: var(--ink-muted-48); }
 .case-side-materials > strong { color: var(--ink); font-size: 12px; font-weight: 600; letter-spacing: -0.12px; display: block; margin-bottom: 8px; }
 .side-step-files { margin-bottom: 10px; }
-.side-step-files span { font-size: 13px; color: var(--ink); display: block; margin-bottom: 4px; }
+.side-step-files span { font-size: 13px; color: var(--ink-muted-48); display: block; margin-bottom: 10px; }
 .side-step-files .tag-file-link {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 8px;
   font-size: 12px; font-weight: 500;
   padding: 3px 8px; border-radius: var(--radius-sm);
   background: var(--canvas-parchment); color: var(--primary);

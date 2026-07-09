@@ -150,11 +150,10 @@
   background: var(--surface-tile-1);
   color: var(--body-on-dark);
   text-decoration: none;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: border-color 0.2s;
   border: 1px solid transparent;
 }
 .campaign-card:hover {
-  transform: translateY(-2px);
   border-color: var(--primary-on-dark);
   text-decoration: none;
 }
@@ -278,19 +277,17 @@
   right: 8px;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: #ffd60a;
+  background: #ffcc00;
   color: #1d1d1f;
   font-size: 12px;
   font-weight: 600;
   z-index: 1;
   pointer-events: none;
+  transform: none;
 }
 .campaign-card.project-card .detail-link {
   color: var(--primary);
   font-size: 14px;
-}
-.campaign-card.project-card > div {
-  padding-bottom: 12px;
 }
 
 /* ========== Category Grid ========== */
@@ -306,7 +303,7 @@
 .category-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   padding: var(--space-lg);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
