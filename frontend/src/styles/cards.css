@@ -287,10 +287,20 @@
   color: var(--ink);
   font-size: 12px;
 }
-.campaign-card.project-card .project-event-tags .tag-can-join {
-  background: #ffd60a;
-  color: #1d1d1f;
+.campaign-card-cover {
+  position: relative;
+}
+.campaign-card .tag-can-join {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
   font-weight: 600;
+  z-index: 1;
 }
 .campaign-card.project-card .detail-link {
   color: var(--primary);
