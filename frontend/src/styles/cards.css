@@ -235,7 +235,7 @@
   font-weight: 400;
   letter-spacing: -0.224px;
   color: var(--primary-on-dark);
-  margin-top: 8px;
+  margin-top: auto;
 }
 
 /* Project variant */
