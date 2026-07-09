@@ -154,20 +154,24 @@ input:focus, select:focus, textarea:focus {
   gap: 16px;
 }
 
-.filter-row label,
-.filter-row .filter-multi-label {
+.filter-row label {
   margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 6px;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--ink-muted-48);
 }
-.filter-row .filter-multi-label > span,
+.filter-row .filter-multi-label {
+  display: block;
+}
+.filter-row .filter-multi-label > span {
+  display: block;
+  margin-bottom: 6px;
+}
 .filter-row .filter-multi-label > .multi-select-dropdown {
-  width: 100%;
+  display: block;
 }
 
 .filter-row label select,
@@ -242,6 +246,7 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
   transition: background 0.1s;
   white-space: nowrap;
+  flex-direction: row;
 }
 
 .multi-select-panel label:hover {
