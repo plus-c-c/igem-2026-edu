@@ -1,0 +1,205 @@
+/* ========== Profile Page ========== */
+.profile-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--hairline);
+}
+
+.profile-avatar-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid var(--canvas);
+}
+.profile-avatar-upload input { display: none; }
+
+.profile-title-group h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+.profile-email {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-muted-48);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.profile-section {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+}
+
+.profile-section h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  margin-bottom: 20px;
+}
+
+.profile-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.profile-form-grid input,
+.profile-form-grid .role-tabs {
+  font-size: 14px;
+}
+
+.profile-disabled-input {
+  background: var(--canvas-parchment);
+  color: var(--ink-muted-48);
+  cursor: not-allowed;
+}
+
+.password-field .password-input-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.password-field .password-input-wrapper input {
+  width: 100%;
+  padding-right: 36px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  color: var(--ink-muted-48);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-success {
+  font-size: 13px;
+  color: #34c759;
+  margin: 0 0 12px;
+}
+
+.profile-error {
+  font-size: 13px;
+  color: #ff3b30;
+  margin: 0 0 12px;
+}
+
+.drafts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draft-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--canvas-parchment);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+}
+
+.draft-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.draft-info strong {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.draft-info span {
+  font-size: 12px;
+  color: var(--ink-muted-48);
+}
+
+.draft-date {
+  font-size: 11px;
+}
+
+.draft-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.draft-actions .pill-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.draft-delete {
+  color: #ff3b30 !important;
+  border-color: #ff3b30 !important;
+}
+
+@media (max-width: 599px) {
+  .profile-form-grid { grid-template-columns: 1fr; }
+  .profile-header { flex-direction: column; text-align: center; }
+  .profile-page { padding: 32px 16px; }
+  .profile-section { padding: 20px 16px; }
+}

@@ -42,11 +42,12 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
     return (
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
-        {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+        <div className="campaign-card-cover">
+          {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+          {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
+        </div>
         <span className="project-material-progress" aria-hidden="true">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <span key={index} className={index < uploadedCount ? "active" : ""} />
-          ))}
+          <span className="project-material-progress-fill" style={{ width: `${(uploadedCount / 8) * 100}%` }} />
         </span>
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
@@ -56,7 +57,6 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
           </div>
           <div className="project-event-tags">
             {row2.map((tag) => <span key={tag}>{tag}</span>)}
-            {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
           </div>
           <span className="detail-link">{t.caseDetail.detailLink}</span>
         </div>

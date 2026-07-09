@@ -235,7 +235,7 @@
   font-weight: 400;
   letter-spacing: -0.224px;
   color: var(--primary-on-dark);
-  margin-top: 8px;
+  margin-top: auto;
 }
 
 /* Project variant */
@@ -250,24 +250,20 @@
 .campaign-card.project-card h3 { color: var(--ink); }
 .campaign-card.project-card p { color: var(--ink-muted-48); }
 .campaign-card.project-card .project-material-progress {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 0;
   width: 100%;
-  height: 6px;
+  height: 4px;
   background: var(--canvas);
+  border-radius: 2px;
   overflow: hidden;
+  display: block;
   margin: 0;
 }
-.campaign-card.project-card .project-material-progress span {
+.campaign-card.project-card .project-material-progress-fill {
   display: block;
   height: 100%;
-  border-radius: 0;
-  background: var(--canvas);
-  transition: background-color 0.2s ease;
-}
-.campaign-card.project-card .project-material-progress span.active {
-  background: #ffd60a;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 .campaign-card.project-card .project-org {
   display: inline-block;
@@ -291,10 +287,20 @@
   color: var(--ink);
   font-size: 12px;
 }
-.campaign-card.project-card .project-event-tags .tag-can-join {
-  background: #ffd60a;
-  color: #1d1d1f;
+.campaign-card-cover {
+  position: relative;
+}
+.campaign-card .tag-can-join {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
   font-weight: 600;
+  z-index: 1;
 }
 .campaign-card.project-card .detail-link {
   color: var(--primary);
@@ -335,21 +341,37 @@
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.category-card svg {
-  color: var(--primary);
-  width: 24px;
-  height: 24px;
-}
-
-.category-card strong {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.374px;
-  color: var(--ink);
-}
 
 .category-card span {
   font-size: 14px;
   color: var(--ink-muted-48);
   line-height: 1.43;
+}
+
+.category-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.category-card-header {
+  position: relative;
+  text-align: center;
+  min-height: 24px;
+}
+.category-card-header svg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary);
+  width: 24px;
+  height: 24px;
+}
+.category-card-header strong {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.374px;
+  color: var(--ink);
 }

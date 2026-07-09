@@ -37,6 +37,7 @@
   },
   "filters": {
     "aria": "Project filters",
+<<<<<<< HEAD
     "theme": "Activity Topic",
     "scienceTheme": "Science Topic",
     "activityTheme": "Activity Topic",
@@ -45,11 +46,26 @@
     "allThemes": "All activity topics",
     "allScienceThemes": "All science topics",
     "allActivityThemes": "All activity topics",
+=======
+    "searchPlaceholder": "Search project name, team name or keywords",
+    "filterToggle": "Filters",
+    "theme": "Topic",
+    "material": "Resource",
+    "audience": "Audience",
+    "all": "All",
+    "allThemes": "All topics",
+>>>>>>> origin/master
     "allMaterials": "All resources",
     "allAudiences": "All audiences",
-    "themeOptions": ["Synthetic Biology", "iGEM Outreach", "Other Science"],
-    "materialOptions": ["PPT", "docx", "Practice Notes", "Poster"],
-    "audienceOptions": ["K-12", "Universities", "Public", "iGEM Teams"]
+    "selected": "selected",
+    "selectAll": "Select All",
+    "canParticipate": "Can Participate",
+    "canJoin": "Available",
+    "cannotJoin": "Not Available",
+    "timeLimit": "Time Limit",
+    "timeLimitOptions": {"有时限": "Limited", "无时限": "Unlimited"},
+    "location": "Location",
+    "locationPlaceholder": "Enter location keyword"
   },
   "pages": {
     "scienceProjects": "Lecture Projects",
@@ -99,7 +115,8 @@
     "liked": "Liked",
     "like": "Like",
     "favorited": "Favorited",
-    "favorite": "Favorite"
+    "favorite": "Favorite",
+    "close": "Close"
   },
   "loginRequired": {
     "eyebrow": "Login Required",
@@ -134,7 +151,7 @@
     "personalInfo": "Personal Info",
     "passwordTitle": "Change Password",
     "teamName": "iGEM Team Name",
-    "registrantName": "Name (same as iGEM HQ)",
+    "registrantName": "Name (as displayed on iGEM website)",
     "email": "Email",
     "igemRole": "iGEM Role",
     "currentPassword": "Current Password",
@@ -160,7 +177,8 @@
     "draftPublished": "Published",
     "confirmDeleteDraft": "Delete this draft?",
     "favoritesTitle": "Favorites",
-    "noFavorites": "No favorites yet"
+    "noFavorites": "No favorites yet",
+    "viewFavorite": "View"
   },
   "loginModal": {
     "teamLogin": "Team Login",
@@ -183,7 +201,7 @@
     "avatar": "Avatar",
     "avatarPreview": "Avatar preview",
     "optionalAvatar": "Add avatar (optional)",
-    "registrantName": "Name (same as iGEM HQ)",
+    "registrantName": "Name (as displayed on iGEM website)",
     "registrantPlaceholder": "e.g. Yingqi Zhou",
     "teamName": "iGEM Team Name",
     "teamPlaceholder": "Westlake iGEM",
