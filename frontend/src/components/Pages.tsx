@@ -160,9 +160,7 @@ function ProjectFilters({ filters, onChange, categoryId }: { filters: ProjectFil
             value={filters.searchText}
             onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
           />
-          <button className="filter-toggle-btn" type="button" onClick={() => setShowFilters(!showFilters)}>
-            {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
+          <button className={`filter-toggle-btn${showFilters ? " open" : ""}`} type="button" onClick={() => setShowFilters(!showFilters)} />          
         </div>
       </div>
 
