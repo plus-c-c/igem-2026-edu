@@ -56,6 +56,17 @@
   .stats-panel { grid-template-columns: repeat(2, 1fr); }
   .stats-panel strong { font-size: 32px; }
   .stats-panel div { padding: 28px 20px; }
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
+  .avatar-field {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+  .avatar-field > span,
+  .avatar-field p {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Phone: 420–640px */
