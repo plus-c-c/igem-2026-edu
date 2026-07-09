@@ -125,10 +125,21 @@
   .category-card-body {
     gap: 6px;
   }
-  .category-card-body svg {
-    color: var(--accent);
+  .category-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
   }
-  .category-card strong {
+  .category-card-header svg {
+    position: static;
+    transform: none;
+    color: var(--accent);
+    width: 18px;
+    height: 18px;
+  }
+  .category-card-header strong {
+    line-clamp: 2;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
