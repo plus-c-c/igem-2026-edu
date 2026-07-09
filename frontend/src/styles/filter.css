@@ -124,22 +124,32 @@ input:focus, select:focus, textarea:focus {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
+  padding: 0;
   border: none;
   border-radius: var(--radius-sm, 6px);
   background: transparent;
-  color: var(--ink-muted-48);
   cursor: pointer;
   transition: background 0.15s;
 }
-
-.filter-toggle-btn:hover {
-  background: var(--hairline);
-  color: var(--accent);
+.filter-toggle-btn::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--ink-muted-48);
+  transition: transform 0.2s, border-top-color 0.15s;
+}
+.filter-toggle-btn:hover::after {
+  border-top-color: var(--accent);
+}
+.filter-toggle-btn.open::after {
+  transform: rotateX(180deg);
 }
 
 .project-filter-fields {
