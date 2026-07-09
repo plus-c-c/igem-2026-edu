@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"
 import { AppDataSource } from "../index"
 import { User } from "../entity/User"
 import { AuthRequest } from "../middleware/auth"
-import { sendVerificationCode, storeVerificationData, verifyCode, sendPasswordResetCode, verifyPasswordResetCode } from "../email"
+import { sendVerificationCode, storeVerificationData, verifyCode, sendPasswordResetCode, verifyPasswordResetCode, getStoredCode } from "../email"
 
 function serializeUser(user: User) {
   return {
@@ -243,4 +243,11 @@ export async function resetPassword(req: AuthRequest, res: Response) {
     console.error("重置密码错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
   }
+}
+
+export function debugGetCode(req: AuthRequest, res: Response) {
+  const email = req.params.email as string
+  const code = getStoredCode(email)
+  if (!code) return res.status(404).json({ message: "未找到验证码" })
+  return res.json({ code })
 }

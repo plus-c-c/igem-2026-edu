@@ -70,6 +70,35 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const formRef = useRef<HTMLFormElement>(null)
   const savingDraft = useRef(false)
   const [draftSaved, setDraftSaved] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [desc, setDesc] = useState(editResource?.desc || "")
+  const [title, setTitle] = useState(editResource?.title || "")
+  const validateField = (name: string, value: string, extra?: { canParticipate?: string }) => {
+    let error = ""
+    if (name === "title" && !value.trim()) error = t.submitPage.required || "此项必填"
+    if (name === "category" && !value) error = t.submitPage.required || "此项必填"
+    if (name === "subcategory" && !value) error = t.submitPage.required || "此项必填"
+    if (name === "desc") {
+      if (!value.trim()) {
+        error = t.submitPage.required || "此项必填"
+      } else if ((extra?.canParticipate ?? canParticipate) === "yes" && (value.length < 25 || value.length > 100)) {
+        error = t.submitPage.descCharLimit || "简介需在25—100字之间"
+      }
+    }
+    if (name === "introductionContent" && value.length > 500) {
+      error = t.submitPage.introCharLimit || "项目介绍书不超过500字"
+    }
+    setFieldErrors((prev) => {
+      if (error === prev[name]) return prev
+      const next = { ...prev }
+      if (error) next[name] = error; else delete next[name]
+      return next
+    })
+    return error
+  }
+  const clearFieldError = (name: string) => {
+    setFieldErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
+  }
 
   useEffect(() => {
     if (!isEdit || !editResource) return
@@ -137,20 +166,48 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
   const addStep = () => {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
-    setCampaignSteps((prev) => [...prev, { id, text: "", files: [] }])
+    setCampaignSteps((prev) => {
+      const next = [...prev, { id, text: "", files: [] }]
+      scheduleStepErrors(next)
+      return next
+    })
   }
 
   const addStepWithTag = (tag: string) => {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
-    setCampaignSteps((prev) => [...prev, { id, text: tag, files: [] }])
+    setCampaignSteps((prev) => {
+      const next = [...prev, { id, text: tag, files: [] }]
+      scheduleStepErrors(next)
+      return next
+    })
   }
 
   const removeStep = (stepId: string) => {
-    setCampaignSteps((prev) => prev.filter((s) => s.id !== stepId))
+    setCampaignSteps((prev) => {
+      const next = prev.filter((s) => s.id !== stepId)
+      scheduleStepErrors(next)
+      return next
+    })
   }
 
+  const [stepErrors, setStepErrors] = useState<Record<string, string>>({})
+  const stepErrorTimer = useRef<ReturnType<typeof setTimeout>>()
+  const scheduleStepErrors = (steps: typeof campaignSteps) => {
+    clearTimeout(stepErrorTimer.current)
+    stepErrorTimer.current = setTimeout(() => {
+      const errs: Record<string, string> = {}
+      for (const s of steps) {
+        if (!s.text.trim()) errs[s.id] = t.submitPage.stepRequired || "请填写材料类型"
+      }
+      setStepErrors(errs)
+    }, 300)
+  }
   const updateStepText = (stepId: string, text: string) => {
-    setCampaignSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, text } : s))
+    setCampaignSteps((prev) => {
+      const next = prev.map((s) => s.id === stepId ? { ...s, text } : s)
+      scheduleStepErrors(next)
+      return next
+    })
   }
 
   const uploadStepFile = async (rid: string, stepId: string, file: File) => {
@@ -332,15 +389,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       if (!form) return
       const formData = new FormData(form)
 
-      const desc = (formData.get("desc") as string) || ""
-      if (canParticipate === "yes" && (desc.length < 25 || desc.length > 100)) {
-        throw new Error(t.submitPage.descCharLimit || "简介需在25—100字之间")
-      }
-
-      if (introductionContent.length > 500) {
-        throw new Error(t.submitPage.introCharLimit || "项目介绍书不超过500字")
-      }
-
       const payload: Record<string, any> = {
         type: "campaign",
         status: isDraft ? "draft" : "published",
@@ -368,6 +416,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         sitePhotoIds: Object.values(sitePhotoFiles).map((f) => f.fileId).filter(Boolean).join(","),
         tips,
         introductionContent,
+        materials: campaignSteps.map((s) => s.text).filter(Boolean),
       }
 
       const isEditingPublished = isEdit && editResource?.status === "published"
@@ -483,18 +532,30 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <div className="form-grid">
           <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
           <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
-          <label>{t.submitPage.projectName}<input name="title" required placeholder={t.submitPage.projectPlaceholder} defaultValue={editResource?.title} /></label>
-          <label>{t.submitPage.category}
-            <select name="category" required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+          <label className="required">{t.submitPage.projectName}
+            <input name="title" required placeholder={t.submitPage.projectPlaceholder}
+              value={title}
+              onChange={(e) => { setTitle(e.target.value); if (fieldErrors.title) validateField("title", e.target.value) }}
+              onBlur={(e) => validateField("title", e.target.value)} />
+            {fieldErrors.title && <span className="field-error">{fieldErrors.title}</span>}
+          </label>
+          <label className="required">{t.submitPage.category}
+            <select name="category" required value={selectedCategory}
+              onChange={(e) => { setSelectedCategory(e.target.value); clearFieldError("category") }}
+              onBlur={(e) => validateField("category", e.target.value)}>
               <option value="" disabled>{t.submitPage.selectCategory}</option>
               {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
+            {fieldErrors.category && <span className="field-error">{fieldErrors.category}</span>}
           </label>
-          <label>{t.filters.theme}
-            <select required value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+          <label className="required">{t.filters.theme}
+            <select required value={selectedSubcategory}
+              onChange={(e) => { setSelectedSubcategory(e.target.value); clearFieldError("subcategory") }}
+              onBlur={(e) => validateField("subcategory", e.target.value)}>
               <option value="" disabled>{t.submitPage.selectSubcategory}</option>
               {themeChoices.map((opt) => <option key={opt} value={opt}>{optLabel(t, "themes", opt)}</option>)}
             </select>
+            {fieldErrors.subcategory && <span className="field-error">{fieldErrors.subcategory}</span>}
           </label>
           <label>{t.filters.audience}
             <select value={audience} onChange={(e) => setAudience(e.target.value)}>
@@ -547,7 +608,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </div>
           </div>
 
-          <label className="wide">{t.submitPage.desc}<textarea name="desc" required placeholder={t.submitPage.descPlaceholder} defaultValue={editResource?.desc} /></label>
+          <label className="wide required">{t.submitPage.desc}
+            <textarea name="desc" required placeholder={t.submitPage.descPlaceholder}
+              value={desc}
+              onChange={(e) => { setDesc(e.target.value); validateField("desc", e.target.value) }}
+              onBlur={(e) => validateField("desc", e.target.value)} />
+            {fieldErrors.desc && <span className="field-error">{fieldErrors.desc}</span>}
+          </label>
         </div>
 
         <section className="event-info-section">
@@ -682,8 +749,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             {campaignSteps.map((step, i) => (
               <div key={step.id} className="step-block">
                 <div className="step-block-header">
-                  <input className="step-text-input" placeholder={t.submitPage.materialTypePlaceholder} value={step.text}
-                    onChange={(e) => updateStepText(step.id, e.target.value)} />
+                  <div style={{ flex: 1 }}>
+                    <input className="step-text-input" placeholder={t.submitPage.materialTypePlaceholder} value={step.text}
+                      onChange={(e) => updateStepText(step.id, e.target.value)} />
+                    {stepErrors[step.id] && <span className="field-error" style={{ fontSize: 11, marginTop: 2 }}>{stepErrors[step.id]}</span>}
+                  </div>
                   <button type="button" className="file-delete-btn" onClick={() => removeStep(step.id)} title={t.submitPage.delete}>
                     <Trash2 size={14} />
                   </button>
@@ -805,8 +875,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </div>
               <textarea ref={introTextareaRef} className="intro-textarea" placeholder={t.submitPage.introPlaceholder}
                 value={introductionContent}
-                onChange={(e) => setIntroductionContent(e.target.value)}
+                onChange={(e) => { setIntroductionContent(e.target.value); validateField("introductionContent", e.target.value) }}
                 onPaste={handleIntroImagePaste} rows={10} />
+              {fieldErrors.introductionContent && <span className="field-error">{fieldErrors.introductionContent}</span>}
             </>
           )}
         </section>
