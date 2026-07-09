@@ -64,6 +64,10 @@ export function storeVerificationData(email: string, data: PendingRegistration) 
   }
 }
 
+export function getStoredCode(email: string): string | undefined {
+  return codes.get(email)?.code
+}
+
 export function verifyCode(email: string, code: string): { valid: boolean; data?: PendingRegistration } {
   const entry = codes.get(email)
   if (!entry) return { valid: false }

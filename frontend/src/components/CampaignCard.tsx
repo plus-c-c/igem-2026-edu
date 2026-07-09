@@ -14,7 +14,6 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     const row1: string[] = []
     const row2: string[] = []
 
-    if (item.subcategory) row1.push(item.subcategory)
     if (item.timeLimitType) row1.push(item.timeLimitType)
 
     if (item.locationType) {

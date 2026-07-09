@@ -56,7 +56,11 @@ function optionMatches(item: Resource, option: string) {
     item.locationCity,
     item.locationProvince,
     item.locationCountry,
+    item.timeLimitType,
+    item.locationType,
+    item.eventDate,
     ...(item.materials || []),
+    ...(item.campaignSteps || []).map((s: any) => s.text),
   ].filter(Boolean).join(" ").toLowerCase()
   return haystack.includes(option.toLowerCase())
 }
@@ -67,7 +71,9 @@ function filterProjects(items: Resource[], filters: ProjectFilterState) {
     if (filters.theme && !optionMatches(item, filters.theme)) return false
     if (filters.materials.length > 0) {
       const itemMaterials = (item.materials || []).map((m) => m.toLowerCase())
-      const hasMatch = filters.materials.some((m) => itemMaterials.includes(m.toLowerCase()))
+      const itemStepTexts = (item.campaignSteps || []).map((s: any) => s.text?.toLowerCase()).filter(Boolean)
+      const allTexts = [...new Set([...itemMaterials, ...itemStepTexts])]
+      const hasMatch = filters.materials.every((m) => allTexts.includes(m.toLowerCase()))
       if (!hasMatch) return false
     }
     if (filters.audience && item.audience !== filters.audience) return false
