@@ -224,7 +224,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = [...campaignResources]
     .sort((a, b) => getProjectSortTime(b) - getProjectSortTime(a))
-    .slice(0, 4)
+    .slice(0, 3)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
   const fullTitle = titleLines.join("\n")
   const [typedTitle, setTypedTitle] = useState("")
