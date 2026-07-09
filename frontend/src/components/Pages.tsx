@@ -4,7 +4,7 @@ import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
-import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions } from "../data/constants"
+import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions, CORE_COLUMNS_LIMIT } from "../data/constants"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
@@ -224,7 +224,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = [...campaignResources]
     .sort((a, b) => getProjectSortTime(b) - getProjectSortTime(a))
-    .slice(0, 3)
+    .slice(0, CORE_COLUMNS_LIMIT)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
   const fullTitle = titleLines.join("\n")
   const [typedTitle, setTypedTitle] = useState("")

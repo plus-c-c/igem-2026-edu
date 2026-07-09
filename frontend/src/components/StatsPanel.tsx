@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { Resource } from "../types"
 import { useI18n } from "../i18n"
+import { CORE_COLUMNS_LIMIT } from "../data/constants"
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0)
@@ -52,11 +53,12 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
 
 export function StatsPanel({ resources }: { resources: Resource[] }) {
   const { t } = useI18n()
+  const coreCount = Math.min(resources.filter((r) => r.type === "campaign").length, CORE_COLUMNS_LIMIT)
 
   return (
     <section className="stats-panel">
       <div><AnimatedNumber value={resources.length} /><span>{t.stats.resources}</span></div>
-      <div><AnimatedNumber value={5} /><span>{t.stats.columns}</span></div>
+      <div><AnimatedNumber value={coreCount} /><span>{t.stats.columns}</span></div>
       <div><AnimatedNumber value={6} /><span>{t.stats.materials}</span></div>
       <div><AnimatedNumber value={3} suffix="+" /><span>{t.stats.teams}</span></div>
     </section>
