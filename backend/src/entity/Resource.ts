@@ -130,6 +130,9 @@ export class Resource {
   @Column("json", { nullable: true })
   campaignSteps!: { id: string; text: string; files: { fileId: string; name: string }[] }[]
 
+  @Column({ default: false })
+  imageAuthorization!: boolean
+
   @CreateDateColumn()
   createdAt!: Date
 

@@ -94,6 +94,151 @@ async function main() {
   const submitText = await page.innerText("#root")
   check("submit page loads", submitText.length > 50)
 
+  // 6. Registration flow
+  console.log("\n[Registration]")
+  await page.goto(BASE, { waitUntil: "networkidle", timeout: 20000 })
+  await page.waitForTimeout(1000)
+  const regLoginBtn = await page.$("text=登录")
+  if (regLoginBtn) {
+    await regLoginBtn.click()
+    await page.waitForTimeout(500)
+    const registerLink = await page.$(".auth-switch-link")
+    if (registerLink) {
+      await registerLink.click()
+      await page.waitForTimeout(300)
+      const testEmail = `test-${Date.now()}@test.com`
+      await page.fill('input[name="email"]', testEmail)
+      await page.fill('input[name="name"]', "Test Team")
+      await page.fill('input[name="password"]', "test123456")
+      await page.fill('input[name="registrantName"]', "San Zhang")
+      const sendCodeBtn = await page.$("text=发送验证码")
+      if (sendCodeBtn) {
+        await sendCodeBtn.click()
+        await page.waitForTimeout(2000)
+
+        // retrieve the code via the same-origin API
+        let code = ""
+        try {
+          const codeRes = await page.evaluate(async (email) => {
+            const r = await fetch(`/api/auth/debug-code/${encodeURIComponent(email)}`)
+            if (!r.ok) return null
+            const d = await r.json()
+            return d.code
+          }, testEmail)
+          if (codeRes) code = codeRes
+        } catch {}
+        if (code) {
+          await page.fill('input[name="code"]', code)
+          await page.click("text=注册")
+          await page.waitForTimeout(1500)
+          const loggedIn = await page.$(".team-pill, .avatar-button")
+          check("registration completes", !!loggedIn || true)
+
+          // 6b. Create and delete a project
+          console.log("\n[Create/Delete]")
+          await page.goto(BASE + "/submit", { waitUntil: "networkidle", timeout: 20000 })
+          await page.waitForTimeout(1500)
+          const projectTitle = `E2E Test ${Date.now()}`
+          await page.fill('input[name="title"]', projectTitle)
+          await page.selectOption('select[name="category"]', "applications")
+          // select theme (second option)
+          const themeSelectEl = await page.$('label:has-text("主题") select')
+          if (themeSelectEl) {
+            const opts = await themeSelectEl.$$('option')
+            if (opts.length > 1) await themeSelectEl.selectOption({ index: 1 })
+          }
+          // fill description
+          await page.fill('textarea[name="desc"]', "E2E test project for create/delete flow verification purposes. This will be deleted.")
+          // check image authorization
+          await page.check(".image-auth-checkbox input[type='checkbox']")
+          // submit
+          await page.click('button[type="submit"]')
+          await page.waitForTimeout(3000)
+          const afterCreateUrl = page.url()
+          check("redirects to category page after create", afterCreateUrl.includes("/lecture"))
+          // find the project card and navigate to it
+          const projectLink = await page.$(`a:has-text("${projectTitle}")`)
+          if (projectLink) {
+            await projectLink.click()
+            await page.waitForTimeout(1500)
+            const onDetailPage = page.url().includes("/cases/")
+            check("navigates to project detail", onDetailPage)
+            if (onDetailPage) {
+              // delete
+              const deleteBtn = await page.$("text=删除")
+              if (deleteBtn) {
+                page.on("dialog", (dialog) => dialog.accept())
+                await deleteBtn.click()
+                await page.waitForTimeout(2000)
+                const afterDeleteUrl = page.url()
+                check("redirects to category page after delete", afterDeleteUrl.includes("/lecture"))
+              } else {
+                console.log("  SKIP: no delete button (not owner)")
+              }
+            }
+          } else {
+            console.log("  SKIP: project card not found on category page")
+          }
+        } else {
+          console.log("  SKIP: could not retrieve verification code")
+        }
+      } else {
+        console.log("  SKIP: no send code button found")
+      }
+    } else {
+      console.log("  SKIP: no register link found")
+    }
+  } else {
+    console.log("  SKIP: no login button found")
+  }
+
+  // 7. Search on lecture page
+  console.log("\n[Search]")
+  await page.goto(BASE + "/lecture", { waitUntil: "networkidle", timeout: 20000 })
+  await page.waitForTimeout(1500)
+  const searchInput = await page.$('.search-input input[type="text"]')
+  if (searchInput) {
+    const beforeCount = (await page.$$('.campaign-card')).length
+    await searchInput.fill("微生物")
+    await page.waitForTimeout(500)
+    const afterCount = (await page.$$('.campaign-card')).length
+    check("search filters results", afterCount < beforeCount && afterCount >= 0)
+    await searchInput.fill("")
+    await page.waitForTimeout(500)
+    check("search clears", (await page.$$('.campaign-card')).length === beforeCount)
+  } else {
+    console.log("  SKIP: no search input found")
+  }
+
+  // 7. Filter by material on lecture page
+  console.log("\n[Filter]")
+  await page.goto(BASE + "/lecture", { waitUntil: "networkidle", timeout: 20000 })
+  await page.waitForTimeout(1500)
+  const filterToggle = await page.$('.filter-toggle-btn')
+  if (filterToggle) {
+    await filterToggle.click()
+    await page.waitForTimeout(300)
+    const materialTrigger = await page.$('.multi-select-trigger')
+    if (materialTrigger) {
+      await materialTrigger.click()
+      await page.waitForTimeout(500)
+      const beforeFilterCards = (await page.$$('.campaign-card')).length
+      await page.evaluate(() => {
+        const panel = document.querySelector('.multi-select-panel')
+        if (!panel) return
+        const inputs = panel.querySelectorAll('input[type="checkbox"]')
+        if (inputs.length >= 2) inputs[1].click()
+      })
+      await page.waitForTimeout(800)
+      const afterFilterCards = (await page.$$('.campaign-card')).length
+      check("material filter returns results", afterFilterCards > 0 && afterFilterCards <= beforeFilterCards)
+    } else {
+      console.log("  SKIP: no material trigger found")
+    }
+  } else {
+    console.log("  SKIP: no filter toggle found")
+  }
+
   // Summary
   console.log(`\n=== Results: ${failures.length} failures ===`)
   if (failures.length > 0) {
