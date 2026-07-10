@@ -9,6 +9,7 @@ export function useResources() {
   const [resources, setResources] = useState<Resource[]>([])
   const navigate = useNavigate()
 
+
   useEffect(() => {
     resourceService.list().then((items) => {
       if (items.length) setResources(items)
@@ -32,7 +33,6 @@ export function useResources() {
     resourceService.remove(id).then((res: any) => {
       if (res.message) {
         setResources((items) => items.filter((r) => String(r.id) !== id))
-        navigate("/")
       }
     })
   }

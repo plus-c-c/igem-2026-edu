@@ -70,6 +70,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const formRef = useRef<HTMLFormElement>(null)
   const savingDraft = useRef(false)
   const [draftSaved, setDraftSaved] = useState(false)
+  const [imageAuthorized, setImageAuthorized] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [desc, setDesc] = useState(editResource?.desc || "")
   const [title, setTitle] = useState(editResource?.title || "")
@@ -417,6 +418,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         tips,
         introductionContent,
         materials: campaignSteps.map((s) => s.text).filter(Boolean),
+        imageAuthorization: true,
       }
 
       const isEditingPublished = isEdit && editResource?.status === "published"
@@ -532,14 +534,14 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <div className="form-grid">
           <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
           <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
-          <label className="required">{t.submitPage.projectName}
+          <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}
               value={title}
               onChange={(e) => { setTitle(e.target.value); if (fieldErrors.title) validateField("title", e.target.value) }}
               onBlur={(e) => validateField("title", e.target.value)} />
             {fieldErrors.title && <span className="field-error">{fieldErrors.title}</span>}
           </label>
-          <label className="required">{t.submitPage.category}
+          <label className="required"><span>{t.submitPage.category}</span>
             <select name="category" required value={selectedCategory}
               onChange={(e) => { setSelectedCategory(e.target.value); clearFieldError("category") }}
               onBlur={(e) => validateField("category", e.target.value)}>
@@ -548,7 +550,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </select>
             {fieldErrors.category && <span className="field-error">{fieldErrors.category}</span>}
           </label>
-          <label className="required">{t.filters.theme}
+          <label className="required"><span>{t.filters.theme}</span>
             <select required value={selectedSubcategory}
               onChange={(e) => { setSelectedSubcategory(e.target.value); clearFieldError("subcategory") }}
               onBlur={(e) => validateField("subcategory", e.target.value)}>
@@ -607,8 +609,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               )}
             </div>
           </div>
-
-          <label className="wide required">{t.submitPage.desc}
+          <label className="wide required"><span>{t.submitPage.desc}</span>
             <textarea name="desc" required placeholder={t.submitPage.descPlaceholder}
               value={desc}
               onChange={(e) => { setDesc(e.target.value); validateField("desc", e.target.value) }}
@@ -907,6 +908,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </div>
           </div>
         )}
+        <div className="image-auth-card">
+          <label className="image-auth-checkbox">
+            <span><input type="checkbox" checked={imageAuthorized} onChange={(e) => setImageAuthorized(e.target.checked)} />本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担</span>
+          </label>
+        </div>
         <div className="form-actions">
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
             {isEdit ? t.submitPage.back : t.submitPage.cancel}
@@ -916,7 +922,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onClick={() => doSubmit(true)}>
               {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
             </button>
-            <button className="pill-btn primary" type="submit" disabled={submitting}>
+            <button className="pill-btn primary" type="submit" disabled={submitting || (!!(coverPreviewUrl || Object.keys(sitePhotoFiles).length) && !imageAuthorized)}>
               {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
             </button>
           </div>

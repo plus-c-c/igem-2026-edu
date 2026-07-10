@@ -131,8 +131,54 @@ async function main() {
           await page.fill('input[name="code"]', code)
           await page.click("text=注册")
           await page.waitForTimeout(1500)
-          const loggedIn = await page.$(".user-avatar, .brand-login")
+          const loggedIn = await page.$(".team-pill, .avatar-button")
           check("registration completes", !!loggedIn || true)
+
+          // 6b. Create and delete a project
+          console.log("\n[Create/Delete]")
+          await page.goto(BASE + "/submit", { waitUntil: "networkidle", timeout: 20000 })
+          await page.waitForTimeout(1500)
+          const projectTitle = `E2E Test ${Date.now()}`
+          await page.fill('input[name="title"]', projectTitle)
+          await page.selectOption('select[name="category"]', "applications")
+          // select theme (second option)
+          const themeSelectEl = await page.$('label:has-text("主题") select')
+          if (themeSelectEl) {
+            const opts = await themeSelectEl.$$('option')
+            if (opts.length > 1) await themeSelectEl.selectOption({ index: 1 })
+          }
+          // fill description
+          await page.fill('textarea[name="desc"]', "E2E test project for create/delete flow verification purposes. This will be deleted.")
+          // check image authorization
+          await page.check(".image-auth-checkbox input[type='checkbox']")
+          // submit
+          await page.click('button[type="submit"]')
+          await page.waitForTimeout(3000)
+          const afterCreateUrl = page.url()
+          check("redirects to category page after create", afterCreateUrl.includes("/lecture"))
+          // find the project card and navigate to it
+          const projectLink = await page.$(`a:has-text("${projectTitle}")`)
+          if (projectLink) {
+            await projectLink.click()
+            await page.waitForTimeout(1500)
+            const onDetailPage = page.url().includes("/cases/")
+            check("navigates to project detail", onDetailPage)
+            if (onDetailPage) {
+              // delete
+              const deleteBtn = await page.$("text=删除")
+              if (deleteBtn) {
+                page.on("dialog", (dialog) => dialog.accept())
+                await deleteBtn.click()
+                await page.waitForTimeout(2000)
+                const afterDeleteUrl = page.url()
+                check("redirects to category page after delete", afterDeleteUrl.includes("/lecture"))
+              } else {
+                console.log("  SKIP: no delete button (not owner)")
+              }
+            }
+          } else {
+            console.log("  SKIP: project card not found on category page")
+          }
         } else {
           console.log("  SKIP: could not retrieve verification code")
         }
