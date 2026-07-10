@@ -249,7 +249,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
                 <div key={fav.id} className="draft-item">
                   <div className="draft-info">
                     <strong>{fav.title || "(untitled)"}</strong>
-                    <span>{categories.find((c) => c.id === fav.category)?.name || fav.category}</span>
+                    <span>{(() => { const fc = categories.find((c) => c.id === fav.category); return fc ? (t.categories[fc.id]?.name ?? fc.name) : fav.category })()}</span>
                     <span className="draft-date">{fav.updatedAt ? new Date(fav.updatedAt).toLocaleDateString() : ""}</span>
                   </div>
                   <div className="draft-actions">
@@ -276,7 +276,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
                 <div key={draft.id} className="draft-item">
                   <div className="draft-info">
                     <strong>{draft.title || "(untitled)"}</strong>
-                    <span>{categories.find((c) => c.id === draft.category)?.name || draft.category}</span>
+                    <span>{(() => { const dc = categories.find((c) => c.id === draft.category); return dc ? (t.categories[dc.id]?.name ?? dc.name) : draft.category })()}</span>
                     <span className="draft-date">{draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : ""}</span>
                   </div>
                   <div className="draft-actions">
