@@ -60,6 +60,14 @@ app.get("/", (_req, res) => {
   res.json({ message: "iGEM 2026 Education API" })
 })
 
+if (process.env.NODE_ENV === "production") {
+  const dist = path.join(__dirname, "../../frontend/dist")
+  app.use(express.static(dist))
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(dist, "index.html"))
+  })
+}
+
 async function ensureCommentsDb() {
   const tempDs = new DataSource({
     type: "postgres",
@@ -75,16 +83,26 @@ async function ensureCommentsDb() {
   await tempDs.destroy()
 }
 
-ensureCommentsDb()
-  .then(() => AppDataSource.initialize())
-  .then(() => CommentDataSource.initialize())
-  .then(() => {
-    console.log("数据库连接成功")
-    app.listen(PORT, () => {
-      console.log(`服务器已启动，端口: ${PORT}`)
-    })
-  })
-  .catch((error) => {
-    console.error("数据库连接失败:", error)
+async function start() {
+  if (process.env.NODE_ENV !== "production") {
+    await ensureCommentsDb().catch(() => console.log("跳过数据库创建（只读权限或已存在）"))
+  }
+  await AppDataSource.initialize()
+  await CommentDataSource.initialize().catch((err) => {
+    console.error("评论数据库连接失败:", err.message)
+    if (process.env.NODE_ENV === "production") {
+      console.log("尝试使用主数据库作为评论数据库...")
+      process.env.COMMENTS_DB_NAME = process.env.DB_DATABASE
+    }
     process.exit(1)
   })
+  console.log("数据库连接成功")
+  app.listen(PORT, () => {
+    console.log(`服务器已启动，端口: ${PORT}`)
+  })
+}
+
+start().catch((error) => {
+  console.error("启动失败:", error)
+  process.exit(1)
+})
