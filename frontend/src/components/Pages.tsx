@@ -4,7 +4,7 @@ import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
-import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions } from "../data/constants"
+import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions, CORE_COLUMNS_LIMIT } from "../data/constants"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { CampaignCard } from "./CampaignCard"
@@ -57,8 +57,11 @@ function optionMatches(item: Resource, option: string) {
     item.locationCity,
     item.locationProvince,
     item.locationCountry,
+    item.timeLimitType,
+    item.locationType,
+    item.eventDate,
     ...(item.materials || []),
-    ...(item.campaignSteps || []).map((step) => step.text),
+    ...(item.campaignSteps || []).map((s: any) => s.text),
   ].filter(Boolean).join(" ").toLowerCase()
   return haystack.includes(option.toLowerCase())
 }
@@ -69,7 +72,9 @@ function filterProjects(items: Resource[], filters: ProjectFilterState) {
     if (filters.theme && !optionMatches(item, filters.theme)) return false
     if (filters.materials.length > 0) {
       const itemMaterials = (item.materials || []).map((m) => m.toLowerCase())
-      const hasMatch = filters.materials.some((m) => itemMaterials.includes(m.toLowerCase()))
+      const itemStepTexts = (item.campaignSteps || []).map((s: any) => s.text?.toLowerCase()).filter(Boolean)
+      const allTexts = [...new Set([...itemMaterials, ...itemStepTexts])]
+      const hasMatch = filters.materials.every((m) => allTexts.includes(m.toLowerCase()))
       if (!hasMatch) return false
     }
     if (filters.audience && item.audience !== filters.audience) return false
@@ -90,63 +95,6 @@ function getProjectSortTime(item: Resource) {
   return Number(rawDate.replace(/\D/g, "").slice(0, 12)) || 0
 }
 
-<<<<<<< HEAD
-function getSubcategoryFilterOptions(categoryId: string, items: Resource[]) {
-  const configuredOptions = subcategoryOptions[categoryId] || []
-  if (configuredOptions.length) return configuredOptions
-  return Array.from(new Set(items.map((item) => item.subcategory).filter(Boolean) as string[]))
-}
-
-function getUploadedMaterialOptions(items: Resource[]) {
-  const options = new Set<string>()
-  items.forEach((item) => {
-    item.materials?.forEach((material) => options.add(material))
-    item.campaignSteps?.forEach((step) => {
-      if (step.files.length > 0 && step.text.trim()) options.add(step.text.trim())
-    })
-  })
-  return Array.from(options)
-}
-
-function getMaterialLabel(material: string, translatedMaterials?: string[]) {
-  const index = materialTags.indexOf(material)
-  return index >= 0 ? translatedMaterials?.[index] || material : material
-}
-
-function ProjectFilters({ categoryId, items, filters, onChange }: { categoryId: string; items: Resource[]; filters: ProjectFilterState; onChange: (filters: ProjectFilterState) => void }) {
-  const { t } = useI18n()
-  const themeOptions = getSubcategoryFilterOptions(categoryId, items)
-  const materialOptions = getUploadedMaterialOptions(items)
-  const showThemeFilter = categoryId !== "cooperation"
-  const themeLabel = categoryId === "applications" ? t.filters.scienceTheme : t.filters.activityTheme
-  const allThemeLabel = categoryId === "applications" ? t.filters.allScienceThemes : t.filters.allActivityThemes
-
-  return (
-    <div className="project-filter-panel" aria-label={t.filters.aria}>
-      {showThemeFilter && (
-        <label>
-          {themeLabel}
-          <select value={filters.theme} onChange={(e) => onChange({ ...filters, theme: e.target.value })}>
-            <option value="">{allThemeLabel}</option>
-            {themeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-        </label>
-      )}
-      <label>
-        {t.filters.material}
-        <select value={filters.material} onChange={(e) => onChange({ ...filters, material: e.target.value })}>
-          <option value="">{t.filters.allMaterials}</option>
-          {materialOptions.map((item) => <option key={item} value={item}>{getMaterialLabel(item, t.constants.materialTags)}</option>)}
-        </select>
-      </label>
-      <label>
-        {t.filters.audience}
-        <select value={filters.audience} onChange={(e) => onChange({ ...filters, audience: e.target.value })}>
-          <option value="">{t.filters.allAudiences}</option>
-          {audienceOptions.map((item, index) => <option key={item} value={item}>{t.constants.audienceOptions?.[index] || item}</option>)}
-        </select>
-      </label>
-=======
 function optLabel(t: any, section: string, value: string): string {
   return t?.categoryOptions?.[section]?.[value] || value
 }
@@ -268,7 +216,6 @@ function ProjectFilters({ filters, onChange, categoryId }: { filters: ProjectFil
           </div>
         </div>
       )}
->>>>>>> origin/master
     </div>
   )
 }
@@ -278,7 +225,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
   const campaignResources = resources.filter((r) => r.type === "campaign")
   const displayCampaigns = [...campaignResources]
     .sort((a, b) => getProjectSortTime(b) - getProjectSortTime(a))
-    .slice(0, 4)
+    .slice(0, CORE_COLUMNS_LIMIT)
   const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
   const fullTitle = titleLines.join("\n")
   const [typedTitle, setTypedTitle] = useState("")
@@ -348,18 +295,21 @@ export function HomePage({ resources }: { resources: Resource[] }) {
           <h2>{t.home.categoryTitle}</h2>
           <p>{t.home.categoryDesc}</p>
           <div className="category-grid">
-            {categories.map((cat) => (
+            {categories.map((cat) => {
+              const catT = t.categories[cat.id]
+              return (
               <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
                 <img src={cat.image} alt="" />
                 <div className="category-card-body">
                   <div className="category-card-header">
                     <cat.icon size={24} />
-                    <strong>{cat.name}</strong>
+                    <strong>{catT?.name ?? cat.name}</strong>
                   </div>
-                  <span>{cat.intro}</span>
+                  <span>{catT?.intro ?? cat.intro}</span>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -391,11 +341,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
             </button>
           }
         />
-<<<<<<< HEAD
-        <ProjectFilters categoryId={category.id} items={cases} filters={filters} onChange={setFilters} />
-=======
         <ProjectFilters filters={filters} onChange={setFilters} categoryId={category.id} />
->>>>>>> origin/master
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
@@ -488,11 +434,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
             </button>
           }
         />
-<<<<<<< HEAD
-        <ProjectFilters categoryId={category.id} items={cases} filters={filters} onChange={setFilters} />
-=======
         <ProjectFilters filters={filters} onChange={setFilters} categoryId={category.id} />
->>>>>>> origin/master
         {filteredCases.length ? (
           <div className="campaign-grid">
             {filteredCases.map((c) => <CampaignCard key={c.title} item={c as Resource} variant="project" />)}
@@ -654,7 +596,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
         <aside className="case-side">
           <h2>{t.caseDetail.info}</h2>
-          <p><strong>{t.caseDetail.category}</strong><span>{category?.name}</span></p>
+          <p><strong>{t.caseDetail.category}</strong><span>{category ? (t.categories[category.id]?.name ?? category.name) : ""}</span></p>
           {r.subcategory && <p><strong>{t.submitPage.subcategory}</strong><span>{r.subcategory}</span></p>}
           {r.audience && <p><strong>{t.filters.audience}</strong><span>{r.audience}</span></p>}
           {r.canParticipate && <p><strong>{t.caseDetail.canParticipate}</strong><span>{r.canParticipate === "yes" ? t.caseDetail.canJoin : t.caseDetail.cannotJoin}</span></p>}

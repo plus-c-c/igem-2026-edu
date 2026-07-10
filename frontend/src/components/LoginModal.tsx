@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react"
+import { useState, useEffect, type ChangeEvent } from "react"
 import { LogIn } from "lucide-react"
 import { authService } from "../services/authService"
 import type { User } from "../types"
@@ -14,8 +14,6 @@ const defaultAvatar = "/images/logo.jpg"
 const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
 
 export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
-  if (!open) return null
-
   const { t } = useI18n()
 
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login")
@@ -36,6 +34,17 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   const [avatarValue, setAvatarValue] = useState(defaultAvatar)
   const [countdown, setCountdown] = useState(0)
   const [forgotEmail, setForgotEmail] = useState("")
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => { document.body.style.overflow = "" }
+  }, [open])
+
+  if (!open) return null
 
   const mapUser = (user: any): User => ({
     id: user.id,
@@ -291,7 +300,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                     <input name="registrantName" required placeholder={t.loginModal.registrantPlaceholder} />
                   </label>
                   <label>{t.loginModal.teamName}
-                    <input name="name" required placeholder="Westlake iGEM" />
+                    <input name="name" required placeholder="例如：Westlake" />
                   </label>
                   <label>{t.loginModal.igemRole}
                     <input type="hidden" name="igemRole" value={igemRole} />

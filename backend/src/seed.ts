@@ -1,16 +1,7 @@
 import "reflect-metadata"
-import dotenv from "dotenv"
-import path from "path"
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
-
-import { DataSource } from "typeorm"
+import "./config/env"
+import { createMainDataSource, createCommentDataSource, ensureCommentsDb } from "./config/database"
 import { User } from "./entity/User"
-import { Resource } from "./entity/Resource"
-import { UploadedFile } from "./entity/File"
-import { Comment } from "./entity/Comment"
-import { CommentLike } from "./entity/CommentLike"
-import { Favorite } from "./entity/Favorite"
-import { ResourceLike } from "./entity/ResourceLike"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
 
@@ -42,6 +33,20 @@ interface SeedResource {
   reimbursement?: string
   materials?: string[]
   campaignSteps?: CampaignStep[]
+  canParticipate?: string
+  locationType?: string
+  locationCountry?: string
+  locationProvince?: string
+  locationCity?: string
+  eventDate?: string
+  timeLimitType?: string
+  timeRangeStart?: string
+  timeRangeEnd?: string
+  tips?: string
+  sitePhotosFormat?: string
+  sitePhotoIds?: string
+  introductionContent?: string
+  imageAuthorization?: boolean
 }
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
@@ -75,6 +80,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "现场执行：45 分钟讲解 → 10 分钟提问 → 20 分钟显微镜观察", files: [] },
       { id: uid(), text: "收集学生反馈问卷，统计满意度，撰写课程总结报告", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-09-15",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "提前准备好实验器材并检查安全性",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n「细胞工厂」是一项面向高中生和大学新生的合成生物学科普课程。课程以微生物为载体，介绍合成生物学在药物生产中的应用。\n\n## 活动目标\n\n- 了解合成生物学的基本概念\n- 理解微生物如何被改造用于药物生产\n- 通过显微镜观察微生物形态\n\n## 适用场景\n\n本课程可作为高中生物选修课、大学通识课或科普活动使用，配套提供教师手册和学生工作纸。",
+    imageAuthorization: true,
   },
   {
     category: "applications",
@@ -103,6 +122,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "分两组开展：原理讲解 30 分钟 → 动手搭建 50 分钟 → 展示分享 10 分钟", files: [] },
       { id: uid(), text: "拍摄活动照片、收集反馈问卷，整理成活动案例存档", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-09-20",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "建议参与者提前了解 DNA 双螺旋结构的基本概念",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\nDNA 折纸（DNA Origami）是利用 DNA 分子的自组装特性，将长链 DNA 折叠成预设纳米结构的技术。\n\n## 工作坊内容\n\n- DNA 折纸原理讲解（含动画演示）\n- 纸模搭建体验（3 种难度可选）\n- 作品展示与交流\n\n## 收获\n\n参与者将带走自己制作的 DNA 纸模作品，并获得活动参与证书。",
+    imageAuthorization: true,
   },
   {
     category: "applications",
@@ -131,6 +164,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "讲座与圆桌衔接流畅，预留充足问答时间，线上同步直播", files: [] },
       { id: uid(), text: "发布活动新闻稿，收集线上+线下反馈数据，形成评估报告", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-10-10",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "建议参与者提前阅读 CRISPR 相关科普文章",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\nCRISPR-Cas9 是目前最流行的基因编辑工具，本讲座将从诺贝尔奖出发，全面介绍这一革命性技术。\n\n## 议程安排\n\n1. **科学讲座**（60分钟）：CRISPR 的发现、原理与应用\n2. **伦理圆桌**（30分钟）：基因编辑的社会影响与伦理边界\n\n## 适合人群\n\n对生物学感兴趣的高中生、大学生及公众，无需专业背景。",
+    imageAuthorization: true,
   },
   {
     category: "applications",
@@ -159,6 +206,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "分 3 轮展示：每轮 30 分钟讲解 + 15 分钟互动问答 + 15 分钟演示", files: [] },
       { id: uid(), text: "统计参观人数，收集留言与反馈，整理媒体报道素材", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-10-05",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "现场演示装置较精密，请勿触碰实验器材",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n微生物燃料电池（MFC）是一种利用微生物代谢产生电能的装置。本展示将现场演示如何用细菌处理污水并产生电能。\n\n## 项目亮点\n\n- 亲手点亮由细菌发电驱动的 LED 灯\n- 了解合成生物学在环保领域的应用\n- 探讨可持续能源的未来\n\n## 适合人群\n\n对生物技术、环保能源感兴趣的中学生和公众。",
+    imageAuthorization: true,
   },
   {
     category: "applications",
@@ -187,6 +248,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "每组 3-5 人，完成采样→检测→读数→分析全流程", files: [] },
       { id: uid(), text: "汇总检测数据，生成活动产出报告，优化实验流程", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-10-12",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "实验过程中请佩戴手套，注意实验安全规范",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n生物传感器是一种利用生物分子识别目标物质的检测装置。本开放日将带你体验如何用工程菌快速检测水质中的重金属离子。\n\n## 实验流程\n\n1. 采样：获取模拟水样\n2. 检测：使用生物传感器试纸条\n3. 读数：分析检测结果\n4. 讨论：了解传感器设计原理\n\n## 适合人群\n\n中学生和教师，无需实验经验。",
+    imageAuthorization: true,
   },
   {
     category: "applications",
@@ -215,6 +290,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "每日 3 场导览讲解，每场 20 分钟 + 自由参观 + 互动体验", files: [] },
       { id: uid(), text: "统计参观人次（目标 200+），收集签名留言，撰写展览总结", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-11-01",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "展览含互动装置，请按志愿者引导有序参观",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n本展览以联合国可持续发展目标（SDGs）为框架，展示合成生物学如何助力解决全球性挑战。\n\n## 展区内容\n\n- **医疗健康**：合成生物学在疫苗研发、基因治疗中的应用\n- **清洁能源**：微生物燃料电池、生物燃料\n- **环境治理**：生物传感器、污水处理\n\n## 互动体验\n\n每块展板配有互动问题和小实验，寓教于乐。",
+    imageAuthorization: true,
   },
   {
     category: "activities",
@@ -243,6 +332,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "无菌操作培训 20 分钟 → 自由创作 60 分钟 → 清理 20 分钟 → 拍照 20 分钟", files: [] },
       { id: uid(), text: "48 小时后拍摄菌落成品照片，线上展览投票，评选最佳作品", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-09-25",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "实验涉及活体微生物，请严格遵守无菌操作规范",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n微生物作画是将生物技术与艺术创作相结合的创新工作坊。参与者使用彩色工程菌在培养皿上创作独特的生物艺术作品。\n\n## 工作坊流程\n\n1. **安全培训**（20分钟）：学习无菌操作规范\n2. **自由创作**（60分钟）：使用接种环在培养皿上作画\n3. **清理拍照**（40分钟）：清洁实验台、拍摄作品\n\n## 作品展示\n\n培养 48 小时后，菌落生长形成最终作品，将在线上进行展览和投票。",
+    imageAuthorization: true,
   },
   {
     category: "activities",
@@ -271,6 +374,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "展示区 20 分钟 → 动手制作 50 分钟 → 样品展示与讨论 20 分钟", files: [] },
       { id: uid(), text: "收集参与者制作配方、拍摄作品照片、发布活动回顾推文", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-10-18",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "制作过程中避免接触眼睛，使用甘油时请戴手套",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n生物材料是由生物体产生或以生物质为原料制成的可降解材料。本体验日将带你了解三种前沿生物材料。\n\n## 体验内容\n\n- **菌丝体砖块**：用蘑菇菌丝培育的建筑材料\n- **细菌纤维素膜**：由醋酸菌产生的高强度薄膜\n- **藻类生物塑料**：从海藻中提取的可降解塑料\n\n## 收获\n\n每位参与者可带走自制的生物材料样品。",
+    imageAuthorization: true,
   },
   {
     category: "activities",
@@ -299,6 +416,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "7 摊位同时运营，每个摊位 2 名志愿者，预计接待 300 人", files: [] },
       { id: uid(), text: "统计参与人数和印章完成率、回收反馈问卷、整理活动影像资料", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "outdoor",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-11-15",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "集齐 7 个摊位印章可兑换精美文创纪念品",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 活动简介\n\n科学游园会是一场大型合成生物学主题嘉年华，通过 7 个互动摊位让科学变得触手可及。\n\n## 摊位设置\n\n1. DNA 提取实验室\n2. 微生物显微观察\n3. 生物传感器体验\n4. 基因编辑知识问答\n5. 合成生物学职业规划\n6. 生物艺术拍照打卡\n7. SDG 配对游戏\n\n## 参与方式\n\n每位参与者领取一张印章卡，完成摊位挑战即可获得印章，集齐 7 枚可兑换文创礼品。",
+    imageAuthorization: true,
   },
   {
     category: "cooperation",
@@ -326,6 +457,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "每校 2 天：第 1 天 DNA 理论 + 粗提取实验，第 2 天微生物观察 + 结业展示", files: [] },
       { id: uid(), text: "收集学生反馈与教师评价，统计覆盖人数（目标 200 人），制定下学期跟进计划", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "venues",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "衢州市",
+    eventDate: "2025-07-15",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "乡村学校实验条件有限，请提前准备便携式实验器材",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 项目简介\n\n本支教计划将合成生物学课程带到浙江省 3 所乡村中学，让乡村学生也能接触前沿生物技术。\n\n## 课程安排\n\n- **第 1 天**：DNA 与遗传基础理论 + DNA 粗提取实验\n- **第 2 天**：微生物观察实验 + 结业展示\n\n## 合作模式\n\n联盟统一配送实验器材，每校配备 4 名志愿者讲师和 2 名助教。\n\n## 预期成果\n\n覆盖 3 所学校，约 200 名乡村中学生受益。",
+    imageAuthorization: true,
   },
   {
     category: "cooperation",
@@ -353,6 +498,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "在 2 所合作高中试讲各模块，收集课堂反馈和修改意见", files: [] },
       { id: uid(), text: "修订定稿后上线开放下载，组织 1 次全国教师线上培训（目标 100 人参与）", files: [] },
     ],
+    canParticipate: "yes",
+    locationType: "online",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-09-01",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "欢迎一线教师通过邮件报名参与编写工作",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 项目简介\n\n本计划旨在联合高中教师和大学研究者，共同开发标准化的合成生物学教学资源。\n\n## 课程包内容\n\n每个模块化课程包包含：\n- 教案（含教学目标、课时安排）\n- PPT 课件\n- 实验指导手册\n- 评估工具\n- 拓展阅读材料\n\n## 开发流程\n\n1. 研究：调研现有课程资源\n2. 编写：分模块编写初稿\n3. 试讲：在合作学校试点\n4. 修订：根据反馈完善定稿",
+    imageAuthorization: true,
   },
   {
     category: "cooperation",
@@ -380,87 +539,20 @@ const sampleResources: SeedResource[] = [
       { id: uid(), text: "回收问卷 1000+ 份，使用 SPSS 进行描述统计和交叉分析", files: [] },
       { id: uid(), text: "撰写调研报告，在联盟年度会议上汇报，发布公众版摘要", files: [] },
     ],
-  },
-  {
-    category: "about",
-    title: "HP-Education 联盟 2025 年度成果展",
-    team: "HP-Education 运营组",
-    subtitle: "回顾联盟一年的教育足迹",
-    format: "线上展览 + 线下发布会",
-    impact: "线下 80 人参与，线上展厅长期开放，预计覆盖 5000+ 人",
-    desc: "年度成果展汇总联盟一年来在合成生物学教育领域的工作成果。包含数据看板（活动场次、覆盖人数、合作学校数量）、优秀案例展示、志愿者风采和来年计划。线下同步举办发布会，邀请合作单位代表分享经验。",
-    audience: "联盟成员 / 合作单位 / 公众",
-    delivery: "线上+线下",
-    duration: "线上长期 / 线下 3 小时",
-    location: "西溪报告厅 + 线上展厅",
-    contact: "alliance@hp-alliance.cn",
-    negotiator: "黄老师",
-    acceptsOthers: "yes",
-    reimbursement: "",
-    type: "campaign",
-    status: "published",
-    image: "/images/alliance.jpg",
-    materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
-    campaignSteps: [
-      { id: uid(), text: "收集整理全年活动数据、照片和案例，设计年度报告（40 页）", files: [] },
-      { id: uid(), text: "搭建线上展厅（网页），筹备线下发布会场地与议程", files: [] },
-      { id: uid(), text: "线下发布会：联盟工作总结 -> 合作单位分享 -> 优秀志愿者表彰 -> 圆桌交流", files: [] },
-      { id: uid(), text: "发布年度报告线上版，统计数据传播量（公众号推文 + 展厅访问量）", files: [] },
-    ],
-  },
-  {
-    category: "about",
-    title: "联盟志愿者招募与培训体系",
-    team: "HP-Education 人力组",
-    subtitle: "构建可持续的科普志愿者生态",
-    format: "招募 + 培训项目",
-    impact: "全年招募 50+ 名志愿者，完成 4 期培训，每期 10-15 人",
-    desc: "建立标准化的志愿者招募和培训体系。每学期初开放报名，筛选后参加为期 2 天的集中培训（含合成生物学基础、科普表达技巧、实验安全规范）。培训合格后颁发联盟认证证书，并根据兴趣和能力分配至各活动组。",
-    audience: "在校大学生 / 研究生",
-    delivery: "线上+线下",
-    duration: "每期 2 天培训",
-    location: "西湖大学 + 线上",
-    contact: "hr@hp-alliance.cn",
-    negotiator: "马同学",
-    acceptsOthers: "yes",
-    reimbursement: "",
-    type: "campaign",
-    status: "published",
-    image: "/images/lab-team.jpg",
-    materials: ["参与队伍", "分工", "联系方式"],
-    campaignSteps: [
-      { id: uid(), text: "设计招募海报与推文，通过高校渠道发布招募信息（目标报名 100+ 人）", files: [] },
-      { id: uid(), text: "简历筛选 -> 线上面试 -> 录取通知，制定 2 天培训课程表", files: [] },
-      { id: uid(), text: "第 1 天：合成生物学基础 + 科普表达技巧；第 2 天：实验操作 + 安全考核", files: [] },
-      { id: uid(), text: "颁发证书、分配至各活动组、建立志愿者档案和沟通群组", files: [] },
-    ],
-  },
-  {
-    category: "about",
-    title: "走进联盟——合成生物学教育开放日",
-    team: "西湖大学 iGEM 团队",
-    subtitle: "开放实验室，展示 iGEM 团队的教育实践",
-    format: "开放参观日",
-    impact: "单场容纳 60 人，全年举办 4 场，预计接待 240 人",
-    desc: "面向社会公众开放西湖大学 iGEM 实验室，介绍联盟的运作模式和 iGEM 竞赛中的教育实践（Human Practices）。参观路线含：联盟成果走廊 -> 实验室参观 -> 互动实验体验 -> 茶歇交流。每场由 2 名团队成员担任导览。",
-    audience: "公众 / 中学生 / 企业代表",
-    delivery: "线下",
-    duration: "2 小时",
-    location: "西湖大学 iGEM 实验室",
-    contact: "visit@westlake-igem.cn",
-    negotiator: "徐同学",
-    acceptsOthers: "yes",
-    reimbursement: "",
-    type: "campaign",
-    status: "published",
-    image: "/images/classroom.jpg",
-    materials: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
-    campaignSteps: [
-      { id: uid(), text: "规划参观路线，设计成果走廊展板（15 块），准备互动实验材料", files: [] },
-      { id: uid(), text: "培训 4 名导览志愿者（含中英双语），彩排 1 次", files: [] },
-      { id: uid(), text: "每场 30 分钟导览 + 40 分钟互动实验 + 30 分钟茶歇交流 + 20 分钟答疑", files: [] },
-      { id: uid(), text: "收集参观者反馈，整理媒体宣传素材，规划下一场开放日排期", files: [] },
-    ],
+    canParticipate: "yes",
+    locationType: "online",
+    locationCountry: "中国",
+    locationProvince: "浙江省",
+    locationCity: "杭州市",
+    eventDate: "2025-09-10",
+    timeLimitType: "",
+    timeRangeStart: "",
+    timeRangeEnd: "",
+    tips: "问卷约 10 分钟，填写完成后可查看调研摘要",
+    sitePhotosFormat: "",
+    sitePhotoIds: "",
+    introductionContent: "## 项目简介\n\n本调研旨在了解中国公众对合成生物学的认知水平、态度倾向和教育需求。\n\n## 调研维度\n\n- **基本认知**：是否听说过合成生物学\n- **态度倾向**：支持、担忧或中立\n- **信息来源**：学校、媒体、社交网络\n- **教育需求**：希望了解哪些方面\n\n## 调研方法\n\n线上问卷 + 线下拦截访问，目标回收有效问卷 1000+ 份。",
+    imageAuthorization: true,
   },
 ]
 
@@ -547,7 +639,10 @@ async function deleteAllResources(token: string): Promise<void> {
   if (!res.ok) return
   const data: any = await res.json()
   const resources = data.resources || []
-  if (resources.length === 0) return
+  if (resources.length === 0) {
+    console.log("没有现有项目需要清除")
+    return
+  }
 
   console.log(`检测到 ${resources.length} 个现有项目，正在清除...`)
   let deleted = 0
@@ -561,65 +656,12 @@ async function deleteAllResources(token: string): Promise<void> {
   console.log(`已清除 ${deleted} 个现有项目`)
 }
 
-async function publishExistingResources(token: string, resources: any[]): Promise<void> {
-  const drafts = resources.filter((r) => r.status !== "published")
-  if (drafts.length === 0) return
-
-  console.log(`检测到 ${drafts.length} 个非公开项目，正在发布...`)
-  let published = 0
-  for (const resource of drafts) {
-    const res = await fetch(`${API_URL}/api/resources/${resource.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ ...resource, status: "published" }),
-    })
-    if (res.ok) published++
-  }
-  console.log(`发布完毕：${published} 个`)
-}
-
 // ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
-  const mainDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: process.env.DB_DATABASE || "igem_education",
-    synchronize: true,
-    logging: false,
-    entities: [User, Resource, UploadedFile],
-  })
+  await ensureCommentsDb()
 
-  const tempDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: "postgres",
-  })
-
-  await tempDs.initialize()
-  const commentsDb = process.env.COMMENTS_DB_NAME || "igem_comments"
-  await tempDs.query(`CREATE DATABASE "${commentsDb}"`).catch(() => {})
-  await tempDs.destroy()
-
-  const commentDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: commentsDb,
-    synchronize: true,
-    logging: false,
-    entities: [Comment, CommentLike, Favorite, ResourceLike],
-  })
+  const mainDs = createMainDataSource(false)
+  const commentDs = createCommentDataSource(false)
 
   await mainDs.initialize()
   await commentDs.initialize()
@@ -665,16 +707,6 @@ async function main() {
   console.log(`连接后端: ${API_URL}`)
   await waitForBackend()
   const token = await loginAsAdmin()
-
-  const checkRes = await fetch(`${API_URL}/api/resources`, {
-    headers: { "Authorization": `Bearer ${token}` },
-  })
-  const existing = checkRes.ok ? ((await checkRes.json()).resources || []) : []
-  if (existing.length > 0) {
-    await publishExistingResources(token, existing)
-    console.log(`检测到 ${existing.length} 个现有项目，跳过示例数据录入（保留已有数据）`)
-    return
-  }
 
   await deleteAllResources(token)
   console.log("")

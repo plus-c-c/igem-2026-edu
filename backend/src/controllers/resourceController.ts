@@ -16,7 +16,7 @@ export async function create(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
     } = req.body
 
     const isCampaign = type === "campaign"
@@ -32,7 +32,7 @@ export async function create(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, imageAuthorization,
       status: status || "draft",
     })
     await resourceRepo.save(resource)
@@ -226,7 +226,7 @@ export async function update(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
     } = req.body
 
     const isDraftSave = status === "draft" || (!status && resource.status === "draft")
@@ -247,7 +247,7 @@ export async function update(req: AuthRequest, res: Response) {
       contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
-      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status,
+      sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
     })
     await resourceRepo.save(resource)
 
