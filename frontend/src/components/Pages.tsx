@@ -3,6 +3,7 @@ import type { Resource, User } from "../types"
 import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
 import { Translatable } from "./Translatable"
+import { TranslatableMarkdown } from "./TranslatableMarkdown"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions, CORE_COLUMNS_LIMIT } from "../data/constants"
@@ -15,8 +16,6 @@ import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
 import { useResourceFiles } from "../hooks/useResourceFiles"
 
-import { marked } from "marked"
-import DOMPurify from "dompurify"
 
 interface PageProps {
   resources: Resource[]
@@ -634,11 +633,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       {r.introductionContent && (
         <section className="case-detail-card">
           <h2>{t.caseDetail.introBook}</h2>
-          <div className="markdown-body"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(marked.parse(r.introductionContent) as string)
-            }}
-          />
+          <TranslatableMarkdown markdown={r.introductionContent} />
         </section>
       )}
 
@@ -676,7 +671,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         {(r.team || r.contact) && (
           <div className="detail-footer-team">
             {r.team && <strong><Translatable text={r.team} /></strong>}
-            {r.contact && <span><Translatable text={r.contact} inline /></span>}
+            {r.contact && <span><Translatable text={r.contact} /></span>}
           </div>
         )}
       </div>
