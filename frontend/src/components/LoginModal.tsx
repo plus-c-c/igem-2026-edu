@@ -34,6 +34,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   const [avatarValue, setAvatarValue] = useState(defaultAvatar)
   const [countdown, setCountdown] = useState(0)
   const [forgotEmail, setForgotEmail] = useState("")
+  const [verificationCode, setVerificationCode] = useState("")
 
   useEffect(() => {
     if (open) {
@@ -106,6 +107,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           const res = await authService.sendPasswordResetCode(email)
           if (res.message) {
             setForgotEmail(email)
+            setVerificationCode("")
             setStep("verify")
             setSuccessMsg(res.message)
             startCountdown()
@@ -113,7 +115,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
           }
         } else {
-          const code = data.get("code") as string
+          const code = verificationCode
           const newPassword = data.get("newPassword") as string
           const res = await authService.resetPassword({ email: forgotEmail, code, newPassword })
           if (res.message && !res.code) {
@@ -140,6 +142,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           const res = await authService.sendCode(nextRegisterData)
           if (res.message) {
             setRegisterData(nextRegisterData)
+            setVerificationCode("")
             setStep("verify")
             setSuccessMsg(res.message)
             startCountdown()
@@ -147,7 +150,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
           }
         } else {
-          const code = data.get("code") as string
+          const code = verificationCode
           const res = await authService.verifyRegister({ email: registerData.email, code })
           if (res.token) {
             localStorage.setItem("authToken", res.token)
@@ -171,6 +174,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     setError("")
     setSuccessMsg("")
     setCountdown(0)
+    setVerificationCode("")
   }
 
   const openForgotPassword = () => {
@@ -180,6 +184,11 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     setSuccessMsg("")
     setForgotEmail("")
     setCountdown(0)
+    setVerificationCode("")
+  }
+
+  const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))
   }
 
   return (
@@ -210,7 +219,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
               {t.loginModal.verificationSent} <strong>{forgotEmail}</strong>
             </p>
             <label>{t.loginModal.verificationCode}
-              <input name="code" type="text" maxLength={6} required placeholder={t.loginModal.codePlaceholder} autoFocus />
+              <input name="code" type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" maxLength={6} required placeholder={t.loginModal.codePlaceholder} value={verificationCode} onChange={handleCodeChange} autoFocus />
             </label>
             <label>{t.loginModal.newPassword}
               <input name="newPassword" type="password" required minLength={6} placeholder={t.loginModal.passwordPlaceholderRegister} />
@@ -257,7 +266,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
               {t.loginModal.verificationSent} <strong>{registerData.email}</strong>
             </p>
             <label>{t.loginModal.verificationCode}
-              <input name="code" type="text" maxLength={6} required placeholder={t.loginModal.codePlaceholder} autoFocus />
+              <input name="code" type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" maxLength={6} required placeholder={t.loginModal.codePlaceholder} value={verificationCode} onChange={handleCodeChange} autoFocus />
             </label>
             <div className="form-actions">
               <button className="pill-btn secondary" type="button" onClick={() => { setStep("form"); setError(""); setSuccessMsg("") }}>
