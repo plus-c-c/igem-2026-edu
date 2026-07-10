@@ -77,6 +77,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
 
   const [favorites, setFavorites] = useState<Resource[]>([])
   const [favoritesLoading, setFavoritesLoading] = useState(false)
+  const displayName = registrantName || user.registrantName || user.teamName
 
   const loadDrafts = () => {
     if (!user) return
@@ -190,7 +191,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           </label>
         </div>
         <div className="profile-title-group">
-          <h1>{user.teamName}</h1>
+          <h1>{displayName}</h1>
           <p className="profile-email">{user.email}</p>
         </div>
       </div>
@@ -203,12 +204,12 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           <form onSubmit={handleProfileSubmit}>
             <div className="profile-form-grid">
               <label>
-                {t.profile.teamName}
-                <input value={name} onChange={(e) => setName(e.target.value)} required />
-              </label>
-              <label>
                 {t.profile.registrantName}
                 <input value={registrantName} onChange={(e) => setRegistrantName(e.target.value)} required />
+              </label>
+              <label>
+                {t.profile.teamName}
+                <input value={name} onChange={(e) => setName(e.target.value)} required />
               </label>
               <label>
                 {t.profile.email}

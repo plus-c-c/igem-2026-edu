@@ -15,6 +15,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
   const [accountOpen, setAccountOpen] = useState(false)
   const accountRef = useRef<HTMLDivElement | null>(null)
   const { language, toggleLanguage, t } = useI18n()
+  const displayName = user?.registrantName || user?.teamName || ""
   const navItems = [
     { path: "/", name: t.nav.home },
     { path: "/lecture", name: t.nav.applications },
@@ -59,7 +60,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
         {user ? (
           <>
             {user.role === "admin" && <span className="admin-badge"><Shield size={12} /> {t.nav.admin}</span>}
-            <span className="team-pill">{user.teamName}</span>
+            <span className="team-pill">{displayName}</span>
             <div className="account-menu" ref={accountRef}>
               <button
                 className="avatar-button"
