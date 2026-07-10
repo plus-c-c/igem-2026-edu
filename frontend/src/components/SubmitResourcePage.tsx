@@ -76,18 +76,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [title, setTitle] = useState(editResource?.title || "")
   const validateField = (name: string, value: string, extra?: { canParticipate?: string }) => {
     let error = ""
-    if (name === "title" && !value.trim()) error = t.submitPage.required || "此项必填"
-    if (name === "category" && !value) error = t.submitPage.required || "此项必填"
-    if (name === "subcategory" && !value) error = t.submitPage.required || "此项必填"
+    if (name === "title" && !value.trim()) error = t.submitPage.required
+    if (name === "category" && !value) error = t.submitPage.required
+    if (name === "subcategory" && !value) error = t.submitPage.required
     if (name === "desc") {
       if (!value.trim()) {
-        error = t.submitPage.required || "此项必填"
+        error = t.submitPage.required
       } else if ((extra?.canParticipate ?? canParticipate) === "yes" && (value.length < 25 || value.length > 100)) {
-        error = t.submitPage.descCharLimit || "简介需在25—100字之间"
+        error = t.submitPage.descCharLimit
       }
     }
     if (name === "introductionContent" && value.length > 500) {
-      error = t.submitPage.introCharLimit || "项目介绍书不超过500字"
+      error = t.submitPage.introCharLimit
     }
     setFieldErrors((prev) => {
       if (error === prev[name]) return prev
@@ -198,7 +198,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     stepErrorTimer.current = setTimeout(() => {
       const errs: Record<string, string> = {}
       for (const s of steps) {
-        if (!s.text.trim()) errs[s.id] = t.submitPage.stepRequired || "请填写材料类型"
+        if (!s.text.trim()) errs[s.id] = t.submitPage.stepRequired
       }
       setStepErrors(errs)
     }, 300)
@@ -254,7 +254,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         title: "",
         desc: "",
       })
-      if (!res.resource) throw new Error("创建草稿失败")
+      if (!res.resource) throw new Error(t.submitPage.createDraftFailed)
       setDraftId(res.resource.id)
       return res.resource.id
     }
@@ -268,7 +268,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       title: "",
       desc: "",
     })
-    if (!res.resource) throw new Error(t.submitPage.createFailed || "无法创建资源")
+    if (!res.resource) throw new Error(t.submitPage.createFailed)
     setDraftId(res.resource.id)
     return res.resource.id
   }
@@ -283,7 +283,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       await uploadStepFile(rid, stepId, file)
       stepFileInputs.current[stepId] = null
     } catch (e) {
-      const msg = e instanceof Error ? e.message : (t.submitPage.stepFileFailed || "步骤文件上传失败")
+      const msg = e instanceof Error ? e.message : (t.submitPage.stepFileFailed)
       setErrorMsg(msg)
     }
   }
@@ -307,7 +307,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       setCoverFileId(upRes.file.id)
       imageFileRef.current = null
     } catch (e) {
-      const msg = e instanceof Error ? e.message : (t.submitPage.coverUploadFailed || "封面上传失败")
+      const msg = e instanceof Error ? e.message : (t.submitPage.coverUploadFailed)
       setErrorMsg(msg)
     }
   }
@@ -333,7 +333,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       const url = `/api/resources/files/${upRes.file.id}/download`
       setSitePhotoFiles((prev) => ({ ...prev, [slotKey]: { fileId: upRes.file.id, url } }))
     } catch (e) {
-      const msg = e instanceof Error ? e.message : (t.submitPage.photoUploadFailed || "现场照片上传失败")
+      const msg = e instanceof Error ? e.message : (t.submitPage.photoUploadFailed)
       setErrorMsg(msg)
     }
     setSitePhotoUploading(null)
@@ -371,7 +371,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         const md = `\n![${file.name}](${url})\n`
         setIntroductionContent((prev) => prev.slice(0, start) + md + prev.slice(ta.selectionEnd))
       }
-    } catch { setErrorMsg(t.submitPage.imageUploadFailed || "图片上传失败") }
+    } catch { setErrorMsg(t.submitPage.imageUploadFailed) }
     setIntroImageUploading(false)
   }
 
@@ -383,7 +383,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     try {
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
       if (emptyStep) {
-        throw new Error(t.submitPage.emptyStepType || "请填写所有下载材料的材料类型")
+        throw new Error(t.submitPage.emptyStepType)
       }
 
       const form = formRef.current
@@ -436,7 +436,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             status: "draft",
             originalId: String(editResource!.id),
           })
-          if (!res.resource) throw new Error("创建草稿失败")
+          if (!res.resource) throw new Error(t.submitPage.createDraftFailed)
           rid = res.resource.id
           setDraftId(rid)
         }
@@ -451,10 +451,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         if (hasDraft) {
           rid = isEditingDraft ? String(editResource!.id) : (isEdit ? String(editResource!.id) : draftId!)
           const res = await resourceService.update(rid, payload)
-          if (!res.resource) throw new Error(res.message || (t.submitPage.saveFailed || "保存失败"))
+          if (!res.resource) throw new Error(res.message || t.submitPage.saveFailed)
         } else {
           const res = await resourceService.create(payload)
-          if (!res.resource) throw new Error(res.message || (t.submitPage.publishFailed || "发布失败"))
+          if (!res.resource) throw new Error(res.message || t.submitPage.publishFailed)
           rid = res.resource.id
         }
       }
@@ -491,7 +491,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         await resourceService.update(rid, { image: payload.image })
       } else if (!isDraft && !isEditingDraft) {
         const res = await resourceService.update(rid, payload)
-        if (!res.resource) throw new Error(res.message || "保存失败")
+        if (!res.resource) throw new Error(res.message || t.submitPage.saveFailed)
       }
 
       if (isDraft) {
@@ -509,7 +509,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         }
       }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : (t.submitPage.operationFailed || "操作失败，请重试")
+      const msg = e instanceof Error ? e.message : t.submitPage.operationFailed
       setErrorMsg(msg)
       setSubmitting(false)
     }
@@ -526,13 +526,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <div>
           <p className="eyebrow">{isEdit ? "Edit" : "Submit"}</p>
           <h1>{isEdit ? `${t.submitPage.edit}${projectLabel}` : `${t.submitPage.submit}${projectLabel}`}</h1>
-          <p>{t.submitPage.currentTeam}{user.teamName}。</p>
+          <p>{t.submitPage.currentTeam}{user.teamName}</p>
         </div>
       </div>
 
       <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>{t.submitPage.teamName}<input name="team" placeholder="例如：Westlake" defaultValue={editResource?.team || user.teamName} /></label>
+          <label>{t.submitPage.teamName}<input name="team" placeholder={t.submitPage.teamPlaceholder} defaultValue={editResource?.team || user.teamName} /></label>
           <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
           <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}
@@ -910,7 +910,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         )}
         <div className="image-auth-card">
           <label className="image-auth-checkbox">
-            <span><input type="checkbox" checked={imageAuthorized} onChange={(e) => setImageAuthorized(e.target.checked)} />本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担</span>
+            <span><input type="checkbox" checked={imageAuthorized} onChange={(e) => setImageAuthorized(e.target.checked)} />{t.submitPage.imageConsent}</span>
           </label>
         </div>
         <div className="form-actions">

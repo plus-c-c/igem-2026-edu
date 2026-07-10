@@ -17,7 +17,9 @@
     "switchToZh": "切换到中文",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
-    "labelEn": "EN / 中"
+    "labelEn": "EN / 中",
+    "langZh": "中文",
+    "langEn": "EN"
   },
   "home": {
     "eyebrow": "ZJU-China、Westlake、XJTLU-China",
@@ -108,7 +110,7 @@
     "close": "关闭"
   },
   "loginRequired": {
-    "eyebrow": "Login Required",
+    "eyebrow": "需要登录",
     "title": "登录后发布教育项目招募",
     "desc": "请先登录团队账号，然后从顶部导航或栏目页进入教育项目发布流程。",
     "action": "团队登录"
@@ -311,6 +313,11 @@
     "publishFailed": "发布失败",
     "saveFailed": "保存失败",
     "operationFailed": "操作失败，请重试",
+    "required": "此项必填",
+    "stepRequired": "请填写材料类型",
+    "teamPlaceholder": "例如：Westlake",
+    "imageConsent": "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担",
+    "createDraftFailed": "创建草稿失败",
     "saveDraft": "保存草稿",
     "draftSaved": "草稿已保存！",
     "viewDrafts": "查看草稿",

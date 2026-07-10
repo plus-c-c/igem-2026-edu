@@ -42,10 +42,26 @@
 }
 .profile-avatar-upload input { display: none; }
 
-.profile-title-group h1 {
+.profile-single-name {
   font-size: 22px;
   font-weight: 600;
   margin: 0;
+}
+.profile-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.profile-registrant-name {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+.profile-team-name {
+  font-size: 15px;
+  color: var(--ink-muted-48);
+  white-space: nowrap;
 }
 .profile-email {
   margin: 4px 0 0;
@@ -200,6 +216,7 @@
 @media (max-width: 599px) {
   .profile-form-grid { grid-template-columns: 1fr; }
   .profile-header { flex-direction: column; text-align: center; }
+  .profile-name-row { flex-direction: column; gap: 4px; }
   .profile-page { padding: 32px 16px; }
   .profile-section { padding: 20px 16px; }
 }

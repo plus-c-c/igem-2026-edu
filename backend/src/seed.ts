@@ -669,12 +669,20 @@ async function seedAdmin() {
   const userRepo = mainDs.getRepository(User)
   const existing = await userRepo.findOneBy({ email: "admin@igem-education.com" })
   if (existing) {
-    console.log("管理员账号已存在")
+    if (!existing.registrantName) {
+      existing.registrantName = "Admin"
+      existing.name = "管理员"
+      await userRepo.save(existing)
+      console.log("管理员账号已更新（registrantName）")
+    } else {
+      console.log("管理员账号已存在")
+    }
   } else {
     const admin = userRepo.create({
       email: "admin@igem-education.com",
       password: "devAdmin123!",
       name: "管理员",
+      registrantName: "Admin",
       role: "admin",
     })
     await userRepo.save(admin)
@@ -688,10 +696,16 @@ async function seedAdmin() {
   for (const u of testUsers) {
     const exist = await userRepo.findOneBy({ email: u.email })
     if (!exist) {
-      await userRepo.save(userRepo.create(u))
+      await userRepo.save(userRepo.create({ ...u, registrantName: "Test User" }))
       console.log(`测试账号创建成功: ${u.email} / ${u.password}`)
     } else {
-      console.log(`测试账号已存在: ${u.email}`)
+      if (!exist.registrantName) {
+        exist.registrantName = "Test User"
+        await userRepo.save(exist)
+        console.log(`测试账号已更新（registrantName）: ${u.email}`)
+      } else {
+        console.log(`测试账号已存在: ${u.email}`)
+      }
     }
   }
 

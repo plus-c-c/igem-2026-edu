@@ -14,10 +14,12 @@
     "profileCenter": "Profile Center",
     "editProfile": "Edit Profile",
     "favorites": "Favorites",
-    "switchToZh": "切换到中文",
+    "switchToZh": "Switch to Chinese",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
-    "labelEn": "EN / 中"
+    "labelEn": "EN / 中",
+    "langZh": "中文",
+    "langEn": "EN"
   },
   "home": {
     "eyebrow": "ZJU-China, Westlake, XJTLU-China",
@@ -311,6 +313,11 @@
     "publishFailed": "Publish failed",
     "saveFailed": "Save failed",
     "operationFailed": "Operation failed, please try again",
+    "required": "This field is required",
+    "stepRequired": "Please fill in material type",
+    "teamPlaceholder": "e.g. Westlake",
+    "imageConsent": "This team guarantees that all uploaded images have obtained full portrait and copyright authorization. In case of infringement, the uploading team shall bear all legal liability.",
+    "createDraftFailed": "Failed to create draft",
     "saveDraft": "Save Draft",
     "draftSaved": "Draft saved!",
     "viewDrafts": "View Drafts",
@@ -346,6 +353,37 @@
     "materialSuggestion": "Practice Guide",
     "materialPhoto": "Site Photos",
     "materialExample": "Project Example"
+  },
+  "categoryOptions": {
+    "themes": {
+      "合成生物学科普": "Synthetic Biology Outreach",
+      "iGEM科普": "iGEM Outreach",
+      "其他": "Other",
+      "互动游戏": "Interactive Games",
+      "现场体验": "Hands-on Experience",
+      "支教合作": "Teaching Partnerships",
+      "公益教育": "Public Education",
+      "课程共建": "Curriculum Co-building"
+    },
+    "materials": {
+      "PPT": "PPT",
+      "测量表": "Survey Form",
+      "合作书": "Proposal",
+      "海报": "Poster",
+      "阅读材料": "Reading Materials",
+      "实践活动材料清单": "Activity Materials Checklist",
+      "易拉宝": "Roll-up Banner",
+      "传单": "Flyer",
+      "其他": "Other"
+    },
+    "audiences": {
+      "小学": "Elementary",
+      "初中": "Middle School",
+      "高中": "High School",
+      "大学": "University",
+      "社会公众": "General Public",
+      "iGEM团队": "iGEM Teams"
+    }
   },
   "categoriesData": {
     "recommended": {
