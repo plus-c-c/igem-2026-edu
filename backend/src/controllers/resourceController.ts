@@ -1,9 +1,11 @@
 import { Response } from "express"
 import fs from "fs"
 import { In } from "typeorm"
-import { AppDataSource, CommentDataSource } from "../index"
+import { AppDataSource } from "../index"
 import { Resource } from "../entity/Resource"
 import { UploadedFile } from "../entity/File"
+import { Comment } from "../entity/Comment"
+import { CommentLike } from "../entity/CommentLike"
 import { Favorite } from "../entity/Favorite"
 import { ResourceLike } from "../entity/ResourceLike"
 import { AuthRequest } from "../middleware/auth"
@@ -105,8 +107,8 @@ export async function get(req: AuthRequest, res: Response) {
     let favoritedByMe = false
     if (userId) {
       const [fav, like] = await Promise.all([
-        CommentDataSource.getRepository(Favorite).findOneBy({ userId, resourceId: resource.id }),
-        CommentDataSource.getRepository(ResourceLike).findOneBy({ userId, resourceId: resource.id }),
+        AppDataSource.getRepository(Favorite).findOneBy({ userId, resourceId: resource.id }),
+        AppDataSource.getRepository(ResourceLike).findOneBy({ userId, resourceId: resource.id }),
       ])
       favoritedByMe = !!fav
       likedByMe = !!like
@@ -123,7 +125,7 @@ export async function favorite(req: AuthRequest, res: Response) {
   try {
     const resourceId = req.params.id as string
     const userId = req.userId!
-    const repo = CommentDataSource.getRepository(Favorite)
+    const repo = AppDataSource.getRepository(Favorite)
     const existing = await repo.findOneBy({ userId, resourceId })
     if (existing) return res.json({ message: "已收藏" })
     const fav = repo.create({ userId, resourceId })
@@ -140,7 +142,7 @@ export async function unfavorite(req: AuthRequest, res: Response) {
   try {
     const resourceId = req.params.id as string
     const userId = req.userId!
-    const repo = CommentDataSource.getRepository(Favorite)
+    const repo = AppDataSource.getRepository(Favorite)
     const existing = await repo.findOneBy({ userId, resourceId })
     if (!existing) return res.json({ message: "未收藏" })
     await repo.remove(existing)
@@ -155,7 +157,7 @@ export async function unfavorite(req: AuthRequest, res: Response) {
 export async function getMyFavorites(req: AuthRequest, res: Response) {
   try {
     const userId = req.userId!
-    const favRepo = CommentDataSource.getRepository(Favorite)
+    const favRepo = AppDataSource.getRepository(Favorite)
     const favorites = await favRepo.find({
       where: { userId },
       order: { createdAt: "DESC" },
@@ -182,7 +184,7 @@ export async function like(req: AuthRequest, res: Response) {
   try {
     const resourceId = req.params.id as string
     const userId = req.userId!
-    const repo = CommentDataSource.getRepository(ResourceLike)
+    const repo = AppDataSource.getRepository(ResourceLike)
     const existing = await repo.findOneBy({ userId, resourceId })
     if (existing) return res.json({ message: "已点赞" })
     const l = repo.create({ userId, resourceId })
@@ -199,7 +201,7 @@ export async function unlike(req: AuthRequest, res: Response) {
   try {
     const resourceId = req.params.id as string
     const userId = req.userId!
-    const repo = CommentDataSource.getRepository(ResourceLike)
+    const repo = AppDataSource.getRepository(ResourceLike)
     const existing = await repo.findOneBy({ userId, resourceId })
     if (!existing) return res.json({ message: "未点赞" })
     await repo.remove(existing)
@@ -283,8 +285,22 @@ export async function remove(req: AuthRequest, res: Response) {
     if (resource.userId !== req.userId && req.userRole !== "admin") {
       return res.status(403).json({ message: "无权限删除此资源" })
     }
+
+    const resourceId = resource.id
+
+    await AppDataSource.getRepository(ResourceLike).delete({ resourceId })
+    await AppDataSource.getRepository(Favorite).delete({ resourceId })
+
+    const commentRepo = AppDataSource.getRepository(Comment)
+    const comments = await commentRepo.find({ where: { resourceId }, select: { id: true } })
+    const commentIds = comments.map((c) => c.id)
+    if (commentIds.length) {
+      await AppDataSource.getRepository(CommentLike).delete({ commentId: In(commentIds) })
+    }
+    await commentRepo.delete({ resourceId })
+
     const fileRepo = AppDataSource.getRepository(UploadedFile)
-    const files = await fileRepo.findBy({ resourceId: resource.id })
+    const files = await fileRepo.findBy({ resourceId })
     for (const f of files) {
       const path = `backend/uploads/${f.storedName}`
       if (fs.existsSync(path)) fs.unlinkSync(path)

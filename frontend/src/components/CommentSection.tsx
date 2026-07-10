@@ -35,7 +35,7 @@ function ReplyItem({ reply, resourceId, user, onDelete }: { reply: CommentData; 
       await commentService.remove(resourceId, reply.id)
       onDelete(reply.id)
     } catch (e) {
-      alert(e instanceof Error ? e.message : t.comments.deleteFailed || "删除失败")
+      alert(e instanceof Error ? e.message : t.comments.deleteFailed)
     }
   }
 
@@ -104,7 +104,7 @@ function CommentItem({ comment, resourceId, user, onDelete }: { comment: Comment
       await commentService.remove(resourceId, comment.id)
       onDelete(comment.id)
     } catch (e) {
-      alert(e instanceof Error ? e.message : t.comments.deleteFailed || "删除失败")
+      alert(e instanceof Error ? e.message : t.comments.deleteFailed)
     }
   }
 
@@ -184,7 +184,7 @@ export function CommentSection({ resourceId, user }: CommentSectionProps) {
       setComments((prev) => [...prev, { ...c, replies: [] }])
       setCommentText("")
     } catch (e) {
-      const msg = e instanceof Error ? e.message : t.comments.commentFailed || "评论失败"
+      const msg = e instanceof Error ? e.message : t.comments.commentFailed
       alert(msg)
     }
     setCommenting(false)

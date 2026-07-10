@@ -1,5 +1,6 @@
 import type { UploadedFile } from "../types"
 import { API_BASE, authHeaders, authFetch, onUnauthorized } from "./client"
+import { tr } from "../i18n"
 
 export const fileService = {
   upload: async (resourceId: string, file: File, materialLabel?: string) => {
@@ -13,7 +14,7 @@ export const fileService = {
     })
     const data = await res.json().catch(() => null)
     if (!res.ok) {
-      const msg = data?.message || (res.status === 413 ? "文件大小超过 1GB 限制" : "文件上传失败")
+      const msg = data?.message || (res.status === 413 ? tr("errors.fileTooLarge") : tr("errors.fileUploadFailed"))
       throw new Error(msg)
     }
     return data
@@ -35,13 +36,13 @@ export const fileService = {
           const data = JSON.parse(xhr.responseText)
           if (xhr.status >= 200 && xhr.status < 300) return resolve(data)
           if (xhr.status === 401 && onUnauthorized) onUnauthorized()
-          const msg = data?.message || (xhr.status === 413 ? "文件大小超过 1GB 限制" : "文件上传失败")
+          const msg = data?.message || (xhr.status === 413 ? tr("errors.fileTooLarge") : tr("errors.fileUploadFailed"))
           reject(new Error(msg))
-        } catch { reject(new Error("上传响应解析失败")) }
+        } catch { reject(new Error(tr("errors.uploadParseFailed"))) }
       }
 
-      xhr.onerror = () => reject(new Error("网络错误，上传中断"))
-      xhr.ontimeout = () => reject(new Error("上传超时，请重试"))
+      xhr.onerror = () => reject(new Error(tr("errors.uploadNetworkError")))
+      xhr.ontimeout = () => reject(new Error(tr("errors.uploadTimeout")))
       xhr.timeout = timeoutMs
 
       xhr.open("POST", `${API_BASE}/resources/${resourceId}/files`)

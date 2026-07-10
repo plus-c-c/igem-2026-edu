@@ -5,3 +5,4 @@ backend/dist/
 .DS_Store
 test/
 backend/database/
+argos-models/

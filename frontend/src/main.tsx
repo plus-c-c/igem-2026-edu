@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom"
-import { setOnUnauthorized, authHeaders } from "./services/client"
-import { resourceService } from "./services/resourceService"
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom"
+import { setOnUnauthorized } from "./services/client"
 import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage, FavoritesPage } from "./components/Pages"
-import type { Resource } from "./types"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { ProfilePage } from "./components/ProfilePage"
 import { LoginModal } from "./components/LoginModal"
+import { EditResourceRoute } from "./components/EditResourceRoute"
 import { LanguageProvider } from "./i18n"
 import "./styles/index.css"
 
@@ -39,40 +38,6 @@ function App() {
     navigate(`/submit${params.toString() ? `?${params.toString()}` : ""}`)
   }
 
-  const EditResourceRoute = () => {
-    const { resourceId } = useParams<{ resourceId: string }>()
-    const [editRes, setEditRes] = useState<Resource | null>(null)
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-      if (!resourceId) { setLoading(false); return }
-      const loadEditRes = async () => {
-        try {
-          const data = await resourceService.get(resourceId)
-          const res = data.resource
-          if (!res) { setLoading(false); return }
-          if (res.status === "published") {
-            const draftRes = await fetch(`/api/resources/draft-for/${resourceId}`, { headers: authHeaders() })
-            if (draftRes.ok) {
-              const draftData = await draftRes.json()
-              if (draftData.resource) { setEditRes(draftData.resource); setLoading(false); return }
-            }
-          }
-          setEditRes(res)
-        } catch {
-          setEditRes(findById(resourceId!))
-        }
-        setLoading(false)
-      }
-      loadEditRes()
-    }, [resourceId])
-
-    if (loading) return null
-    return user
-      ? <SubmitResourcePage key={editRes?.id || "edit"} user={user} addResource={addResource} updateResource={updateResource} editResource={editRes} />
-      : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />
-  }
-
   if (authLoading) return null
 
   return (
@@ -87,7 +52,7 @@ function App() {
           element={user ? <SubmitResourcePage key="new" user={user} addResource={addResource} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />}
         />
         <Route path="/cases/:caseId" element={<CaseDetailPage resources={resources} user={user} onDelete={deleteResource} />} />
-          <Route path="/resource/:resourceId/edit" element={<EditResourceRoute />} />
+          <Route path="/resource/:resourceId/edit" element={<EditResourceRoute user={user} addResource={addResource} updateResource={updateResource} findById={findById} openLogin={() => setLoginOpen(true)} />} />
           <Route path="/profile" element={user ? <ProfilePage user={user} setUser={setUser} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
           <Route path="/favorites" element={user ? <FavoritesPage resources={resources} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
         {categories.filter((cat) => cat.id !== "about").map((cat) => (

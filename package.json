@@ -3,7 +3,9 @@
     "build": "tsc -p backend/tsconfig.json",
     "start": "node backend/dist/index.js",
     "dev": "tsc -p backend/tsconfig.json && node backend/dist/index.js",
-    "seed": "tsc -p backend/tsconfig.json && node backend/dist/seed.js"
+    "seed": "tsc -p backend/tsconfig.json && node backend/dist/seed.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@types/node": "^25.9.3",
@@ -23,6 +25,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
-    "@types/nodemailer": "^8.0.1"
+    "@types/nodemailer": "^8.0.1",
+    "vitest": "^4.1.10"
   }
 }

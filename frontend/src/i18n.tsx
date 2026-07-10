@@ -23,7 +23,7 @@ function loadLocale(lang: string): Promise<DeepRecord> {
   return loadPromises[lang]
 }
 
-function getInitialLanguage(): Language {
+export function getInitialLanguage(): Language {
   if (typeof window === "undefined") return "zh"
   const stored = window.localStorage.getItem(STORAGE_KEY)
   return stored === "en" ? "en" : "zh"
@@ -98,4 +98,14 @@ export function useI18n() {
 export function useCategoryText(categoryId: string) {
   const { t } = useI18n()
   return t.categories?.[categoryId]
+}
+
+function resolveKey(data: DeepRecord | undefined, key: string): string | undefined {
+  if (!data) return undefined
+  return key.split(".").reduce((obj: any, segment) => obj?.[segment], data) as string | undefined
+}
+
+export function tr(key: string): string {
+  const lang = getInitialLanguage()
+  return resolveKey(cache[lang], key) || resolveKey(cache[lang === "zh" ? "en" : "zh"], key) || key
 }

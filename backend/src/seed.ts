@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import "./config/env"
-import { createMainDataSource, createCommentDataSource, ensureCommentsDb } from "./config/database"
+import { createMainDataSource } from "./config/database"
 import { User } from "./entity/User"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
@@ -658,23 +658,27 @@ async function deleteAllResources(token: string): Promise<void> {
 
 // ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
-  await ensureCommentsDb()
-
   const mainDs = createMainDataSource(false)
-  const commentDs = createCommentDataSource(false)
 
   await mainDs.initialize()
-  await commentDs.initialize()
 
   const userRepo = mainDs.getRepository(User)
   const existing = await userRepo.findOneBy({ email: "admin@igem-education.com" })
   if (existing) {
-    console.log("管理员账号已存在")
+    if (!existing.registrantName) {
+      existing.registrantName = "Admin"
+      existing.name = "管理员"
+      await userRepo.save(existing)
+      console.log("管理员账号已更新（registrantName）")
+    } else {
+      console.log("管理员账号已存在")
+    }
   } else {
     const admin = userRepo.create({
       email: "admin@igem-education.com",
       password: "devAdmin123!",
       name: "管理员",
+      registrantName: "Admin",
       role: "admin",
     })
     await userRepo.save(admin)
@@ -688,14 +692,19 @@ async function seedAdmin() {
   for (const u of testUsers) {
     const exist = await userRepo.findOneBy({ email: u.email })
     if (!exist) {
-      await userRepo.save(userRepo.create(u))
+      await userRepo.save(userRepo.create({ ...u, registrantName: "Test User" }))
       console.log(`测试账号创建成功: ${u.email} / ${u.password}`)
     } else {
-      console.log(`测试账号已存在: ${u.email}`)
+      if (!exist.registrantName) {
+        exist.registrantName = "Test User"
+        await userRepo.save(exist)
+        console.log(`测试账号已更新（registrantName）: ${u.email}`)
+      } else {
+        console.log(`测试账号已存在: ${u.email}`)
+      }
     }
   }
 
-  await commentDs.destroy()
   await mainDs.destroy()
 }
 
