@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import type { Resource, User } from "../types"
 import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
+import { Translatable } from "./Translatable"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions, CORE_COLUMNS_LIMIT } from "../data/constants"
@@ -558,9 +559,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
     <section className="page-shell case-detail">
       <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="hero-content">
-          <h1>{r.title}</h1>
-          {r.team && <p className="hero-team">{r.team}</p>}
-          {r.contact && <p className="hero-contact">{r.contact}</p>}
+          <h1><Translatable text={r.title} as="span" /></h1>
+          {r.team && <p className="hero-team"><Translatable text={r.team} /></p>}
+          {r.contact && <p className="hero-contact"><Translatable text={r.contact} /></p>}
         </div>
         <button className="hero-close" type="button" onClick={() => navigate(-1)} aria-label={t.caseDetail.close}>×</button>
       </div>
@@ -569,7 +570,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <div className="case-detail-left">
           <article className="case-detail-card">
             <h2>{t.caseDetail.intro}</h2>
-            <p>{r.desc || t.caseDetail.fallbackDesc}</p>
+            <Translatable text={r.desc || t.caseDetail.fallbackDesc} as="p" />
           </article>
 
           {sitePhotoIdList.length > 0 && (
@@ -644,7 +645,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       {r.tips && (
         <section className="case-detail-card">
           <h2>{t.caseDetail.tips}</h2>
-          <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
+          {r.tips && <Translatable text={r.tips} as="p" />}
         </section>
       )}
 
@@ -674,8 +675,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         </div>
         {(r.team || r.contact) && (
           <div className="detail-footer-team">
-            {r.team && <strong>{r.team}</strong>}
-            {r.contact && <span>{r.contact}</span>}
+            {r.team && <strong><Translatable text={r.team} /></strong>}
+            {r.contact && <span><Translatable text={r.contact} inline /></span>}
           </div>
         )}
       </div>

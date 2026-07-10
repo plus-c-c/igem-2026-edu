@@ -62,6 +62,21 @@ services:
       DB_PASSWORD: postgres
       DB_DATABASE: igem_education
 
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      LT_LOAD_ONLY: "zh,en"
+      LT_QUEUE_LIMIT: "10"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
   frontend:
     build:
       context: ./frontend
