@@ -40,6 +40,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   )
   const stepFileInputs = useRef<Record<string, File | null>>({})
   const [stepUploadProgress, setStepUploadProgress] = useState<Record<string, number>>({})
+  const [stepUploadStatus, setStepUploadStatus] = useState<Record<string, "uploading" | "success" | "failed">>({})
   const [stepDeleting, setStepDeleting] = useState<string | null>(null)
   const [existingStepFiles, setExistingStepFiles] = useState<Record<string, { id: string; name: string }[]>>({})
   const [draftId, setDraftId] = useState<string | null>(null)
@@ -278,13 +279,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (!file) return
     stepFileInputs.current[stepId] = file
     setStepUploadProgress((p) => ({ ...p, [stepId]: 0 }))
+    setStepUploadStatus((p) => ({ ...p, [stepId]: "uploading" }))
     try {
       const rid = await ensureRid()
       await uploadStepFile(rid, stepId, file)
       stepFileInputs.current[stepId] = null
+      setStepUploadStatus((p) => ({ ...p, [stepId]: "success" }))
     } catch (e) {
       const msg = e instanceof Error ? e.message : (t.submitPage.stepFileFailed || "步骤文件上传失败")
       setErrorMsg(msg)
+      setStepUploadStatus((p) => ({ ...p, [stepId]: "failed" }))
     }
   }
 
@@ -462,10 +466,17 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       for (const step of campaignSteps) {
         const file = stepFileInputs.current[step.id]
         if (file) {
-          const upRes = await fileService.uploadWithProgress(
-            rid, file, `campaign-step-${step.id}`,
-            (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
-          )
+          setStepUploadStatus((p) => ({ ...p, [step.id]: "uploading" }))
+          let upRes
+          try {
+            upRes = await fileService.uploadWithProgress(
+              rid, file, `campaign-step-${step.id}`,
+              (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
+            )
+          } catch (error) {
+            setStepUploadStatus((p) => ({ ...p, [step.id]: "failed" }))
+            throw error
+          }
           const newFile = { fileId: upRes.file.id, name: upRes.file.originalName }
           setCampaignSteps((prev) => prev.map((s) => s.id === step.id ? { ...s, files: [...s.files, newFile] } : s))
           setExistingStepFiles((prev) => {
@@ -477,6 +488,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           const targetStep = (payload.campaignSteps as any[]).find((s: any) => s.id === step.id)
           if (targetStep) targetStep.files = [...targetStep.files, newFile]
           stepFileInputs.current[step.id] = null
+          setStepUploadStatus((p) => ({ ...p, [step.id]: "success" }))
         }
       }
 
@@ -767,7 +779,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 </label>
                 {existingStepFiles[step.id]?.map((f) => (
                   <span key={f.id} className="existing-file">
-                    {f.name}
+                    <span className="existing-file-name">{f.name}</span>
+                    <span className="upload-status-text success">{t.submitPage.uploadSuccess || "上传成功"}</span>
                     {isEdit && (
                       <button type="button" className="file-delete-btn" disabled={stepDeleting === f.id}
                         onClick={(e) => { e.stopPropagation(); deleteStepFile(String(editResource!.id), step.id, f.id) }}
@@ -782,9 +795,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 )}
                 {step.files.map((f) => (
                   !existingStepFiles[step.id]?.some((ef) => ef.id === f.fileId) && (
-                    <span key={f.fileId} className="existing-file">{f.name}</span>
+                    <span key={f.fileId} className="existing-file">
+                      <span className="existing-file-name">{f.name}</span>
+                      <span className="upload-status-text success">{t.submitPage.uploadSuccess || "上传成功"}</span>
+                    </span>
                   )
                 ))}
+                {stepUploadStatus[step.id] === "failed" && stepFileInputs.current[step.id] && (
+                  <span className="existing-file">
+                    <span className="existing-file-name">{stepFileInputs.current[step.id]!.name}</span>
+                    <span className="upload-status-text failed">{t.submitPage.uploadFailed || "上传失败"}</span>
+                  </span>
+                )}
               </div>
             ))}
           </div>

@@ -272,6 +272,8 @@
     "materialTypePlaceholder": "Material type",
     "delete": "Delete",
     "uploadFile": "Upload file",
+    "uploadSuccess": "Uploaded",
+    "uploadFailed": "Upload failed",
     "sitePhotos": "Site Photos",
     "photoFormat": "Photo Format",
     "formatSingle": "Single",
