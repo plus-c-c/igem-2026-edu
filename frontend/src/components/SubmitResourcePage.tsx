@@ -54,7 +54,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [draftId, setDraftId] = useState<string | null>(null)
 
   // 活动信息
-  const [canParticipate, setCanParticipate] = useState(editResource?.canParticipate || "yes")
+  const [canParticipate, setCanParticipate] = useState(editResource?.canParticipate || "")
   const [locationTypes, setLocationTypes] = useState<string[]>(editResource?.locationType ? editResource.locationType.split(",") : [])
   const [locationCountry, setLocationCountry] = useState(editResource?.locationCountry || "")
   const [locationProvince, setLocationProvince] = useState(editResource?.locationProvince || "")
@@ -85,6 +85,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [title, setTitle] = useState(editResource?.title || "")
   const validateField = (name: string, value: string, extra?: { canParticipate?: string }) => {
     let error = ""
+    if (name === "team" && !value.trim()) error = t.submitPage.required || "此项必填"
+    if (name === "contact" && !value.trim()) error = t.submitPage.required || "此项必填"
     if (name === "title" && !value.trim()) error = t.submitPage.required || "此项必填"
     if (name === "category" && !value) error = t.submitPage.required || "此项必填"
     if (name === "subcategory" && !value) error = t.submitPage.required || "此项必填"
@@ -123,9 +125,10 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
     }
     if (locationTypes.length === 0) next.locationType = required
+    if (sitePhotosFormat && !imageAuthorized) next.imageAuthorization = required
     setFieldErrors((prev) => {
       const merged = { ...prev }
-      for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType"]) delete merged[key]
+      for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType", "imageAuthorization"]) delete merged[key]
       return { ...merged, ...next }
     })
     return Object.keys(next).length === 0
@@ -178,7 +181,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setSelectedCategory(defaultCategory)
     setSelectedSubcategory(editResource?.subcategory || "")
     setAudience(editResource?.audience || "")
-    setCanParticipate(editResource?.canParticipate || "yes")
+    setCanParticipate(editResource?.canParticipate || "")
     setLocationTypes(editResource?.locationType ? editResource.locationType.split(",") : [])
     setLocationCountry(editResource?.locationCountry || "")
     setLocationProvince(editResource?.locationProvince || "")
@@ -425,6 +428,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       const form = formRef.current
       if (!form) return
       const formData = new FormData(form)
+      const team = formData.get("team") as string
+      const contact = formData.get("contact") as string
+      const teamError = validateField("team", team)
+      const contactError = validateField("contact", contact)
+      if (teamError || contactError) {
+        throw new Error(t.submitPage.required || "请填写必填项")
+      }
 
       const payload: Record<string, any> = {
         type: "campaign",
@@ -433,8 +443,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         subcategory: selectedSubcategory,
         audience,
         title: formData.get("title") as string,
-        team: formData.get("team") as string || user.teamName,
-        contact: formData.get("contact") as string || user.email,
+        team: team || user.teamName,
+        contact: contact || user.email,
         image: editResource?.image || "",
         desc,
         campaignSteps,
@@ -454,7 +464,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         tips,
         introductionContent,
         materials: campaignSteps.map((s) => s.text).filter(Boolean),
-        imageAuthorization: true,
+        imageAuthorization: sitePhotosFormat ? imageAuthorized : true,
       }
 
       const isEditingPublished = isEdit && editResource?.status === "published"
@@ -576,8 +586,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
       <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>{t.submitPage.teamName}<input name="team" placeholder="例如：Westlake" defaultValue={editResource?.team || user.teamName} /></label>
-          <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
+          <label className="required"><span>{t.submitPage.teamName}</span>
+            <input name="team" required placeholder="例如：Westlake" defaultValue={editResource?.team || user.teamName}
+              onChange={(e) => { if (fieldErrors.team) validateField("team", e.target.value) }}
+              onBlur={(e) => validateField("team", e.target.value)} />
+            {fieldErrors.team && <span className="field-error">{fieldErrors.team}</span>}
+          </label>
+          <label className="required"><span>{t.submitPage.teamEmail}</span>
+            <input name="contact" required type="email" defaultValue={editResource?.contact || user.email}
+              onChange={(e) => { if (fieldErrors.contact) validateField("contact", e.target.value) }}
+              onBlur={(e) => validateField("contact", e.target.value)} />
+            {fieldErrors.contact && <span className="field-error">{fieldErrors.contact}</span>}
+          </label>
           <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}
               value={title}
@@ -885,7 +905,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
                     <input type="radio" name="sitePhotosFormat" value={opt}
                       checked={sitePhotosFormat === opt}
-                      onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}) }} />
+                      onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}); clearFieldError("imageAuthorization") }} />
                     {label}
                   </label>
                 )
@@ -972,6 +992,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
 
+        {sitePhotosFormat && (
+          <div className="image-auth-card bottom-auth-card">
+            <label className="image-auth-checkbox required">
+              <input type="checkbox" checked={imageAuthorized} onChange={(e) => { setImageAuthorized(e.target.checked); if (e.target.checked) clearFieldError("imageAuthorization") }} />
+              <span>{t.submitPage.imageAuthorization || "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担"}</span>
+            </label>
+            {fieldErrors.imageAuthorization && <span className="field-error">{fieldErrors.imageAuthorization}</span>}
+          </div>
+        )}
+
         {draftSaved && (
           <div className="modal-backdrop" onClick={() => setDraftSaved(false)}>
             <div className="error-modal" onClick={(e) => e.stopPropagation()}>
@@ -991,11 +1021,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </div>
           </div>
         )}
-        <div className="image-auth-card">
-          <label className="image-auth-checkbox">
-            <span><input type="checkbox" checked={imageAuthorized} onChange={(e) => setImageAuthorized(e.target.checked)} />本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担</span>
-          </label>
-        </div>
         <div className="form-actions">
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
             {isEdit ? t.submitPage.back : t.submitPage.cancel}
@@ -1005,7 +1030,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onClick={() => doSubmit(true)}>
               {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
             </button>
-            <button className="pill-btn primary" type="submit" disabled={submitting || (!!(coverPreviewUrl || Object.keys(sitePhotoFiles).length) && !imageAuthorized)}>
+            <button className="pill-btn primary" type="submit" disabled={submitting || (!!sitePhotosFormat && !imageAuthorized)}>
               {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
             </button>
           </div>

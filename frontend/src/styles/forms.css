@@ -630,21 +630,25 @@ label.required > span::after {
   background: var(--canvas);
 }
 .image-auth-checkbox {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 15px;
   font-weight: 400;
   color: #666;
   line-height: 1.5;
   cursor: pointer;
 }
+.bottom-auth-card {
+  margin-top: 0;
+}
 .image-auth-checkbox > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  display: inline;
 }
 .image-auth-checkbox input[type="checkbox"] {
   width: 14px;
   height: 14px;
+  margin-top: 4px;
   flex-shrink: 0;
   accent-color: var(--primary);
 }
