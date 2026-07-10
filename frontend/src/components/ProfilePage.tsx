@@ -5,43 +5,9 @@ import { authService } from "../services/authService"
 import { resourceService } from "../services/resourceService"
 import { useI18n } from "../i18n"
 import { categories } from "../data/categories"
+import { IGEM_ROLE_OPTIONS, DEFAULT_AVATAR } from "../data/constants"
+import { resizeAvatar } from "../utils/avatar"
 import type { User as UserType, Resource } from "../types"
-
-const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
-const defaultAvatar = "/images/logo.jpg"
-
-function resizeAvatar(file: File, maxSize = 384, quality = 0.82): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
-      const width = Math.max(1, Math.round(img.width * scale))
-      const height = Math.max(1, Math.round(img.height * scale))
-      const canvas = document.createElement("canvas")
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext("2d")
-      if (!ctx) {
-        reject(new Error("Canvas is not available"))
-        return
-      }
-      ctx.fillStyle = "#fff"
-      ctx.fillRect(0, 0, width, height)
-      ctx.drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL("image/jpeg", quality))
-    }
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url)
-      reject(new Error("Invalid image"))
-    }
-
-    img.src = url
-  })
-}
 
 interface ProfilePageProps {
   user: UserType
@@ -55,8 +21,8 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
 
   const [name, setName] = useState(user.teamName)
   const [registrantName, setRegistrantName] = useState(user.registrantName || "")
-  const [igemRole, setIgemRole] = useState(user.igemRole || igemRoleOptions[0])
-  const [avatarPreview, setAvatarPreview] = useState(user.avatar || defaultAvatar)
+  const [igemRole, setIgemRole] = useState(user.igemRole || IGEM_ROLE_OPTIONS[0])
+  const [avatarPreview, setAvatarPreview] = useState(user.avatar || DEFAULT_AVATAR)
   const [avatarDataUri, setAvatarDataUri] = useState<string | null>(null)
 
   const [currentPassword, setCurrentPassword] = useState("")
@@ -112,6 +78,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
     } catch {
       setProfileError(t.profile.updateFailed || "更新失败")
     }
+    event.target.value = ""
   }
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -134,13 +101,14 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           igemRole: res.user.igemRole,
           avatar: res.user.avatar,
         })
-        setProfileMsg(t.profile.updated || "个人信息已更新")
+        setProfileMsg(t.profile.updated)
+        setAvatarPreview(res.user.avatar)
         setAvatarDataUri(null)
       } else {
-        setProfileError(res.message || t.profile.updateFailed || "更新失败")
+        setProfileError(res.message || t.profile.updateFailed)
       }
     } catch {
-      setProfileError(t.profile.networkError || "网络错误")
+      setProfileError(t.profile.networkError)
     }
     setProfileLoading(false)
   }
@@ -157,10 +125,10 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
         setCurrentPassword("")
         setNewPassword("")
       } else {
-        setPasswordError(res.message || t.profile.changeFailed || "修改失败")
+        setPasswordError(res.message || t.profile.changeFailed)
       }
     } catch {
-      setPasswordError(t.profile.networkError || "网络错误")
+      setPasswordError(t.profile.networkError)
     }
     setPasswordLoading(false)
   }
@@ -219,7 +187,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
                 {t.profile.igemRole}
                 <input type="hidden" value={igemRole} readOnly />
                 <div className="role-tabs" role="tablist">
-                  {igemRoleOptions.map((option) => {
+                  {IGEM_ROLE_OPTIONS.map((option) => {
                     const roleLabel: Record<string, string> = { "Wet Lab": t.loginModal.roleWetLab, "Dry Lab": t.loginModal.roleDryLab, "HP": t.loginModal.roleHP, "美工": t.loginModal.roleArt, "Wiki": t.loginModal.roleWiki }
                     return (
                       <button
@@ -277,7 +245,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
         <section className="profile-section">
           <h2><Heart size={18} /> {t.profile.favoritesTitle}</h2>
           {favoritesLoading ? (
-            <p>{t.profile.loading || "Loading..."}</p>
+            <p>{t.profile.loading}</p>
           ) : favorites.length === 0 ? (
             <p>{t.profile.noFavorites}</p>
           ) : (
@@ -285,7 +253,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               {favorites.map((fav) => (
                 <div key={fav.id} className="draft-item">
                   <div className="draft-info">
-                    <strong>{fav.title || "(untitled)"}</strong>
+                    <strong>{fav.title || t.profile.untitled}</strong>
                     <span>{(() => { const fc = categories.find((c) => c.id === fav.category); return fc ? (t.categories[fc.id]?.name ?? fc.name) : fav.category })()}</span>
                     <span className="draft-date">{fav.updatedAt ? new Date(fav.updatedAt).toLocaleDateString() : ""}</span>
                   </div>
@@ -304,7 +272,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           <h2><FileText size={18} /> {t.profile.draftsTitle}</h2>
           {draftMsg && <p className="profile-success">{draftMsg}</p>}
           {draftsLoading ? (
-            <p>{t.profile.loading || "Loading..."}</p>
+            <p>{t.profile.loading}</p>
           ) : drafts.length === 0 ? (
             <p>{t.profile.noDrafts}</p>
           ) : (
@@ -312,7 +280,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               {drafts.map((draft) => (
                 <div key={draft.id} className="draft-item">
                   <div className="draft-info">
-                    <strong>{draft.title || "(untitled)"}</strong>
+                    <strong>{draft.title || t.profile.untitled}</strong>
                     <span>{(() => { const dc = categories.find((c) => c.id === draft.category); return dc ? (t.categories[dc.id]?.name ?? dc.name) : draft.category })()}</span>
                     <span className="draft-date">{draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : ""}</span>
                   </div>

@@ -20,6 +20,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "3000:3000"
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -59,6 +61,21 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: igem_education
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      LT_LOAD_ONLY: "zh,en"
+      LT_QUEUE_LIMIT: "10"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
 
   frontend:
     build:

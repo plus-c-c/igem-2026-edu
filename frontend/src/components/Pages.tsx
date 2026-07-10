@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react"
 import type { Resource, User } from "../types"
 import { fileService } from "../services/fileService"
 import { CommentSection } from "./CommentSection"
+import { Translatable } from "./Translatable"
+import { TranslatableMarkdown } from "./TranslatableMarkdown"
 import { resourceService } from "../services/resourceService"
 import { categories } from "../data/categories"
 import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions, CORE_COLUMNS_LIMIT } from "../data/constants"
@@ -13,9 +15,7 @@ import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
 import { useResourceFiles } from "../hooks/useResourceFiles"
-import { audienceOptions, materialTags, subcategoryOptions } from "../data/constants"
-import { marked } from "marked"
-import DOMPurify from "dompurify"
+
 
 interface PageProps {
   resources: Resource[]
@@ -228,7 +228,7 @@ export function HomePage({ resources }: { resources: Resource[] }) {
   const displayCampaigns = [...campaignResources]
     .sort((a, b) => getProjectSortTime(b) - getProjectSortTime(a))
     .slice(0, CORE_COLUMNS_LIMIT)
-  const titleLines = ["SynEdu Global:", "Synthetic Biology Education Global Alliance"]
+  const titleLines = t.home.titleLines
   const fullTitle = titleLines.join("\n")
   const [typedTitle, setTypedTitle] = useState("")
 
@@ -558,9 +558,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
     <section className="page-shell case-detail">
       <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="hero-content">
-          <h1>{r.title}</h1>
-          {r.team && <p className="hero-team">{r.team}</p>}
-          {r.contact && <p className="hero-contact">{r.contact}</p>}
+          <h1><Translatable text={r.title} as="span" /></h1>
+          {r.team && <p className="hero-team"><Translatable text={r.team} /></p>}
+          {r.contact && <p className="hero-contact"><Translatable text={r.contact} /></p>}
         </div>
         <button className="hero-close" type="button" onClick={() => navigate(-1)} aria-label={t.caseDetail.close}>×</button>
       </div>
@@ -569,7 +569,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         <div className="case-detail-left">
           <article className="case-detail-card">
             <h2>{t.caseDetail.intro}</h2>
-            <p>{r.desc || t.caseDetail.fallbackDesc}</p>
+            <Translatable text={r.desc || t.caseDetail.fallbackDesc} as="p" />
           </article>
 
           {sitePhotoIdList.length > 0 && (
@@ -633,18 +633,14 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       {r.introductionContent && (
         <section className="case-detail-card">
           <h2>{t.caseDetail.introBook}</h2>
-          <div className="markdown-body"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(marked.parse(r.introductionContent) as string)
-            }}
-          />
+          <TranslatableMarkdown markdown={r.introductionContent} />
         </section>
       )}
 
       {r.tips && (
         <section className="case-detail-card">
           <h2>{t.caseDetail.tips}</h2>
-          <p style={{ whiteSpace: "pre-wrap" }}>{r.tips}</p>
+          {r.tips && <Translatable text={r.tips} as="p" />}
         </section>
       )}
 
@@ -674,8 +670,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         </div>
         {(r.team || r.contact) && (
           <div className="detail-footer-team">
-            {r.team && <strong>{r.team}</strong>}
-            {r.contact && <span>{r.contact}</span>}
+            {r.team && <strong><Translatable text={r.team} /></strong>}
+            {r.contact && <span><Translatable text={r.contact} /></span>}
           </div>
         )}
       </div>

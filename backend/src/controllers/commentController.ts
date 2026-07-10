@@ -1,6 +1,6 @@
 import { Response } from "express"
 import { In } from "typeorm"
-import { AppDataSource, CommentDataSource } from "../index"
+import { AppDataSource } from "../index"
 import { Comment } from "../entity/Comment"
 import { CommentLike } from "../entity/CommentLike"
 import { Resource } from "../entity/Resource"
@@ -32,7 +32,7 @@ export async function create(req: AuthRequest, res: Response) {
     const resource = await resourceRepo.findOneBy({ id: resourceId })
     if (!resource) return res.status(404).json({ message: "资源不存在" })
 
-    const commentRepo = CommentDataSource.getRepository(Comment)
+    const commentRepo = AppDataSource.getRepository(Comment)
     const comment = commentRepo.create({
       resourceId,
       userId: req.userId,
@@ -72,7 +72,7 @@ export async function reply(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "回复内容不能为空" })
     }
 
-    const commentRepo = CommentDataSource.getRepository(Comment)
+    const commentRepo = AppDataSource.getRepository(Comment)
     const parent = await commentRepo.findOneBy({ id: parentId, resourceId })
     if (!parent) return res.status(404).json({ message: "评论不存在" })
 
@@ -112,11 +112,11 @@ export async function like(req: AuthRequest, res: Response) {
     const commentId = req.params.commentId as string
     const userId = req.userId!
 
-    const commentRepo = CommentDataSource.getRepository(Comment)
+    const commentRepo = AppDataSource.getRepository(Comment)
     const comment = await commentRepo.findOneBy({ id: commentId })
     if (!comment) return res.status(404).json({ message: "评论不存在" })
 
-    const likeRepo = CommentDataSource.getRepository(CommentLike)
+    const likeRepo = AppDataSource.getRepository(CommentLike)
     const existing = await likeRepo.findOneBy({ commentId, userId })
     if (existing) return res.json({ message: "已点赞" })
 
@@ -136,7 +136,7 @@ export async function unlike(req: AuthRequest, res: Response) {
     const commentId = req.params.commentId as string
     const userId = req.userId!
 
-    const likeRepo = CommentDataSource.getRepository(CommentLike)
+    const likeRepo = AppDataSource.getRepository(CommentLike)
     const existing = await likeRepo.findOneBy({ commentId, userId })
     if (!existing) return res.json({ message: "未点赞" })
 
@@ -155,8 +155,8 @@ export async function listByResource(req: AuthRequest, res: Response) {
     const resourceId = req.params.resourceId as string
     const userId = (req as AuthRequest).userId
 
-    const commentRepo = CommentDataSource.getRepository(Comment)
-    const likeRepo = CommentDataSource.getRepository(CommentLike)
+    const commentRepo = AppDataSource.getRepository(Comment)
+    const likeRepo = AppDataSource.getRepository(CommentLike)
 
     const comments = await commentRepo.find({
       where: { resourceId },
@@ -225,7 +225,7 @@ export async function remove(req: AuthRequest, res: Response) {
     const userId = req.userId!
     const userRole = req.userRole
 
-    const commentRepo = CommentDataSource.getRepository(Comment)
+    const commentRepo = AppDataSource.getRepository(Comment)
     const comment = await commentRepo.findOneBy({ id: commentId })
     if (!comment) return res.status(404).json({ message: "评论不存在" })
 
@@ -233,6 +233,9 @@ export async function remove(req: AuthRequest, res: Response) {
       return res.status(403).json({ message: "无权限删除此评论" })
     }
 
+    const childIds = (await commentRepo.find({ where: { parentId: commentId }, select: { id: true } })).map((c) => c.id)
+    const allIds = [commentId, ...childIds]
+    await AppDataSource.getRepository(CommentLike).delete({ commentId: In(allIds) })
     await commentRepo.delete({ parentId: commentId })
     await commentRepo.delete({ id: commentId })
 

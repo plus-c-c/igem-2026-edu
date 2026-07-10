@@ -17,11 +17,13 @@
     "switchToZh": "切换到中文",
     "switchToEn": "Switch to English",
     "labelZh": "中 / EN",
-    "labelEn": "EN / 中"
+    "labelEn": "EN / 中",
+    "langZh": "中文",
+    "langEn": "EN"
   },
   "home": {
     "eyebrow": "ZJU-China、Westlake、XJTLU-China",
-    "titleLines": ["SynEdu Global:", "Synthetic Biology Education Global Alliance"],
+    "titleLines": ["SynEdu Global：", "合成生物学教育全球联盟"],
     "subtitle": "加入我们，一起点亮世界合成生物学科普的微光。",
     "recruitButton": "在这里添加你的项目",
     "showcaseTitle": "最新的教育活动",
@@ -112,7 +114,7 @@
     "close": "关闭"
   },
   "loginRequired": {
-    "eyebrow": "Login Required",
+    "eyebrow": "需要登录",
     "title": "登录后发布教育项目招募",
     "desc": "请先登录团队账号，然后从顶部导航或栏目页进入教育项目发布流程。",
     "action": "团队登录"
@@ -171,7 +173,9 @@
     "confirmDeleteDraft": "确定删除此草稿？",
     "favoritesTitle": "个人收藏夹",
     "noFavorites": "暂无收藏项目",
-    "viewFavorite": "查看"
+    "viewFavorite": "查看",
+    "loading": "加载中...",
+    "untitled": "（未命名）"
   },
   "loginModal": {
     "teamLogin": "团队登录",
@@ -197,7 +201,7 @@
     "registrantName": "姓名（与 iGEM 官网展示一致）",
     "registrantPlaceholder": "例如：San Zhang",
     "teamName": "iGEM 队伍名称",
-    "teamPlaceholder": "Westlake iGEM",
+    "teamPlaceholder": "例如：Westlake",
     "igemRole": "在 iGEM 的职位",
     "email": "邮箱",
     "passwordPlaceholderLogin": "请输入密码",
@@ -222,11 +226,14 @@
     "backToLogin": "返回登录",
     "sending": "发送中...",
     "resetting": "重置中...",
-    "resetFailed": "重置密码失败"
+    "resetFailed": "重置密码失败",
+    "emailPlaceholder": "team@example.com"
   },
   "submitPage": {
     "edit": "编辑",
     "submit": "发布",
+    "eyebrowEdit": "编辑",
+    "eyebrowSubmit": "发布",
     "currentTeam": "当前登录团队：",
     "teamName": "团队名称",
     "teamEmail": "团队邮箱",
@@ -290,7 +297,6 @@
     "introBook": "项目介绍书",
     "uploadingImage": "图片上传中...",
     "imageAuthorization": "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担",
-    "edit": "编辑",
     "preview": "预览",
     "emptyMarkdown": "*暂无内容*",
     "toolbarBold": "加粗",
@@ -319,6 +325,11 @@
     "publishFailed": "发布失败",
     "saveFailed": "保存失败",
     "operationFailed": "操作失败，请重试",
+    "required": "此项必填",
+    "stepRequired": "请填写材料类型",
+    "teamPlaceholder": "例如：Westlake",
+    "imageConsent": "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担",
+    "createDraftFailed": "创建草稿失败",
     "saveDraft": "保存草稿",
     "draftSaved": "草稿已保存！",
     "viewDrafts": "查看草稿",
@@ -342,8 +353,6 @@
     "replyFailed": "回复失败"
   },
   "campaignCard": {
-    "online": "线上",
-    "offline": "线下",
     "onlineOffline": "线上/线下",
     "canJoin": "可参与"
   },
@@ -355,59 +364,11 @@
     "materialPhoto": "现场照片",
     "materialExample": "项目 example"
   },
-  "categoriesData": {
-    "recommended": {
-      "applications": ["PPT", "演讲稿", "阅读材料", "宣传材料", "文创", "实践建议"],
-      "activities": ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
-      "cooperation": ["合作学校", "支教队伍", "课程包", "反馈记录", "覆盖人数", "后续计划"],
-      "about": ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"]
-    }
-  },
-  "categoryOptions": {
-    "themes": {
-      "合成生物学科普": "合成生物学科普",
-      "iGEM科普": "iGEM科普",
-      "其他": "其他",
-      "互动游戏": "互动游戏",
-      "现场体验": "现场体验",
-      "支教合作": "支教合作",
-      "公益教育": "公益教育",
-      "课程共建": "课程共建"
-    },
-    "materials": {
-      "PPT": "PPT",
-      "测量表": "测量表",
-      "合作书": "合作书",
-      "海报": "海报",
-      "阅读材料": "阅读材料",
-      "实践活动材料清单": "实践活动材料清单",
-      "易拉宝": "易拉宝",
-      "传单": "传单",
-      "其他": "其他"
-    },
-    "audiences": {
-      "小学": "小学",
-      "初中": "初中",
-      "高中": "高中",
-      "大学": "大学",
-      "社会公众": "社会公众",
-      "iGEM团队": "iGEM团队"
-    }
-  },
-  "constants": {
-    "materialTypes": ["项目介绍书", "项目合作书", "实践建议", "现场照片", "项目 example"],
-    "materialTags": ["PPT", "测量表", "合作书", "海报", "传单", "阅读材料", "其他材料清单", "易拉宝"],
-    "deliveryOptions": ["线上", "线下", "都可"],
-    "audienceOptions": ["小学", "初中", "高中", "大学", "社会公众", "老年人"],
-    "participationYes": "是",
-    "participationNo": "否"
-  },
   "errors": {
     "fileTooLarge": "文件大小超过 1GB 限制",
     "fileUploadFailed": "文件上传失败",
     "uploadParseFailed": "上传响应解析失败",
     "uploadNetworkError": "网络错误，上传中断",
     "uploadTimeout": "上传超时，请重试"
-  },
-  "other": "其他"
+}
 }
