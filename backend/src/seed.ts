@@ -12,7 +12,8 @@ import { CommentLike } from "./entity/CommentLike"
 import { Favorite } from "./entity/Favorite"
 import { ResourceLike } from "./entity/ResourceLike"
 
-const API_URL = process.env.API_URL || "http://localhost:3000"
+const PORT = process.env.PORT || "3000"
+const API_URL = process.env.API_URL || `http://localhost:${PORT}`
 
 interface CampaignStep {
   id: string
