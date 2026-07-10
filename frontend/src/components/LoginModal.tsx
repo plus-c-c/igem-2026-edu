@@ -4,7 +4,7 @@ import { authService } from "../services/authService"
 import type { User } from "../types"
 import { useI18n } from "../i18n"
 import { IGEM_ROLE_OPTIONS, DEFAULT_AVATAR } from "../data/constants"
-import { mapUser } from "../utils/avatar"
+import { mapUser, resizeAvatar } from "../utils/avatar"
 import { RegisterFields } from "./RegisterFields"
 import { ForgotPasswordContent } from "./ForgotPasswordContent"
 
@@ -34,6 +34,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
   const [avatarPreview, setAvatarPreview] = useState(DEFAULT_AVATAR)
   const [avatarValue, setAvatarValue] = useState(DEFAULT_AVATAR)
   const [countdown, setCountdown] = useState(0)
+  const [verificationCode, setVerificationCode] = useState("")
 
   useEffect(() => {
     if (open) {
@@ -56,22 +57,29 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     }, 1000)
   }
 
-  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) {
       setAvatarPreview(DEFAULT_AVATAR)
       setAvatarValue(DEFAULT_AVATAR)
       return
     }
+    if (!file.type.startsWith("image/")) return
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      const value = typeof reader.result === "string" ? reader.result : DEFAULT_AVATAR
+    setError("")
+    try {
+      let value = await resizeAvatar(file)
+      if (value.length > 90_000) value = await resizeAvatar(file, 256, 0.72)
       setAvatarPreview(value)
       setAvatarValue(value)
+    } catch {
+      setError(t.profile.updateFailed || "头像处理失败")
     }
-    reader.readAsDataURL(file)
     event.target.value = ""
+  }
+
+  const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -139,6 +147,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     setStep("form")
     setError("")
     setSuccessMsg("")
+    setVerificationCode("")
   }
 
   const openForgotPassword = () => {
@@ -146,6 +155,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
     setStep("form")
     setError("")
     setSuccessMsg("")
+    setVerificationCode("")
   }
 
   return (
@@ -167,7 +177,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
               {t.loginModal.verificationSent} <strong>{registerData.email}</strong>
             </p>
             <label>{t.loginModal.verificationCode}
-              <input name="code" type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" maxLength={6} required placeholder={t.loginModal.codePlaceholder} value={verificationCode} onChange={handleCodeChange} autoFocus />
+              <input className="verification-code-input" name="registrationVerificationCode" type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="off" maxLength={6} required placeholder={t.loginModal.codePlaceholder} value={verificationCode} onChange={handleCodeChange} autoFocus />
             </label>
             <div className="form-actions">
               <button className="pill-btn secondary" type="button" onClick={() => { setStep("form"); setError(""); setSuccessMsg("") }}>

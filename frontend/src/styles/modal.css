@@ -54,6 +54,10 @@
 .login-error { color: #e53935; font-size: 14px; }
 .login-success { color: #34a853; font-size: 14px; }
 .login-hint { color: var(--ink-muted-48); font-size: 13px; text-align: center; }
+.verification-code-input::placeholder {
+  color: var(--ink-muted-48);
+  font-size: 14px;
+}
 .forgot-link {
   margin-top: 16px;
   font-size: 15px;
@@ -161,4 +165,3 @@
   font-size: 14px;
 }
 .error-modal button { justify-self: center; }
-

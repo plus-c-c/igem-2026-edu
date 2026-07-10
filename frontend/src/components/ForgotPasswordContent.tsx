@@ -14,6 +14,7 @@ export function ForgotPasswordContent({ setMode }: ForgotPasswordContentProps) {
   const [successMsg, setSuccessMsg] = useState("")
   const [forgotEmail, setForgotEmail] = useState("")
   const [countdown, setCountdown] = useState(0)
+  const [verificationCode, setVerificationCode] = useState("")
 
   const startCountdown = () => {
     setCountdown(60)
@@ -35,6 +36,7 @@ export function ForgotPasswordContent({ setMode }: ForgotPasswordContentProps) {
       const res = await authService.sendPasswordResetCode(emailInput.value)
       if (res.message) {
         setForgotEmail(emailInput.value)
+        setVerificationCode("")
         setStep("verify")
         setSuccessMsg(res.message)
         startCountdown()
@@ -52,11 +54,10 @@ export function ForgotPasswordContent({ setMode }: ForgotPasswordContentProps) {
     setError("")
     setSuccessMsg("")
     setLoading(true)
-    const codeInput = document.querySelector<HTMLInputElement>('input[name="code"]')
     const newPasswordInput = document.querySelector<HTMLInputElement>('input[name="newPassword"]')
-    if (!codeInput?.value || !newPasswordInput?.value) { setLoading(false); return }
+    if (!verificationCode || !newPasswordInput?.value) { setLoading(false); return }
     try {
-      const res = await authService.resetPassword({ email: forgotEmail, code: codeInput.value, newPassword: newPasswordInput.value })
+      const res = await authService.resetPassword({ email: forgotEmail, code: verificationCode, newPassword: newPasswordInput.value })
       if (res.message && !res.code) {
         setSuccessMsg(res.message)
         setStep("done")
@@ -107,7 +108,7 @@ export function ForgotPasswordContent({ setMode }: ForgotPasswordContentProps) {
           {t.loginModal.verificationSent} <strong>{forgotEmail}</strong>
         </p>
         <label>{t.loginModal.verificationCode}
-          <input name="code" type="text" maxLength={6} required placeholder={t.loginModal.codePlaceholder} autoFocus />
+          <input className="verification-code-input" name="passwordResetVerificationCode" type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="off" maxLength={6} required placeholder={t.loginModal.codePlaceholder} value={verificationCode} onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))} autoFocus />
         </label>
         <label>{t.loginModal.newPassword}
           <input name="newPassword" type="password" required minLength={6} placeholder={t.loginModal.passwordPlaceholderRegister} />
