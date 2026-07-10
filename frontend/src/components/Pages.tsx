@@ -294,18 +294,21 @@ export function HomePage({ resources }: { resources: Resource[] }) {
           <h2>{t.home.categoryTitle}</h2>
           <p>{t.home.categoryDesc}</p>
           <div className="category-grid">
-            {categories.map((cat) => (
+            {categories.map((cat) => {
+              const catT = t.categories[cat.id]
+              return (
               <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
                 <img src={cat.image} alt="" />
                 <div className="category-card-body">
                   <div className="category-card-header">
                     <cat.icon size={24} />
-                    <strong>{cat.name}</strong>
+                    <strong>{catT?.name ?? cat.name}</strong>
                   </div>
-                  <span>{cat.intro}</span>
+                  <span>{catT?.intro ?? cat.intro}</span>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -592,7 +595,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
 
         <aside className="case-side">
           <h2>{t.caseDetail.info}</h2>
-          <p><strong>{t.caseDetail.category}</strong><span>{category?.name}</span></p>
+          <p><strong>{t.caseDetail.category}</strong><span>{category ? (t.categories[category.id]?.name ?? category.name) : ""}</span></p>
           {r.subcategory && <p><strong>{t.submitPage.subcategory}</strong><span>{r.subcategory}</span></p>}
           {r.audience && <p><strong>{t.filters.audience}</strong><span>{r.audience}</span></p>}
           {r.canParticipate && <p><strong>{t.caseDetail.canParticipate}</strong><span>{r.canParticipate === "yes" ? t.caseDetail.canJoin : t.caseDetail.cannotJoin}</span></p>}

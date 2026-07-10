@@ -544,7 +544,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onChange={(e) => { setSelectedCategory(e.target.value); clearFieldError("category") }}
               onBlur={(e) => validateField("category", e.target.value)}>
               <option value="" disabled>{t.submitPage.selectCategory}</option>
-              {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{t.categories[c.id]?.name ?? c.name}</option>)}
             </select>
             {fieldErrors.category && <span className="field-error">{fieldErrors.category}</span>}
           </label>
