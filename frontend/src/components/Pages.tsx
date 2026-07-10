@@ -167,7 +167,9 @@ function ProjectFilters({ filters, onChange, categoryId }: { filters: ProjectFil
             value={filters.searchText}
             onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
           />
-          <button className={`filter-toggle-btn${showFilters ? " open" : ""}`} type="button" onClick={() => setShowFilters(!showFilters)} />          
+          <button className={`filter-toggle-btn${showFilters ? " open" : ""}`} type="button" onClick={() => setShowFilters(!showFilters)} aria-label={t.filters.filterToggle}>
+            <ChevronDown size={18} />
+          </button>
         </div>
       </div>
 

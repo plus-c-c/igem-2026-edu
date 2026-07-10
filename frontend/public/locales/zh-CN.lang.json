@@ -265,6 +265,7 @@
     "timeLimitNo": "无时限",
     "timeRangeStart": "开始时间",
     "timeRangeEnd": "结束时间",
+    "timeRangeInvalid": "开始时间必须早于结束时间",
     "lectureDuration": "讲座时长",
     "lectureDurationPlaceholder": "例如：90分钟",
     "downloadMaterials": "下载材料",
