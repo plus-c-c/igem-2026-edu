@@ -552,10 +552,11 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const locationParts = [r.locationCountry, r.locationProvince, r.locationCity].filter(Boolean).join(" / ")
   const locationLabel = r.locationType?.split(",").join("、")
   const sitePhotoIdList = r.sitePhotoIds ? r.sitePhotoIds.split(",").filter(Boolean) : []
+  const heroImage = r.image || "/images/classroom.jpg"
 
   return (
     <section className="page-shell case-detail">
-      <div className={`case-hero ${r.image ? "has-bg" : "no-bg"}`} style={r.image ? { backgroundImage: `url(${r.image})` } : undefined}>
+      <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="hero-content">
           <h1>{r.title}</h1>
           {r.team && <p className="hero-team">{r.team}</p>}

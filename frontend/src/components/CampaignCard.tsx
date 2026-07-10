@@ -7,8 +7,11 @@ interface CampaignCardProps {
   variant?: "case" | "project"
 }
 
+const defaultPoster = "/images/classroom.jpg"
+
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   const { t } = useI18n()
+  const coverImage = item.image || defaultPoster
 
   if (variant === "project") {
     const row1: string[] = []
@@ -34,7 +37,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
     return (
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
-        {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+        <img src={coverImage} alt="" />
         {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
@@ -54,7 +57,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
   return (
     <Link className="campaign-card" to={`/cases/${item.id}`}>
-      {item.image ? <img src={item.image} alt="" /> : <div className="card-img-placeholder" />}
+      <img src={coverImage} alt="" />
       <div>
         <p className="campaign-format">{item.format}</p>
         <h3>{item.title}</h3>
