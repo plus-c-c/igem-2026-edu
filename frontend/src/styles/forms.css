@@ -48,8 +48,7 @@
 .form-grid .wide { grid-column: 1 / -1; }
 .form-grid > label,
 .form-grid > fieldset > label {
-  display: grid;
-  gap: var(--label-spacing);
+  display: block;
   margin: 0;
   font-size: 13px;
   font-weight: 600;
@@ -57,11 +56,7 @@
   letter-spacing: -0.12px;
 }
 .form-grid input:not([type="file"]):not([type="radio"]):not([type="checkbox"]),
-.form-grid select {
-  font-weight: 400;
-  font-size: 15px;
-  color: var(--ink);
-}
+.form-grid select,
 .form-grid textarea {
   margin-top: var(--label-spacing);
   font-weight: 400;
