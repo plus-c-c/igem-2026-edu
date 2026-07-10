@@ -251,7 +251,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
         <section className="profile-section">
           <h2><Heart size={18} /> {t.profile.favoritesTitle}</h2>
           {favoritesLoading ? (
-            <p>{t.profile.loading || "Loading..."}</p>
+            <p>{t.profile.loading}</p>
           ) : favorites.length === 0 ? (
             <p>{t.profile.noFavorites}</p>
           ) : (
@@ -259,7 +259,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               {favorites.map((fav) => (
                 <div key={fav.id} className="draft-item">
                   <div className="draft-info">
-                    <strong>{fav.title || "(untitled)"}</strong>
+                    <strong>{fav.title || t.profile.untitled}</strong>
                     <span>{(() => { const fc = categories.find((c) => c.id === fav.category); return fc ? (t.categories[fc.id]?.name ?? fc.name) : fav.category })()}</span>
                     <span className="draft-date">{fav.updatedAt ? new Date(fav.updatedAt).toLocaleDateString() : ""}</span>
                   </div>
@@ -278,7 +278,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           <h2><FileText size={18} /> {t.profile.draftsTitle}</h2>
           {draftMsg && <p className="profile-success">{draftMsg}</p>}
           {draftsLoading ? (
-            <p>{t.profile.loading || "Loading..."}</p>
+            <p>{t.profile.loading}</p>
           ) : drafts.length === 0 ? (
             <p>{t.profile.noDrafts}</p>
           ) : (
@@ -286,7 +286,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
               {drafts.map((draft) => (
                 <div key={draft.id} className="draft-item">
                   <div className="draft-info">
-                    <strong>{draft.title || "(untitled)"}</strong>
+                    <strong>{draft.title || t.profile.untitled}</strong>
                     <span>{(() => { const dc = categories.find((c) => c.id === draft.category); return dc ? (t.categories[dc.id]?.name ?? dc.name) : draft.category })()}</span>
                     <span className="draft-date">{draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : ""}</span>
                   </div>

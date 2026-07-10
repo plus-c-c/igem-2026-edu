@@ -1,4 +1,5 @@
 import { API_BASE, authHeaders, authFetch } from "./client"
+import { tr } from "../i18n"
 
 export interface CommentData {
   id: string
@@ -29,7 +30,7 @@ export const commentService = {
       body: JSON.stringify({ content }),
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "评论失败")
+    if (!res.ok) throw new Error(data.message || tr("comments.commentFailed"))
     return data.comment
   },
 
@@ -40,7 +41,7 @@ export const commentService = {
       body: JSON.stringify({ content }),
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "回复失败")
+    if (!res.ok) throw new Error(data.message || tr("comments.replyFailed"))
     return data.comment
   },
 
@@ -51,7 +52,7 @@ export const commentService = {
     })
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(data.message || "删除失败")
+      throw new Error(data.message || tr("comments.deleteFailed"))
     }
   },
 

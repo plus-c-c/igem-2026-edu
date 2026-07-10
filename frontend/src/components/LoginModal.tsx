@@ -202,7 +202,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                 onAvatarChange={handleAvatarChange}
               />
             )}
-            <label>{t.loginModal.email}<input name="email" type="email" required placeholder="team@example.com" /></label>
+            <label>{t.loginModal.email}<input name="email" type="email" required placeholder={t.loginModal.emailPlaceholder} /></label>
             <label>{t.loginModal.password}<input name="password" type="password" required placeholder={mode === "login" ? t.loginModal.passwordPlaceholderLogin : t.loginModal.passwordPlaceholderRegister} />
               {mode === "login" && <span className="text-link forgot-link" onClick={openForgotPassword}>{t.loginModal.forgotPasswordLink}</span>}
             </label>
