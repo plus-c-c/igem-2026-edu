@@ -111,6 +111,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const clearFieldError = (name: string) => {
     setFieldErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
   }
+  const getVisibleFieldError = (name: string) => {
+    const message = fieldErrors[name]
+    const required = t.submitPage.required || "此项必填"
+    return message && message !== required ? message : ""
+  }
   const validateEventInfo = () => {
     const required = t.submitPage.required || "此项必填"
     const next: Record<string, string> = {}
@@ -125,7 +130,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
     }
     if (locationTypes.length === 0) next.locationType = required
-    if (sitePhotosFormat && !imageAuthorized) next.imageAuthorization = required
+    if (!imageAuthorized) next.imageAuthorization = required
     setFieldErrors((prev) => {
       const merged = { ...prev }
       for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType", "imageAuthorization"]) delete merged[key]
@@ -464,7 +469,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         tips,
         introductionContent,
         materials: campaignSteps.map((s) => s.text).filter(Boolean),
-        imageAuthorization: sitePhotosFormat ? imageAuthorized : true,
+        imageAuthorization: imageAuthorized,
       }
 
       const isEditingPublished = isEdit && editResource?.status === "published"
@@ -590,20 +595,20 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             <input name="team" required placeholder={t.submitPage.teamPlaceholder} defaultValue={editResource?.team || user.teamName}
               onChange={(e) => { if (fieldErrors.team) validateField("team", e.target.value) }}
               onBlur={(e) => validateField("team", e.target.value)} />
-            {fieldErrors.team && <span className="field-error">{fieldErrors.team}</span>}
+            {getVisibleFieldError("team") && <span className="field-error">{getVisibleFieldError("team")}</span>}
           </label>
           <label className="required"><span>{t.submitPage.teamEmail}</span>
             <input name="contact" required type="email" defaultValue={editResource?.contact || user.email}
               onChange={(e) => { if (fieldErrors.contact) validateField("contact", e.target.value) }}
               onBlur={(e) => validateField("contact", e.target.value)} />
-            {fieldErrors.contact && <span className="field-error">{fieldErrors.contact}</span>}
+            {getVisibleFieldError("contact") && <span className="field-error">{getVisibleFieldError("contact")}</span>}
           </label>
           <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}
               value={title}
               onChange={(e) => { setTitle(e.target.value); if (fieldErrors.title) validateField("title", e.target.value) }}
               onBlur={(e) => validateField("title", e.target.value)} />
-            {fieldErrors.title && <span className="field-error">{fieldErrors.title}</span>}
+            {getVisibleFieldError("title") && <span className="field-error">{getVisibleFieldError("title")}</span>}
           </label>
           <label className="required"><span>{t.submitPage.category}</span>
             <select name="category" required value={selectedCategory}
@@ -612,7 +617,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <option value="" disabled>{t.submitPage.selectCategory}</option>
               {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{t.categories[c.id]?.name ?? c.name}</option>)}
             </select>
-            {fieldErrors.category && <span className="field-error">{fieldErrors.category}</span>}
+            {getVisibleFieldError("category") && <span className="field-error">{getVisibleFieldError("category")}</span>}
           </label>
           <label className="required"><span>{t.filters.theme}</span>
             <select required value={selectedSubcategory}
@@ -621,7 +626,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <option value="" disabled>{t.submitPage.selectSubcategory}</option>
               {themeChoices.map((opt) => <option key={opt} value={opt}>{optLabel(t, "themes", opt)}</option>)}
             </select>
-            {fieldErrors.subcategory && <span className="field-error">{fieldErrors.subcategory}</span>}
+            {getVisibleFieldError("subcategory") && <span className="field-error">{getVisibleFieldError("subcategory")}</span>}
           </label>
           <label>{t.filters.audience}
             <select value={audience} onChange={(e) => setAudience(e.target.value)}>
@@ -678,7 +683,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               value={desc}
               onChange={(e) => { setDesc(e.target.value); validateField("desc", e.target.value) }}
               onBlur={(e) => validateField("desc", e.target.value)} />
-            {fieldErrors.desc && <span className="field-error">{fieldErrors.desc}</span>}
+            {getVisibleFieldError("desc") && <span className="field-error">{getVisibleFieldError("desc")}</span>}
           </label>
         </div>
 
@@ -699,7 +704,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   )
                 })}
               </div>
-              {fieldErrors.activityFormat && <span className="field-error">{fieldErrors.activityFormat}</span>}
+              {getVisibleFieldError("activityFormat") && <span className="field-error">{getVisibleFieldError("activityFormat")}</span>}
             </label>
 
             <label className="choice-group required"><span>{t.submitPage.canParticipate}</span>
@@ -727,7 +732,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   )
                 })}
               </div>
-              {fieldErrors.canParticipate && <span className="field-error">{fieldErrors.canParticipate}</span>}
+              {getVisibleFieldError("canParticipate") && <span className="field-error">{getVisibleFieldError("canParticipate")}</span>}
             </label>
 
             {canParticipate === "yes" && (
@@ -754,7 +759,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     )
                   })}
                 </div>
-                {fieldErrors.timeLimitType && <span className="field-error">{fieldErrors.timeLimitType}</span>}
+                {getVisibleFieldError("timeLimitType") && <span className="field-error">{getVisibleFieldError("timeLimitType")}</span>}
               </label>
             )}
 
@@ -768,11 +773,11 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     clearFieldError("timeRangeStart")
                     if (timeRangeEnd) clearFieldError("timeRangeEnd")
                   }} />
-                  {fieldErrors.timeRangeStart && <span className="field-error">{fieldErrors.timeRangeStart}</span>}
+                  {getVisibleFieldError("timeRangeStart") && <span className="field-error">{getVisibleFieldError("timeRangeStart")}</span>}
                 </label>
                 <label className="required"><span>{t.submitPage.timeRangeEnd}</span>
                   <input type="date" value={timeRangeEnd} min={shiftDate(timeRangeStart, 1)} onChange={(e) => { setTimeRangeEnd(e.target.value); clearFieldError("timeRangeEnd") }} />
-                  {fieldErrors.timeRangeEnd && <span className="field-error">{fieldErrors.timeRangeEnd}</span>}
+                  {getVisibleFieldError("timeRangeEnd") && <span className="field-error">{getVisibleFieldError("timeRangeEnd")}</span>}
                 </label>
               </label>
             )}
@@ -822,7 +827,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   )}
                 </div>
               )}
-              {fieldErrors.locationType && <span className="field-error">{fieldErrors.locationType}</span>}
+              {getVisibleFieldError("locationType") && <span className="field-error">{getVisibleFieldError("locationType")}</span>}
             </label>
 
           </div>
@@ -981,7 +986,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 value={introductionContent}
                 onChange={(e) => { setIntroductionContent(e.target.value); validateField("introductionContent", e.target.value) }}
                 onPaste={handleIntroImagePaste} rows={10} />
-              {fieldErrors.introductionContent && <span className="field-error">{fieldErrors.introductionContent}</span>}
+              {getVisibleFieldError("introductionContent") && <span className="field-error">{getVisibleFieldError("introductionContent")}</span>}
             </>
           )}
         </section>
@@ -992,15 +997,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
 
-        {sitePhotosFormat && (
-          <div className="image-auth-card bottom-auth-card">
-            <label className="image-auth-checkbox required">
-              <input type="checkbox" checked={imageAuthorized} onChange={(e) => { setImageAuthorized(e.target.checked); if (e.target.checked) clearFieldError("imageAuthorization") }} />
-              <span>{t.submitPage.imageAuthorization || "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担"}</span>
-            </label>
-            {fieldErrors.imageAuthorization && <span className="field-error">{fieldErrors.imageAuthorization}</span>}
-          </div>
-        )}
+        <div className="image-auth-card bottom-auth-card">
+          <label className="image-auth-checkbox required">
+            <input type="checkbox" checked={imageAuthorized} onChange={(e) => { setImageAuthorized(e.target.checked); if (e.target.checked) clearFieldError("imageAuthorization") }} />
+            <span>{t.submitPage.imageAuthorization || "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担"}</span>
+          </label>
+          {getVisibleFieldError("imageAuthorization") && <span className="field-error">{getVisibleFieldError("imageAuthorization")}</span>}
+        </div>
 
         {draftSaved && (
           <div className="modal-backdrop" onClick={() => setDraftSaved(false)}>
@@ -1021,11 +1024,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </div>
           </div>
         )}
-        <div className="image-auth-card">
-          <label className="image-auth-checkbox">
-            <span><input type="checkbox" checked={imageAuthorized} onChange={(e) => setImageAuthorized(e.target.checked)} />{t.submitPage.imageConsent}</span>
-          </label>
-        </div>
         <div className="form-actions">
           <Link className="pill-btn secondary" to={isEdit ? `/cases/${editResource!.id}` : "/"}>
             {isEdit ? t.submitPage.back : t.submitPage.cancel}
@@ -1035,7 +1033,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onClick={() => doSubmit(true)}>
               {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
             </button>
-            <button className="pill-btn primary" type="submit" disabled={submitting || (!!sitePhotosFormat && !imageAuthorized)}>
+            <button className="pill-btn primary" type="submit" disabled={submitting || !imageAuthorized}>
               {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
             </button>
           </div>

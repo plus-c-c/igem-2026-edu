@@ -9,6 +9,16 @@ export interface RegisterPayload {
   avatar?: string
 }
 
+async function parseAuthResponse(res: Response) {
+  const text = await res.text()
+  if (!text) return {}
+  try {
+    return JSON.parse(text)
+  } catch {
+    return { message: res.ok ? "响应格式错误" : `请求失败 (${res.status})` }
+  }
+}
+
 export const authService = {
   login: async ({ email, password }: { email: string; password: string }) => {
     const res = await fetch(`${API_BASE}/auth/login`, {
@@ -16,7 +26,7 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   sendCode: async ({ email, name, password, registrantName, igemRole, avatar }: RegisterPayload) => {
@@ -25,7 +35,7 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, name, password, registrantName, igemRole, avatar }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   verifyRegister: async ({ email, code }: { email: string; code: string }) => {
@@ -34,14 +44,14 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, code }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   getMe: async (token: string) => {
     const res = await fetch(`${API_BASE}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   updateMe: async (token: string, data: { name?: string; registrantName?: string; igemRole?: string; avatar?: string }) => {
@@ -50,7 +60,7 @@ export const authService = {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   changePassword: async (token: string, currentPassword: string, newPassword: string) => {
@@ -59,7 +69,7 @@ export const authService = {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ currentPassword, newPassword }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   sendPasswordResetCode: async (email: string) => {
@@ -68,7 +78,7 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 
   resetPassword: async ({ email, code, newPassword }: { email: string; code: string; newPassword: string }) => {
@@ -77,6 +87,6 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, code, newPassword }),
     })
-    return res.json()
+    return parseAuthResponse(res)
   },
 }
