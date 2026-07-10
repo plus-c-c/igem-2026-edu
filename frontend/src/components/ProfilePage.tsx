@@ -10,6 +10,39 @@ import type { User as UserType, Resource } from "../types"
 const igemRoleOptions = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
 const defaultAvatar = "/images/logo.jpg"
 
+function resizeAvatar(file: File, maxSize = 384, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
+      const width = Math.max(1, Math.round(img.width * scale))
+      const height = Math.max(1, Math.round(img.height * scale))
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext("2d")
+      if (!ctx) {
+        reject(new Error("Canvas is not available"))
+        return
+      }
+      ctx.fillStyle = "#fff"
+      ctx.fillRect(0, 0, width, height)
+      ctx.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL("image/jpeg", quality))
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error("Invalid image"))
+    }
+
+    img.src = url
+  })
+}
+
 interface ProfilePageProps {
   user: UserType
   setUser: (user: UserType) => void
@@ -65,16 +98,19 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
 
   useEffect(() => { loadDrafts(); loadFavorites() }, [user])
 
-  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      const value = typeof reader.result === "string" ? reader.result : defaultAvatar
+    if (!file.type.startsWith("image/")) return
+    setProfileError("")
+    try {
+      let value = await resizeAvatar(file)
+      if (value.length > 90_000) value = await resizeAvatar(file, 256, 0.72)
       setAvatarPreview(value)
       setAvatarDataUri(value)
+    } catch {
+      setProfileError(t.profile.updateFailed || "更新失败")
     }
-    reader.readAsDataURL(file)
     event.target.value = ""
   }
 
