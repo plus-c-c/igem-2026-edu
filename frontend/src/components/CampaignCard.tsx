@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import type { Resource } from "../types"
 import { useI18n } from "../i18n"
+import { Translatable } from "./Translatable"
 
 interface CampaignCardProps {
   item: Resource
@@ -40,8 +41,8 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
         <img src={coverImage} alt="" />
         {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
         <div>
-          {item.team && <p className="project-org">{item.team}</p>}
-          <h3>{item.title}</h3>
+          {item.team && <p className="project-org"><Translatable text={item.team} /></p>}
+          <h3><Translatable text={item.title} as="span" /></h3>
           <div className="project-event-tags">
             {row1.map((tag) => <span key={tag}>{tag}</span>)}
           </div>
@@ -60,8 +61,8 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
       <img src={coverImage} alt="" />
       <div>
         <p className="campaign-format">{item.format}</p>
-        <h3>{item.title}</h3>
-        <strong>{item.impact}</strong>
+        <h3><Translatable text={item.title} as="span" /></h3>
+        {item.impact && <strong><Translatable text={item.impact} as="span" /></strong>}
         <div className="tags">
           {(item.materials || []).map((m) => <span key={m}>{m}</span>)}
         </div>
