@@ -18,8 +18,10 @@ export function Translatable({ text, as: Tag = "span", className, inline }: Tran
 
   const showTranslated = translated !== null
   const displayText = showTranslated ? translated : text
-  const isZh = /[\u4e00-\u9fff]/.test(text)
-  const needsTranslate = language === "en" && isZh
+  const targetLang = language === "en" ? "en" : "zh"
+  const hasZh = /[\u4e00-\u9fff]/.test(text)
+  const hasEn = /[a-zA-Z]/.test(text)
+  const needsTranslate = targetLang === "en" ? hasZh : hasEn
 
   const handleToggle = async () => {
     if (showTranslated) {
@@ -27,7 +29,7 @@ export function Translatable({ text, as: Tag = "span", className, inline }: Tran
       return
     }
     setLoading(true)
-    const result = await translateText(text, "en")
+    const result = await translateText(text, targetLang)
     setTranslated(result)
     setLoading(false)
   }
@@ -51,7 +53,7 @@ export function Translatable({ text, as: Tag = "span", className, inline }: Tran
           disabled={loading}
           style={{ fontSize: "0.75em", marginLeft: 6, opacity: 0.6, cursor: "pointer", background: "none", border: "none", textDecoration: "underline", color: "inherit" }}
         >
-          {loading ? "..." : showTranslated ? "原文" : "Translate"}
+          {loading ? "..." : showTranslated ? (targetLang === "en" ? "原文" : "English") : targetLang === "en" ? "Translate" : "翻译"}
         </button>
       )}
     </span>
