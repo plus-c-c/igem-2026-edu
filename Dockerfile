@@ -18,7 +18,8 @@ WORKDIR /app
 COPY --from=backend-builder /app/backend/dist ./backend/dist
 COPY --from=backend-builder /app/node_modules ./node_modules
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-RUN mkdir -p /app/uploads
+COPY start.sh ./
+RUN mkdir -p /app/uploads && chmod +x start.sh
 EXPOSE 3000
 ENV NODE_ENV=production
-CMD ["node", "backend/dist/index.js"]
+CMD ["sh", "start.sh"]
