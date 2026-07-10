@@ -1,16 +1,7 @@
 import "reflect-metadata"
-import dotenv from "dotenv"
-import path from "path"
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
-
-import { DataSource } from "typeorm"
+import "./config/env"
+import { createMainDataSource, createCommentDataSource, ensureCommentsDb } from "./config/database"
 import { User } from "./entity/User"
-import { Resource } from "./entity/Resource"
-import { UploadedFile } from "./entity/File"
-import { Comment } from "./entity/Comment"
-import { CommentLike } from "./entity/CommentLike"
-import { Favorite } from "./entity/Favorite"
-import { ResourceLike } from "./entity/ResourceLike"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
 
@@ -667,43 +658,10 @@ async function deleteAllResources(token: string): Promise<void> {
 
 // ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
-  const mainDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: process.env.DB_DATABASE || "igem_education",
-    synchronize: true,
-    logging: false,
-    entities: [User, Resource, UploadedFile],
-  })
+  await ensureCommentsDb()
 
-  const tempDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: "postgres",
-  })
-
-  await tempDs.initialize()
-  const commentsDb = process.env.COMMENTS_DB_NAME || "igem_comments"
-  await tempDs.query(`CREATE DATABASE "${commentsDb}"`).catch(() => {})
-  await tempDs.destroy()
-
-  const commentDs = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: commentsDb,
-    synchronize: true,
-    logging: false,
-    entities: [Comment, CommentLike, Favorite, ResourceLike],
-  })
+  const mainDs = createMainDataSource(false)
+  const commentDs = createCommentDataSource(false)
 
   await mainDs.initialize()
   await commentDs.initialize()
