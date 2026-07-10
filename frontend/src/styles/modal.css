@@ -13,7 +13,7 @@
 }
 
 .login-modal {
-  width: min(420px, 90vw);
+  width: min(460px, 94vw);
   display: grid;
   gap: 20px;
   padding: 36px;
@@ -29,7 +29,11 @@
   letter-spacing: 0.196px;
 }
 .login-modal p { margin: 0; }
-.login-modal .form-actions { justify-content: space-between; }
+.login-modal .form-actions {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.login-modal .pill-btn { padding: 11px 16px; }
 .auth-switch-link {
   align-self: center;
   min-height: 44px;

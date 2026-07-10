@@ -81,6 +81,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
       setAvatarValue(value)
     }
     reader.readAsDataURL(file)
+    event.target.value = ""
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -98,7 +99,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           onLogin(mapUser(res.user))
           onClose()
         } else {
-          setError(res.message || (t.loginModal.loginFailed || "登录失败"))
+          setError(res.message || (t.loginModal.loginFailed))
         }
       } else if (mode === "forgot") {
         if (step === "form") {
@@ -110,7 +111,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setSuccessMsg(res.message)
             startCountdown()
           } else {
-            setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
+            setError(res.message || (t.loginModal.codeFailed))
           }
         } else {
           const code = data.get("code") as string
@@ -120,7 +121,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setSuccessMsg(res.message)
             setStep("done")
           } else {
-            setError(res.message || (t.loginModal.resetFailed || "重置密码失败"))
+            setError(res.message || (t.loginModal.resetFailed))
           }
         }
       } else {
@@ -144,7 +145,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             setSuccessMsg(res.message)
             startCountdown()
           } else {
-            setError(res.message || (t.loginModal.codeFailed || "发送验证码失败"))
+            setError(res.message || (t.loginModal.codeFailed))
           }
         } else {
           const code = data.get("code") as string
@@ -154,12 +155,12 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
             onLogin(mapUser(res.user))
             onClose()
           } else {
-            setError(res.message || (t.loginModal.registerFailed || "注册失败"))
+            setError(res.message || (t.loginModal.registerFailed))
           }
         }
       }
     } catch (e: any) {
-      setError(e.message || (t.loginModal.networkError || "网络错误，请检查后端服务"))
+      setError(e.message || (t.loginModal.networkError))
     } finally {
       setLoading(false)
     }
@@ -232,7 +233,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                   try {
                     const res = await authService.sendPasswordResetCode(forgotEmail)
                     if (res.message) { setSuccessMsg(res.message); startCountdown() }
-                    else setError(res.message || (t.loginModal.sendFailed || "发送失败"))
+                    else setError(res.message || (t.loginModal.sendFailed))
                   } catch (e: any) { setError(e.message) }
                   setLoading(false)
                 }}
@@ -276,7 +277,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                   try {
                     const res = await authService.sendCode(registerData)
                     if (res.message) { setSuccessMsg(res.message); startCountdown() }
-                    else setError(res.message || (t.loginModal.sendFailed || "发送失败"))
+                    else setError(res.message || (t.loginModal.sendFailed))
                   } catch (e: any) { setError(e.message) }
                   setLoading(false)
                 }}
@@ -300,7 +301,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                     <input name="registrantName" required placeholder={t.loginModal.registrantPlaceholder} />
                   </label>
                   <label>{t.loginModal.teamName}
-                    <input name="name" required placeholder="例如：Westlake" />
+                    <input name="name" required placeholder={t.loginModal.teamPlaceholder} />
                   </label>
                   <label>{t.loginModal.igemRole}
                     <input type="hidden" name="igemRole" value={igemRole} />

@@ -17,7 +17,7 @@ export const participationOptions = [
 
 export const timeLimitOptions = ["有时限", "无时限"]
 
-export const CORE_COLUMNS_LIMIT = 4
+export const CORE_COLUMNS_LIMIT = Object.keys(categoryThemeOptions).length
 
 export const STORAGE_KEYS = {
   TOKEN: "authToken",

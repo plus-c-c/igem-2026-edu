@@ -75,6 +75,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
       setAvatarDataUri(value)
     }
     reader.readAsDataURL(file)
+    event.target.value = ""
   }
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -97,13 +98,14 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           igemRole: res.user.igemRole,
           avatar: res.user.avatar,
         })
-        setProfileMsg(t.profile.updated || "个人信息已更新")
+        setProfileMsg(t.profile.updated)
+        setAvatarPreview(res.user.avatar)
         setAvatarDataUri(null)
       } else {
-        setProfileError(res.message || t.profile.updateFailed || "更新失败")
+        setProfileError(res.message || t.profile.updateFailed)
       }
     } catch {
-      setProfileError(t.profile.networkError || "网络错误")
+      setProfileError(t.profile.networkError)
     }
     setProfileLoading(false)
   }
@@ -120,10 +122,10 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
         setCurrentPassword("")
         setNewPassword("")
       } else {
-        setPasswordError(res.message || t.profile.changeFailed || "修改失败")
+        setPasswordError(res.message || t.profile.changeFailed)
       }
     } catch {
-      setPasswordError(t.profile.networkError || "网络错误")
+      setPasswordError(t.profile.networkError)
     }
     setPasswordLoading(false)
   }
@@ -154,7 +156,14 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           </label>
         </div>
         <div className="profile-title-group">
-          <h1>{user.teamName}</h1>
+          {user.registrantName && user.registrantName !== user.teamName ? (
+            <div className="profile-name-row">
+              <span className="profile-registrant-name">{user.registrantName}</span>
+              <span className="profile-team-name">{user.teamName}</span>
+            </div>
+          ) : (
+            <h1 className="profile-single-name">{user.teamName}</h1>
+          )}
           <p className="profile-email">{user.email}</p>
         </div>
       </div>
@@ -167,12 +176,12 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           <form onSubmit={handleProfileSubmit}>
             <div className="profile-form-grid">
               <label>
-                {t.profile.teamName}
-                <input value={name} onChange={(e) => setName(e.target.value)} required />
-              </label>
-              <label>
                 {t.profile.registrantName}
                 <input value={registrantName} onChange={(e) => setRegistrantName(e.target.value)} required />
+              </label>
+              <label>
+                {t.profile.teamName}
+                <input value={name} onChange={(e) => setName(e.target.value)} required />
               </label>
               <label>
                 {t.profile.email}
