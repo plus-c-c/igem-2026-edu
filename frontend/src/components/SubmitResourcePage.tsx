@@ -532,7 +532,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
       <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>{t.submitPage.teamName}<input name="team" defaultValue={editResource?.team || user.teamName} /></label>
+          <label>{t.submitPage.teamName}<input name="team" placeholder="例如：Westlake" defaultValue={editResource?.team || user.teamName} /></label>
           <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
           <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}

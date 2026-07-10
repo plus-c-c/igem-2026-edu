@@ -300,7 +300,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
                     <input name="registrantName" required placeholder={t.loginModal.registrantPlaceholder} />
                   </label>
                   <label>{t.loginModal.teamName}
-                    <input name="name" required placeholder="Westlake iGEM" />
+                    <input name="name" required placeholder="例如：Westlake" />
                   </label>
                   <label>{t.loginModal.igemRole}
                     <input type="hidden" name="igemRole" value={igemRole} />

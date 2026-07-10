@@ -263,9 +263,10 @@
 }
 .case-side h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.374px; }
 .case-side p { display: grid; gap: 4px; margin: 0; }
-.case-side p strong { color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: -0.12px; display: block; }
+.case-side p strong,
+.case-side-materials > strong { color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: -0.12px; display: block; }
+.case-side-materials > strong { margin-bottom: 8px; }
 .case-side p span { font-size: 13px; color: var(--ink-muted-48); }
-.case-side-materials > strong { color: var(--ink); font-size: 17px; font-weight: 600; letter-spacing: -0.374px; display: block; margin-bottom: 8px; }
 .side-step-files { margin-bottom: 10px; }
 .side-step-files span { font-size: 13px; color: var(--ink-muted-48); display: block; margin-bottom: 10px; }
 .side-step-files .tag-file-link {
