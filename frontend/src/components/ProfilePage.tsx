@@ -43,6 +43,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
 
   const [favorites, setFavorites] = useState<Resource[]>([])
   const [favoritesLoading, setFavoritesLoading] = useState(false)
+  const displayName = registrantName || user.registrantName || user.teamName
 
   const loadDrafts = () => {
     if (!user) return
@@ -158,14 +159,7 @@ export function ProfilePage({ user, setUser }: ProfilePageProps) {
           </label>
         </div>
         <div className="profile-title-group">
-          {user.registrantName && user.registrantName !== user.teamName ? (
-            <div className="profile-name-row">
-              <span className="profile-registrant-name">{user.registrantName}</span>
-              <span className="profile-team-name">{user.teamName}</span>
-            </div>
-          ) : (
-            <h1 className="profile-single-name">{user.teamName}</h1>
-          )}
+          <h1>{displayName}</h1>
           <p className="profile-email">{user.email}</p>
         </div>
       </div>

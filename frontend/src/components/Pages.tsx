@@ -167,7 +167,9 @@ function ProjectFilters({ filters, onChange, categoryId }: { filters: ProjectFil
             value={filters.searchText}
             onChange={(e) => onChange({ ...filters, searchText: e.target.value })}
           />
-          <button className={`filter-toggle-btn${showFilters ? " open" : ""}`} type="button" onClick={() => setShowFilters(!showFilters)} />          
+          <button className={`filter-toggle-btn${showFilters ? " open" : ""}`} type="button" onClick={() => setShowFilters(!showFilters)} aria-label={t.filters.filterToggle}>
+            <ChevronDown size={18} />
+          </button>
         </div>
       </div>
 
@@ -550,10 +552,11 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const locationParts = [r.locationCountry, r.locationProvince, r.locationCity].filter(Boolean).join(" / ")
   const locationLabel = r.locationType?.split(",").join("、")
   const sitePhotoIdList = r.sitePhotoIds ? r.sitePhotoIds.split(",").filter(Boolean) : []
+  const heroImage = r.image || "/images/classroom.jpg"
 
   return (
     <section className="page-shell case-detail">
-      <div className={`case-hero ${r.image ? "has-bg" : "no-bg"}`} style={r.image ? { backgroundImage: `url(${r.image})` } : undefined}>
+      <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="hero-content">
           <h1>{r.title}</h1>
           {r.team && <p className="hero-team">{r.team}</p>}
