@@ -173,7 +173,9 @@
     "confirmDeleteDraft": "Delete this draft?",
     "favoritesTitle": "Favorites",
     "noFavorites": "No favorites yet",
-    "viewFavorite": "View"
+    "viewFavorite": "View",
+    "loading": "Loading...",
+    "untitled": "(untitled)"
   },
   "loginModal": {
     "teamLogin": "Team Login",
@@ -224,11 +226,14 @@
     "backToLogin": "Back to Login",
     "sending": "Sending...",
     "resetting": "Resetting...",
-    "resetFailed": "Password reset failed"
+    "resetFailed": "Password reset failed",
+    "emailPlaceholder": "team@example.com"
   },
   "submitPage": {
     "edit": "Edit",
     "submit": "Submit",
+    "eyebrowEdit": "Edit",
+    "eyebrowSubmit": "Submit",
     "currentTeam": "Current team: ",
     "teamName": "Team Name",
     "teamEmail": "Team Email",
@@ -288,7 +293,6 @@
     "slotBottomRight": "Bottom Right",
     "introBook": "Project Book",
     "uploadingImage": "Uploading image...",
-    "edit": "Edit",
     "preview": "Preview",
     "emptyMarkdown": "*No content*",
     "toolbarBold": "Bold",
@@ -345,8 +349,6 @@
     "replyFailed": "Reply failed"
   },
   "campaignCard": {
-    "online": "Online",
-    "offline": "Offline",
     "onlineOffline": "Online/Offline",
     "canJoin": "Available"
   },
@@ -362,12 +364,12 @@
     "themes": {
       "合成生物学科普": "Synthetic Biology Outreach",
       "iGEM科普": "iGEM Outreach",
-      "其他": "Other",
       "互动游戏": "Interactive Games",
       "现场体验": "Hands-on Experience",
       "支教合作": "Teaching Partnerships",
       "公益教育": "Public Education",
-      "课程共建": "Curriculum Co-building"
+      "课程共建": "Curriculum Co-building",
+      "其他": "Other"
     },
     "materials": {
       "PPT": "PPT",
@@ -387,23 +389,11 @@
       "大学": "University",
       "社会公众": "General Public",
       "iGEM团队": "iGEM Teams"
+    },
+    "timeLimitOptions": {
+      "有时限": "Limited",
+      "无时限": "Unlimited"
     }
-  },
-  "categoriesData": {
-    "recommended": {
-      "applications": ["PPT", "Speech", "Reading", "Promotional", "Creative", "Practice Guide"],
-      "activities": ["Materials List", "Venue Requirements", "Activity Flow", "Site Photos", "Safety Notes", "Satisfaction Survey"],
-      "cooperation": ["Partner Schools", "Teaching Teams", "Course Package", "Feedback", "Coverage", "Follow-up Plan"],
-      "about": ["Participating Teams", "Division of Work", "Operation Model", "Sponsors", "Contact", "Annual Results"]
-    }
-  },
-  "constants": {
-    "materialTypes": ["Project Book", "Project Proposal", "Practice Guide", "Site Photos", "Project Example"],
-    "materialTags": ["PPT", "Survey", "Proposal", "Poster", "Flyer", "Reading", "Other Materials List", "Roll-up Banner"],
-    "deliveryOptions": ["Online", "Offline", "Both"],
-    "audienceOptions": ["Elementary", "Middle School", "High School", "University", "Public", "Elderly"],
-    "participationYes": "Yes",
-    "participationNo": "No"
   },
   "errors": {
     "fileTooLarge": "File exceeds 1GB limit",
@@ -411,6 +401,5 @@
     "uploadParseFailed": "Failed to parse upload response",
     "uploadNetworkError": "Network error, upload interrupted",
     "uploadTimeout": "Upload timed out, please try again"
-  },
-  "other": "Other"
+}
 }

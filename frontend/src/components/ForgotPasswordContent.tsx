@@ -133,7 +133,7 @@ export function ForgotPasswordContent({ setMode }: ForgotPasswordContentProps) {
 
   return (
     <div>
-      <label>{t.loginModal.email}<input name="email" type="email" required placeholder="team@example.com" /></label>
+      <label>{t.loginModal.email}<input name="email" type="email" required placeholder={t.loginModal.emailPlaceholder} /></label>
       <div className="form-actions">
         <button className="pill-btn secondary" type="button" onClick={() => setMode("login")}>
           {t.loginModal.back}
