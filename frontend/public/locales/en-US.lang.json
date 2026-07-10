@@ -37,7 +37,6 @@
   },
   "filters": {
     "aria": "Project filters",
-<<<<<<< HEAD
     "theme": "Activity Topic",
     "scienceTheme": "Science Topic",
     "activityTheme": "Activity Topic",
@@ -46,15 +45,9 @@
     "allThemes": "All activity topics",
     "allScienceThemes": "All science topics",
     "allActivityThemes": "All activity topics",
-=======
     "searchPlaceholder": "Search project name, team name or keywords",
     "filterToggle": "Filters",
-    "theme": "Topic",
-    "material": "Resource",
-    "audience": "Audience",
     "all": "All",
-    "allThemes": "All topics",
->>>>>>> origin/master
     "allMaterials": "All resources",
     "allAudiences": "All audiences",
     "selected": "selected",
