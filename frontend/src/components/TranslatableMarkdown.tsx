@@ -33,7 +33,8 @@ export function TranslatableMarkdown({ markdown }: TranslatableMarkdownProps) {
 
     let cancelled = false
     setLoading(true)
-    translateText(markdown, language).then((result) => {
+    const source = language === "en" ? "zh" : "en"
+    translateText(markdown, language, source).then((result) => {
       if (!cancelled) {
         setTranslated(result)
         setLoading(false)

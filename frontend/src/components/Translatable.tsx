@@ -35,7 +35,8 @@ export function Translatable({ text, as: Tag = "span", className }: Translatable
 
     let cancelled = false
     setLoading(true)
-    translateText(text, targetLang).then((result) => {
+    const source = targetLang === "en" ? "zh" : "en"
+    translateText(text, targetLang, source).then((result) => {
       if (!cancelled) {
         setTranslated(result)
         setLoading(false)
