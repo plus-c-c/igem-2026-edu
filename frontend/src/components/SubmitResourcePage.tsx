@@ -22,6 +22,14 @@ function optLabel(t: any, section: string, value: string): string {
   return t?.categoryOptions?.[section]?.[value] || value
 }
 
+function shiftDate(value: string, days: number) {
+  if (!value) return undefined
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return undefined
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
 export function SubmitResourcePage({ user, addResource, updateResource, editResource }: SubmitResourcePageProps) {
   const location = useLocation()
   const params = new URLSearchParams(location.search)
@@ -40,12 +48,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   )
   const stepFileInputs = useRef<Record<string, File | null>>({})
   const [stepUploadProgress, setStepUploadProgress] = useState<Record<string, number>>({})
+  const [stepUploadStatus, setStepUploadStatus] = useState<Record<string, "uploading" | "success" | "failed">>({})
   const [stepDeleting, setStepDeleting] = useState<string | null>(null)
   const [existingStepFiles, setExistingStepFiles] = useState<Record<string, { id: string; name: string }[]>>({})
   const [draftId, setDraftId] = useState<string | null>(null)
 
   // 活动信息
-  const [canParticipate, setCanParticipate] = useState(editResource?.canParticipate || "yes")
+  const [canParticipate, setCanParticipate] = useState(editResource?.canParticipate || "")
   const [locationTypes, setLocationTypes] = useState<string[]>(editResource?.locationType ? editResource.locationType.split(",") : [])
   const [locationCountry, setLocationCountry] = useState(editResource?.locationCountry || "")
   const [locationProvince, setLocationProvince] = useState(editResource?.locationProvince || "")
@@ -76,6 +85,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [title, setTitle] = useState(editResource?.title || "")
   const validateField = (name: string, value: string, extra?: { canParticipate?: string }) => {
     let error = ""
+    if (name === "team" && !value.trim()) error = t.submitPage.required
+    if (name === "contact" && !value.trim()) error = t.submitPage.required
     if (name === "title" && !value.trim()) error = t.submitPage.required
     if (name === "category" && !value) error = t.submitPage.required
     if (name === "subcategory" && !value) error = t.submitPage.required
@@ -99,6 +110,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }
   const clearFieldError = (name: string) => {
     setFieldErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
+  }
+  const validateEventInfo = () => {
+    const required = t.submitPage.required || "此项必填"
+    const next: Record<string, string> = {}
+    if (!activityFormat) next.activityFormat = required
+    if (!canParticipate) next.canParticipate = required
+    if (canParticipate === "yes" && !timeLimitType) next.timeLimitType = required
+    if (canParticipate === "yes" && timeLimitType === "有时限") {
+      if (!timeRangeStart) next.timeRangeStart = required
+      if (!timeRangeEnd) next.timeRangeEnd = required
+      if (timeRangeStart && timeRangeEnd && timeRangeStart >= timeRangeEnd) {
+        next.timeRangeEnd = t.submitPage.timeRangeInvalid || "开始时间必须早于结束时间"
+      }
+    }
+    if (locationTypes.length === 0) next.locationType = required
+    if (sitePhotosFormat && !imageAuthorized) next.imageAuthorization = required
+    setFieldErrors((prev) => {
+      const merged = { ...prev }
+      for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType", "imageAuthorization"]) delete merged[key]
+      return { ...merged, ...next }
+    })
+    return Object.keys(next).length === 0
   }
 
   useEffect(() => {
@@ -148,7 +181,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setSelectedCategory(defaultCategory)
     setSelectedSubcategory(editResource?.subcategory || "")
     setAudience(editResource?.audience || "")
-    setCanParticipate(editResource?.canParticipate || "yes")
+    setCanParticipate(editResource?.canParticipate || "")
     setLocationTypes(editResource?.locationType ? editResource.locationType.split(",") : [])
     setLocationCountry(editResource?.locationCountry || "")
     setLocationProvince(editResource?.locationProvince || "")
@@ -278,13 +311,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (!file) return
     stepFileInputs.current[stepId] = file
     setStepUploadProgress((p) => ({ ...p, [stepId]: 0 }))
+    setStepUploadStatus((p) => ({ ...p, [stepId]: "uploading" }))
     try {
       const rid = await ensureRid()
       await uploadStepFile(rid, stepId, file)
       stepFileInputs.current[stepId] = null
+      setStepUploadStatus((p) => ({ ...p, [stepId]: "success" }))
     } catch (e) {
       const msg = e instanceof Error ? e.message : (t.submitPage.stepFileFailed)
       setErrorMsg(msg)
+      setStepUploadStatus((p) => ({ ...p, [stepId]: "failed" }))
     }
   }
 
@@ -381,6 +417,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setErrorMsg("")
     setDraftSaved(false)
     try {
+      if (!validateEventInfo()) {
+        throw new Error(t.submitPage.required || "请填写必填项")
+      }
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
       if (emptyStep) {
         throw new Error(t.submitPage.emptyStepType)
@@ -389,6 +428,13 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       const form = formRef.current
       if (!form) return
       const formData = new FormData(form)
+      const team = formData.get("team") as string
+      const contact = formData.get("contact") as string
+      const teamError = validateField("team", team)
+      const contactError = validateField("contact", contact)
+      if (teamError || contactError) {
+        throw new Error(t.submitPage.required || "请填写必填项")
+      }
 
       const payload: Record<string, any> = {
         type: "campaign",
@@ -397,8 +443,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         subcategory: selectedSubcategory,
         audience,
         title: formData.get("title") as string,
-        team: formData.get("team") as string || user.teamName,
-        contact: formData.get("contact") as string || user.email,
+        team: team || user.teamName,
+        contact: contact || user.email,
         image: editResource?.image || "",
         desc,
         campaignSteps,
@@ -407,7 +453,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         locationCountry,
         locationProvince,
         locationCity,
-        eventDate,
+        eventDate: "",
         timeLimitType: canParticipate === "yes" ? timeLimitType : "",
         timeRangeStart: timeLimitType === "有时限" ? timeRangeStart : "",
         timeRangeEnd: timeLimitType === "有时限" ? timeRangeEnd : "",
@@ -418,7 +464,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         tips,
         introductionContent,
         materials: campaignSteps.map((s) => s.text).filter(Boolean),
-        imageAuthorization: true,
+        imageAuthorization: sitePhotosFormat ? imageAuthorized : true,
       }
 
       const isEditingPublished = isEdit && editResource?.status === "published"
@@ -462,10 +508,17 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       for (const step of campaignSteps) {
         const file = stepFileInputs.current[step.id]
         if (file) {
-          const upRes = await fileService.uploadWithProgress(
-            rid, file, `campaign-step-${step.id}`,
-            (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
-          )
+          setStepUploadStatus((p) => ({ ...p, [step.id]: "uploading" }))
+          let upRes
+          try {
+            upRes = await fileService.uploadWithProgress(
+              rid, file, `campaign-step-${step.id}`,
+              (pct) => setStepUploadProgress((p) => ({ ...p, [step.id]: pct }))
+            )
+          } catch (error) {
+            setStepUploadStatus((p) => ({ ...p, [step.id]: "failed" }))
+            throw error
+          }
           const newFile = { fileId: upRes.file.id, name: upRes.file.originalName }
           setCampaignSteps((prev) => prev.map((s) => s.id === step.id ? { ...s, files: [...s.files, newFile] } : s))
           setExistingStepFiles((prev) => {
@@ -477,6 +530,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           const targetStep = (payload.campaignSteps as any[]).find((s: any) => s.id === step.id)
           if (targetStep) targetStep.files = [...targetStep.files, newFile]
           stepFileInputs.current[step.id] = null
+          setStepUploadStatus((p) => ({ ...p, [step.id]: "success" }))
         }
       }
 
@@ -532,8 +586,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
 
       <form ref={formRef} className="submit-form" onSubmit={submit}>
         <div className="form-grid">
-          <label>{t.submitPage.teamName}<input name="team" placeholder={t.submitPage.teamPlaceholder} defaultValue={editResource?.team || user.teamName} /></label>
-          <label>{t.submitPage.teamEmail}<input name="contact" type="email" defaultValue={editResource?.contact || user.email} /></label>
+          <label className="required"><span>{t.submitPage.teamName}</span>
+            <input name="team" required placeholder={t.submitPage.teamPlaceholder} defaultValue={editResource?.team || user.teamName}
+              onChange={(e) => { if (fieldErrors.team) validateField("team", e.target.value) }}
+              onBlur={(e) => validateField("team", e.target.value)} />
+            {fieldErrors.team && <span className="field-error">{fieldErrors.team}</span>}
+          </label>
+          <label className="required"><span>{t.submitPage.teamEmail}</span>
+            <input name="contact" required type="email" defaultValue={editResource?.contact || user.email}
+              onChange={(e) => { if (fieldErrors.contact) validateField("contact", e.target.value) }}
+              onBlur={(e) => validateField("contact", e.target.value)} />
+            {fieldErrors.contact && <span className="field-error">{fieldErrors.contact}</span>}
+          </label>
           <label className="required"><span>{t.submitPage.projectName}</span>
             <input name="title" required placeholder={t.submitPage.projectPlaceholder}
               value={title}
@@ -621,7 +685,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <section className="event-info-section">
           <h2>{t.submitPage.eventInfo}</h2>
           <div className="event-info-grid">
-            <label className="choice-group wide">{t.submitPage.activityFormat}
+            <label className="choice-group wide required"><span>{t.submitPage.activityFormat}</span>
               <div>
                 {["讲座", "集市摊位", "路演", "其他"].map((opt) => {
                   const label = opt === "讲座" ? t.submitPage.formatLecture : opt === "集市摊位" ? t.submitPage.formatBooth : opt === "路演" ? t.submitPage.formatRoadshow : t.submitPage.formatOther
@@ -629,15 +693,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     <label key={opt} className={activityFormat === opt ? "active" : ""}>
                       <input type="radio" name="activityFormat" value={opt}
                         checked={activityFormat === opt}
-                        onChange={(e) => setActivityFormat(e.target.value)} />
+                        onChange={(e) => { setActivityFormat(e.target.value); clearFieldError("activityFormat") }} />
                       {label}
                     </label>
                   )
                 })}
               </div>
+              {fieldErrors.activityFormat && <span className="field-error">{fieldErrors.activityFormat}</span>}
             </label>
 
-            <label className="choice-group">{t.submitPage.canParticipate}
+            <label className="choice-group required"><span>{t.submitPage.canParticipate}</span>
               <div>
                 {["可参与", "不可参与"].map((opt) => {
                   const label = opt === "可参与" ? t.submitPage.canJoin : t.submitPage.cannotJoin
@@ -645,16 +710,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
                       <input type="radio" name="canParticipate" value={opt === "可参与" ? "yes" : "no"}
                         checked={canParticipate === (opt === "可参与" ? "yes" : "no")}
-                        onChange={(e) => { setCanParticipate(e.target.value); if (e.target.value === "no") { setTimeLimitType(""); setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                        onChange={(e) => {
+                          setCanParticipate(e.target.value)
+                          clearFieldError("canParticipate")
+                          if (e.target.value === "no") {
+                            setTimeLimitType("")
+                            setTimeRangeStart("")
+                            setTimeRangeEnd("")
+                            clearFieldError("timeLimitType")
+                            clearFieldError("timeRangeStart")
+                            clearFieldError("timeRangeEnd")
+                          }
+                        }} />
                       {label}
                     </label>
                   )
                 })}
               </div>
+              {fieldErrors.canParticipate && <span className="field-error">{fieldErrors.canParticipate}</span>}
             </label>
 
             {canParticipate === "yes" && (
-              <label className="choice-group">{t.submitPage.timeLimit}
+              <label className="choice-group required"><span>{t.submitPage.timeLimit}</span>
                 <div>
                   {["有时限", "无时限"].map((opt) => {
                     const label = opt === "有时限" ? t.submitPage.timeLimitYes : t.submitPage.timeLimitNo
@@ -662,22 +739,40 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       <label key={opt} className={timeLimitType === opt ? "active" : ""}>
                         <input type="radio" name="timeLimitType" value={opt}
                           checked={timeLimitType === opt}
-                          onChange={(e) => { setTimeLimitType(e.target.value); if (e.target.value === "无时限") { setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                          onChange={(e) => {
+                            setTimeLimitType(e.target.value)
+                            clearFieldError("timeLimitType")
+                            if (e.target.value === "无时限") {
+                              setTimeRangeStart("")
+                              setTimeRangeEnd("")
+                              clearFieldError("timeRangeStart")
+                              clearFieldError("timeRangeEnd")
+                            }
+                          }} />
                         {label}
                       </label>
                     )
                   })}
                 </div>
+                {fieldErrors.timeLimitType && <span className="field-error">{fieldErrors.timeLimitType}</span>}
               </label>
             )}
 
             {canParticipate === "yes" && timeLimitType === "有时限" && (
-              <label className="wide" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--label-spacing)" }}>
-                <label>{t.submitPage.timeRangeStart}
-                  <input type="date" value={timeRangeStart} onChange={(e) => setTimeRangeStart(e.target.value)} />
+              <label className="wide time-range-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--label-spacing)" }}>
+                <label className="required"><span>{t.submitPage.timeRangeStart}</span>
+                  <input type="date" value={timeRangeStart} max={shiftDate(timeRangeEnd, -1)} onChange={(e) => {
+                    const nextStart = e.target.value
+                    setTimeRangeStart(nextStart)
+                    if (timeRangeEnd && nextStart && timeRangeEnd <= nextStart) setTimeRangeEnd("")
+                    clearFieldError("timeRangeStart")
+                    if (timeRangeEnd) clearFieldError("timeRangeEnd")
+                  }} />
+                  {fieldErrors.timeRangeStart && <span className="field-error">{fieldErrors.timeRangeStart}</span>}
                 </label>
-                <label>{t.submitPage.timeRangeEnd}
-                  <input type="date" value={timeRangeEnd} onChange={(e) => setTimeRangeEnd(e.target.value)} />
+                <label className="required"><span>{t.submitPage.timeRangeEnd}</span>
+                  <input type="date" value={timeRangeEnd} min={shiftDate(timeRangeStart, 1)} onChange={(e) => { setTimeRangeEnd(e.target.value); clearFieldError("timeRangeEnd") }} />
+                  {fieldErrors.timeRangeEnd && <span className="field-error">{fieldErrors.timeRangeEnd}</span>}
                 </label>
               </label>
             )}
@@ -688,7 +783,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </label>
             )}
 
-            <label className="choice-group">{t.submitPage.location}
+            <label className="choice-group required"><span>{t.submitPage.location}</span>
               <div>
                 {["线上", "线下"].map((opt) => {
                   const label = opt === "线上" ? t.submitPage.locationOnline : t.submitPage.locationOffline
@@ -697,6 +792,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       <input type="checkbox" value={opt}
                         checked={locationTypes.includes(opt)}
                         onChange={(e) => {
+                          clearFieldError("locationType")
                           setLocationTypes((prev) =>
                             e.target.checked ? [...prev, opt] : prev.filter((v) => v !== opt)
                           )
@@ -726,10 +822,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   )}
                 </div>
               )}
-            </label>
-
-            <label>{t.submitPage.date}
-              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+              {fieldErrors.locationType && <span className="field-error">{fieldErrors.locationType}</span>}
             </label>
 
           </div>
@@ -767,7 +860,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 </label>
                 {existingStepFiles[step.id]?.map((f) => (
                   <span key={f.id} className="existing-file">
-                    {f.name}
+                    <span className="existing-file-name">{f.name}</span>
+                    <span className="upload-status-text success">{t.submitPage.uploadSuccess || "上传成功"}</span>
                     {isEdit && (
                       <button type="button" className="file-delete-btn" disabled={stepDeleting === f.id}
                         onClick={(e) => { e.stopPropagation(); deleteStepFile(String(editResource!.id), step.id, f.id) }}
@@ -782,9 +876,18 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                 )}
                 {step.files.map((f) => (
                   !existingStepFiles[step.id]?.some((ef) => ef.id === f.fileId) && (
-                    <span key={f.fileId} className="existing-file">{f.name}</span>
+                    <span key={f.fileId} className="existing-file">
+                      <span className="existing-file-name">{f.name}</span>
+                      <span className="upload-status-text success">{t.submitPage.uploadSuccess || "上传成功"}</span>
+                    </span>
                   )
                 ))}
+                {stepUploadStatus[step.id] === "failed" && stepFileInputs.current[step.id] && (
+                  <span className="existing-file">
+                    <span className="existing-file-name">{stepFileInputs.current[step.id]!.name}</span>
+                    <span className="upload-status-text failed">{t.submitPage.uploadFailed || "上传失败"}</span>
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -802,7 +905,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   <label key={opt} className={sitePhotosFormat === opt ? "active" : ""}>
                     <input type="radio" name="sitePhotosFormat" value={opt}
                       checked={sitePhotosFormat === opt}
-                      onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}) }} />
+                      onChange={(e) => { setSitePhotosFormat(e.target.value); setSitePhotoFiles({}); clearFieldError("imageAuthorization") }} />
                     {label}
                   </label>
                 )
@@ -889,6 +992,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
 
+        {sitePhotosFormat && (
+          <div className="image-auth-card bottom-auth-card">
+            <label className="image-auth-checkbox required">
+              <input type="checkbox" checked={imageAuthorized} onChange={(e) => { setImageAuthorized(e.target.checked); if (e.target.checked) clearFieldError("imageAuthorization") }} />
+              <span>{t.submitPage.imageAuthorization || "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担"}</span>
+            </label>
+            {fieldErrors.imageAuthorization && <span className="field-error">{fieldErrors.imageAuthorization}</span>}
+          </div>
+        )}
+
         {draftSaved && (
           <div className="modal-backdrop" onClick={() => setDraftSaved(false)}>
             <div className="error-modal" onClick={(e) => e.stopPropagation()}>
@@ -922,7 +1035,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onClick={() => doSubmit(true)}>
               {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
             </button>
-            <button className="pill-btn primary" type="submit" disabled={submitting || (!!(coverPreviewUrl || Object.keys(sitePhotoFiles).length) && !imageAuthorized)}>
+            <button className="pill-btn primary" type="submit" disabled={submitting || (!!sitePhotosFormat && !imageAuthorized)}>
               {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
             </button>
           </div>
