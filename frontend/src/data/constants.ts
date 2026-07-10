@@ -17,6 +17,8 @@ export const participationOptions = [
 
 export const timeLimitOptions = ["有时限", "无时限"]
 
+// Controls how many category columns / campaign resources display on the homepage.
+// Must equal categoryThemeOptions count (3) — "about" is excluded from the core UI.
 export const CORE_COLUMNS_LIMIT = Object.keys(categoryThemeOptions).length
 
 export const STORAGE_KEYS = {
@@ -24,3 +26,7 @@ export const STORAGE_KEYS = {
   USER: "hpEduUser",
   LANGUAGE: "synedu-language",
 }
+
+export const IGEM_ROLE_OPTIONS = ["Wet Lab", "Dry Lab", "HP", "美工", "Wiki"]
+
+export const DEFAULT_AVATAR = "/images/logo.jpg"

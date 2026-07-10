@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import "./config/env"
-import { createMainDataSource, createCommentDataSource, ensureCommentsDb } from "./config/database"
+import { createMainDataSource } from "./config/database"
 import { User } from "./entity/User"
 
 const API_URL = process.env.API_URL || "http://localhost:3000"
@@ -658,13 +658,9 @@ async function deleteAllResources(token: string): Promise<void> {
 
 // ========== 管理员账号创建（直接操作数据库） ==========
 async function seedAdmin() {
-  await ensureCommentsDb()
-
   const mainDs = createMainDataSource(false)
-  const commentDs = createCommentDataSource(false)
 
   await mainDs.initialize()
-  await commentDs.initialize()
 
   const userRepo = mainDs.getRepository(User)
   const existing = await userRepo.findOneBy({ email: "admin@igem-education.com" })
@@ -709,7 +705,6 @@ async function seedAdmin() {
     }
   }
 
-  await commentDs.destroy()
   await mainDs.destroy()
 }
 

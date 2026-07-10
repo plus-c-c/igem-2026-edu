@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import "./config/env"
 import express from "express"
-import { AppDataSource, CommentDataSource, ensureCommentsDb } from "./config/database"
+import { AppDataSource } from "./config/database"
 import authRoutes from "./routes/auth"
 import resourceRoutes from "./routes/resource"
 import fileRoutes from "./routes/file"
@@ -21,11 +21,9 @@ app.get("/", (_req, res) => {
   res.json({ message: "iGEM 2026 Education API" })
 })
 
-export { AppDataSource, CommentDataSource }
+export { AppDataSource }
 
-ensureCommentsDb()
-  .then(() => AppDataSource.initialize())
-  .then(() => CommentDataSource.initialize())
+AppDataSource.initialize()
   .then(() => {
     console.log("数据库连接成功")
     app.listen(PORT, () => {
