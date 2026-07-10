@@ -56,15 +56,18 @@ app.use("/api/resources", resourceRoutes)
 app.use("/api/resources", fileRoutes)
 app.use("/api/resources", commentRoutes)
 
-app.get("/", (_req, res) => {
-  res.json({ message: "iGEM 2026 Education API" })
-})
-
 if (process.env.NODE_ENV === "production") {
   const dist = path.join(__dirname, "../../frontend/dist")
   app.use(express.static(dist))
+  app.get("/", (_req, res) => {
+    res.sendFile(path.join(dist, "index.html"))
+  })
   app.get("/{*path}", (_req, res) => {
     res.sendFile(path.join(dist, "index.html"))
+  })
+} else {
+  app.get("/", (_req, res) => {
+    res.json({ message: "iGEM 2026 Education API" })
   })
 }
 
