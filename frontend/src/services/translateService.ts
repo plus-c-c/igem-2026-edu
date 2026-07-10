@@ -4,7 +4,7 @@ function cacheKey(text: string, target: string): string {
   return `${target}:${text}`
 }
 
-export async function translateText(text: string, target: string): Promise<string> {
+export async function translateText(text: string, target: string, source?: string): Promise<string> {
   if (!text.trim()) return text
   const key = cacheKey(text, target)
   if (cache.has(key)) return cache.get(key)!
@@ -13,10 +13,13 @@ export async function translateText(text: string, target: string): Promise<strin
   const id = setTimeout(() => controller.abort(), 10000)
 
   try {
+    const body: Record<string, string> = { q: text, target }
+    if (source) body.source = source
+
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ q: text, target }),
+      body: JSON.stringify(body),
       signal: controller.signal,
     })
     clearTimeout(id)
