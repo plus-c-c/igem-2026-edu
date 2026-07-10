@@ -265,6 +265,7 @@
     "timeLimitNo": "Unlimited",
     "timeRangeStart": "Start Date",
     "timeRangeEnd": "End Date",
+    "timeRangeInvalid": "Start date must be earlier than end date",
     "lectureDuration": "Lecture Duration",
     "lectureDurationPlaceholder": "e.g. 90 minutes",
     "downloadMaterials": "Materials",

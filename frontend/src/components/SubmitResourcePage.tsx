@@ -22,6 +22,14 @@ function optLabel(t: any, section: string, value: string): string {
   return t?.categoryOptions?.[section]?.[value] || value
 }
 
+function shiftDate(value: string, days: number) {
+  if (!value) return undefined
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return undefined
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
 export function SubmitResourcePage({ user, addResource, updateResource, editResource }: SubmitResourcePageProps) {
   const location = useLocation()
   const params = new URLSearchParams(location.search)
@@ -100,6 +108,27 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }
   const clearFieldError = (name: string) => {
     setFieldErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
+  }
+  const validateEventInfo = () => {
+    const required = t.submitPage.required || "此项必填"
+    const next: Record<string, string> = {}
+    if (!activityFormat) next.activityFormat = required
+    if (!canParticipate) next.canParticipate = required
+    if (canParticipate === "yes" && !timeLimitType) next.timeLimitType = required
+    if (canParticipate === "yes" && timeLimitType === "有时限") {
+      if (!timeRangeStart) next.timeRangeStart = required
+      if (!timeRangeEnd) next.timeRangeEnd = required
+      if (timeRangeStart && timeRangeEnd && timeRangeStart >= timeRangeEnd) {
+        next.timeRangeEnd = t.submitPage.timeRangeInvalid || "开始时间必须早于结束时间"
+      }
+    }
+    if (locationTypes.length === 0) next.locationType = required
+    setFieldErrors((prev) => {
+      const merged = { ...prev }
+      for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType"]) delete merged[key]
+      return { ...merged, ...next }
+    })
+    return Object.keys(next).length === 0
   }
 
   useEffect(() => {
@@ -385,6 +414,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setErrorMsg("")
     setDraftSaved(false)
     try {
+      if (!validateEventInfo()) {
+        throw new Error(t.submitPage.required || "请填写必填项")
+      }
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
       if (emptyStep) {
         throw new Error(t.submitPage.emptyStepType || "请填写所有下载材料的材料类型")
@@ -411,7 +443,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         locationCountry,
         locationProvince,
         locationCity,
-        eventDate,
+        eventDate: "",
         timeLimitType: canParticipate === "yes" ? timeLimitType : "",
         timeRangeStart: timeLimitType === "有时限" ? timeRangeStart : "",
         timeRangeEnd: timeLimitType === "有时限" ? timeRangeEnd : "",
@@ -633,7 +665,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         <section className="event-info-section">
           <h2>{t.submitPage.eventInfo}</h2>
           <div className="event-info-grid">
-            <label className="choice-group wide">{t.submitPage.activityFormat}
+            <label className="choice-group wide required"><span>{t.submitPage.activityFormat}</span>
               <div>
                 {["讲座", "集市摊位", "路演", "其他"].map((opt) => {
                   const label = opt === "讲座" ? t.submitPage.formatLecture : opt === "集市摊位" ? t.submitPage.formatBooth : opt === "路演" ? t.submitPage.formatRoadshow : t.submitPage.formatOther
@@ -641,15 +673,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     <label key={opt} className={activityFormat === opt ? "active" : ""}>
                       <input type="radio" name="activityFormat" value={opt}
                         checked={activityFormat === opt}
-                        onChange={(e) => setActivityFormat(e.target.value)} />
+                        onChange={(e) => { setActivityFormat(e.target.value); clearFieldError("activityFormat") }} />
                       {label}
                     </label>
                   )
                 })}
               </div>
+              {fieldErrors.activityFormat && <span className="field-error">{fieldErrors.activityFormat}</span>}
             </label>
 
-            <label className="choice-group">{t.submitPage.canParticipate}
+            <label className="choice-group required"><span>{t.submitPage.canParticipate}</span>
               <div>
                 {["可参与", "不可参与"].map((opt) => {
                   const label = opt === "可参与" ? t.submitPage.canJoin : t.submitPage.cannotJoin
@@ -657,16 +690,28 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                     <label key={opt} className={canParticipate === (opt === "可参与" ? "yes" : "no") ? "active" : ""}>
                       <input type="radio" name="canParticipate" value={opt === "可参与" ? "yes" : "no"}
                         checked={canParticipate === (opt === "可参与" ? "yes" : "no")}
-                        onChange={(e) => { setCanParticipate(e.target.value); if (e.target.value === "no") { setTimeLimitType(""); setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                        onChange={(e) => {
+                          setCanParticipate(e.target.value)
+                          clearFieldError("canParticipate")
+                          if (e.target.value === "no") {
+                            setTimeLimitType("")
+                            setTimeRangeStart("")
+                            setTimeRangeEnd("")
+                            clearFieldError("timeLimitType")
+                            clearFieldError("timeRangeStart")
+                            clearFieldError("timeRangeEnd")
+                          }
+                        }} />
                       {label}
                     </label>
                   )
                 })}
               </div>
+              {fieldErrors.canParticipate && <span className="field-error">{fieldErrors.canParticipate}</span>}
             </label>
 
             {canParticipate === "yes" && (
-              <label className="choice-group">{t.submitPage.timeLimit}
+              <label className="choice-group required"><span>{t.submitPage.timeLimit}</span>
                 <div>
                   {["有时限", "无时限"].map((opt) => {
                     const label = opt === "有时限" ? t.submitPage.timeLimitYes : t.submitPage.timeLimitNo
@@ -674,22 +719,40 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       <label key={opt} className={timeLimitType === opt ? "active" : ""}>
                         <input type="radio" name="timeLimitType" value={opt}
                           checked={timeLimitType === opt}
-                          onChange={(e) => { setTimeLimitType(e.target.value); if (e.target.value === "无时限") { setTimeRangeStart(""); setTimeRangeEnd("") } }} />
+                          onChange={(e) => {
+                            setTimeLimitType(e.target.value)
+                            clearFieldError("timeLimitType")
+                            if (e.target.value === "无时限") {
+                              setTimeRangeStart("")
+                              setTimeRangeEnd("")
+                              clearFieldError("timeRangeStart")
+                              clearFieldError("timeRangeEnd")
+                            }
+                          }} />
                         {label}
                       </label>
                     )
                   })}
                 </div>
+                {fieldErrors.timeLimitType && <span className="field-error">{fieldErrors.timeLimitType}</span>}
               </label>
             )}
 
             {canParticipate === "yes" && timeLimitType === "有时限" && (
-              <label className="wide" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--label-spacing)" }}>
-                <label>{t.submitPage.timeRangeStart}
-                  <input type="date" value={timeRangeStart} onChange={(e) => setTimeRangeStart(e.target.value)} />
+              <label className="wide time-range-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--label-spacing)" }}>
+                <label className="required"><span>{t.submitPage.timeRangeStart}</span>
+                  <input type="date" value={timeRangeStart} max={shiftDate(timeRangeEnd, -1)} onChange={(e) => {
+                    const nextStart = e.target.value
+                    setTimeRangeStart(nextStart)
+                    if (timeRangeEnd && nextStart && timeRangeEnd <= nextStart) setTimeRangeEnd("")
+                    clearFieldError("timeRangeStart")
+                    if (timeRangeEnd) clearFieldError("timeRangeEnd")
+                  }} />
+                  {fieldErrors.timeRangeStart && <span className="field-error">{fieldErrors.timeRangeStart}</span>}
                 </label>
-                <label>{t.submitPage.timeRangeEnd}
-                  <input type="date" value={timeRangeEnd} onChange={(e) => setTimeRangeEnd(e.target.value)} />
+                <label className="required"><span>{t.submitPage.timeRangeEnd}</span>
+                  <input type="date" value={timeRangeEnd} min={shiftDate(timeRangeStart, 1)} onChange={(e) => { setTimeRangeEnd(e.target.value); clearFieldError("timeRangeEnd") }} />
+                  {fieldErrors.timeRangeEnd && <span className="field-error">{fieldErrors.timeRangeEnd}</span>}
                 </label>
               </label>
             )}
@@ -700,7 +763,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               </label>
             )}
 
-            <label className="choice-group">{t.submitPage.location}
+            <label className="choice-group required"><span>{t.submitPage.location}</span>
               <div>
                 {["线上", "线下"].map((opt) => {
                   const label = opt === "线上" ? t.submitPage.locationOnline : t.submitPage.locationOffline
@@ -709,6 +772,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                       <input type="checkbox" value={opt}
                         checked={locationTypes.includes(opt)}
                         onChange={(e) => {
+                          clearFieldError("locationType")
                           setLocationTypes((prev) =>
                             e.target.checked ? [...prev, opt] : prev.filter((v) => v !== opt)
                           )
@@ -738,10 +802,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                   )}
                 </div>
               )}
-            </label>
-
-            <label>{t.submitPage.date}
-              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+              {fieldErrors.locationType && <span className="field-error">{fieldErrors.locationType}</span>}
             </label>
 
           </div>
