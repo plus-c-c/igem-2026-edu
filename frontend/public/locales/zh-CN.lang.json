@@ -180,7 +180,7 @@
     "loginTitle": "团队登录",
     "verificationSent": "验证码已发送至",
     "verificationCode": "验证码",
-    "codePlaceholder": "输入 6 位验证码",
+    "codePlaceholder": "6位数验证码",
     "back": "返回",
     "registering": "注册中...",
     "completeRegister": "完成注册",
