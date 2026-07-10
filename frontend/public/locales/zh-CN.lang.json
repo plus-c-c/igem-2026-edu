@@ -199,7 +199,7 @@
     "registrantName": "姓名（与 iGEM 官网展示一致）",
     "registrantPlaceholder": "例如：San Zhang",
     "teamName": "iGEM 队伍名称",
-    "teamPlaceholder": "Westlake iGEM",
+    "teamPlaceholder": "例如：Westlake",
     "igemRole": "在 iGEM 的职位",
     "email": "邮箱",
     "passwordPlaceholderLogin": "请输入密码",

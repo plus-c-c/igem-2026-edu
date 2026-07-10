@@ -27,44 +27,8 @@ export function createMainDataSource(logging = true) {
     database: process.env.DB_DATABASE!,
     synchronize: true,
     logging,
-    entities: [User, Resource, UploadedFile],
+    entities: [User, Resource, UploadedFile, Comment, CommentLike, Favorite, ResourceLike],
   })
-}
-
-export function createCommentDataSource(logging = true) {
-  const { host, port, username, password } = getDbConfig()
-  return new DataSource({
-    type: "postgres",
-    host,
-    port,
-    username,
-    password,
-    database: process.env.COMMENTS_DB_NAME!,
-    synchronize: true,
-    logging,
-    entities: [Comment, CommentLike, Favorite, ResourceLike],
-  })
-}
-
-function createTempDataSource() {
-  const { host, port, username, password } = getDbConfig()
-  return new DataSource({
-    type: "postgres",
-    host,
-    port,
-    username,
-    password,
-    database: "postgres",
-  })
-}
-
-export async function ensureCommentsDb() {
-  const tempDs = createTempDataSource()
-  await tempDs.initialize()
-  const dbName = process.env.COMMENTS_DB_NAME!
-  await tempDs.query(`CREATE DATABASE "${dbName}"`).catch(() => {})
-  await tempDs.destroy()
 }
 
 export const AppDataSource = createMainDataSource()
-export const CommentDataSource = createCommentDataSource()

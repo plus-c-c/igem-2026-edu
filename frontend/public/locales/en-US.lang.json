@@ -199,7 +199,7 @@
     "registrantName": "Name (as displayed on iGEM website)",
     "registrantPlaceholder": "e.g. San Zhang",
     "teamName": "iGEM Team Name",
-    "teamPlaceholder": "Westlake iGEM",
+    "teamPlaceholder": "e.g. Westlake",
     "igemRole": "iGEM Role",
     "email": "Email",
     "passwordPlaceholderLogin": "Enter password",

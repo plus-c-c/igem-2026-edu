@@ -192,7 +192,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   }
 
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({})
-  const stepErrorTimer = useRef<ReturnType<typeof setTimeout>>()
+  const stepErrorTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const scheduleStepErrors = (steps: typeof campaignSteps) => {
     clearTimeout(stepErrorTimer.current)
     stepErrorTimer.current = setTimeout(() => {
