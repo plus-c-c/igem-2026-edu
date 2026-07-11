@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    network_mode: host
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -8,7 +9,7 @@ services:
     volumes:
       - ./backend/database/pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,10 +21,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "3000:3000"
+    network_mode: host
     environment:
-      DB_HOST: db
+      DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
@@ -40,7 +40,7 @@ services:
     volumes:
       - ./backend/database/uploads:/app/backend/uploads
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -54,34 +54,21 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    network_mode: host
     environment:
-      API_URL: http://backend:3000
-      DB_HOST: db
+      API_URL: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: igem_education
 
-  libretranslate:
-    image: libretranslate/libretranslate:latest
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
-    environment:
-      LT_LOAD_ONLY: "zh,en"
-      LT_QUEUE_LIMIT: "10"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
-
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "80:80"
+    network_mode: host
+    volumes:
+      - ./frontend/ssl:/etc/nginx/ssl
     depends_on:
       - backend
