@@ -67,8 +67,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     network_mode: host
     volumes:
       - ./frontend/ssl:/etc/nginx/ssl
