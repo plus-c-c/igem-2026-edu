@@ -6,3 +6,4 @@ backend/dist/
 test/
 backend/database/
 argos-models/
+.docker-cache/images.tar
