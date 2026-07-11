@@ -41,13 +41,13 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
         <img src={coverImage} alt="" />
         {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
         <div>
-          {item.team && <p className="project-org"><Translatable text={item.team} /></p>}
+          {item.team && <p className="project-org">{item.team}</p>}
           <h3><Translatable text={item.title} as="span" /></h3>
           <div className="project-event-tags">
-            {row1.map((tag) => <span key={tag}>{tag}</span>)}
+            {row1.map((tag) => <span key={tag}><Translatable text={tag} as="span" caseMode="lower" /></span>)}
           </div>
           <div className="project-event-tags">
-            {row2.map((tag) => <span key={tag}>{tag}</span>)}
+            {row2.map((tag) => <span key={tag}><Translatable text={tag} as="span" caseMode="lower" /></span>)}
           </div>
           <div style={{ flex: 1 }} />
           <span className="detail-link">{t.caseDetail.detailLink}</span>
@@ -60,11 +60,11 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     <Link className="campaign-card" to={`/cases/${item.id}`}>
       <img src={coverImage} alt="" />
       <div>
-        <p className="campaign-format">{item.format}</p>
+        <p className="campaign-format"><Translatable text={item.format} as="span" caseMode="lower" /></p>
         <h3><Translatable text={item.title} as="span" /></h3>
         {item.impact && <strong><Translatable text={item.impact} as="span" /></strong>}
         <div className="tags">
-          {(item.materials || []).map((m) => <span key={m}>{m}</span>)}
+          {(item.materials || []).map((m) => <span key={m}><Translatable text={m} as="span" caseMode="lower" /></span>)}
         </div>
         <span className="detail-link">{t.caseDetail.detailLink}</span>
       </div>

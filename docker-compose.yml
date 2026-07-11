@@ -2,6 +2,8 @@ services:
   db:
     image: postgres:16-alpine
     network_mode: host
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -15,13 +17,11 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: igem-2026-edu-backend
+    network_mode: host
     depends_on:
       db:
         condition: service_healthy
-    network_mode: host
     environment:
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
@@ -36,6 +36,8 @@ services:
       SMTP_USER: syneduglobal@yeah.net
       SMTP_PASS: ZFgPAAiyS4GL56hB
       SMTP_FROM: syneduglobal@yeah.net
+      LT_URL: http://127.0.0.1:5000
+      API_URL: http://127.0.0.1:3000
       PORT: 3000
     volumes:
       - ./backend/database/uploads:/app/backend/uploads
@@ -47,14 +49,12 @@ services:
       start_period: 15s
 
   seed:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: igem-2026-edu-backend
+    network_mode: host
     command: node backend/dist/seed.js
     depends_on:
       backend:
         condition: service_healthy
-    network_mode: host
     environment:
       API_URL: http://127.0.0.1:3000
       DB_HOST: 127.0.0.1
@@ -64,11 +64,23 @@ services:
       DB_DATABASE: igem_education
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: igem-2026-edu-frontend
     network_mode: host
     volumes:
       - ./frontend/ssl:/etc/nginx/ssl
     depends_on:
-      - backend
+      - libretranslate
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      LT_LOAD_ONLY: "zh,en"
+      LT_QUEUE_LIMIT: "10"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s

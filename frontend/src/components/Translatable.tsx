@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react"
-import { translateText } from "../services/translateService"
+import { translateText, type CaseMode } from "../services/translateService"
 import { useI18n } from "../i18n"
 
 interface TranslatableProps {
   text: string
   as?: "span" | "p" | "h1" | "h2" | "h3" | "div"
   className?: string
-  inline?: boolean
+  caseMode?: CaseMode
 }
 
-export function Translatable({ text, as: Tag = "span", className }: TranslatableProps) {
+export function Translatable({ text, as: Tag = "span", className, caseMode }: TranslatableProps) {
   const { language } = useI18n()
   const [translated, setTranslated] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -29,14 +29,14 @@ export function Translatable({ text, as: Tag = "span", className }: Translatable
       return
     }
 
-    const key = targetLang + ":" + text
+    const key = targetLang + ":" + text + ":" + (caseMode || "")
     if (key === prevKey.current) return
     prevKey.current = key
 
     let cancelled = false
     setLoading(true)
     const source = targetLang === "en" ? "zh" : "en"
-    translateText(text, targetLang, source).then((result) => {
+    translateText(text, targetLang, source, caseMode).then((result) => {
       if (!cancelled) {
         setTranslated(result)
         setLoading(false)
@@ -44,7 +44,7 @@ export function Translatable({ text, as: Tag = "span", className }: Translatable
     })
 
     return () => { cancelled = true }
-  }, [text, targetLang, needsTranslate])
+  }, [text, targetLang, needsTranslate, caseMode])
 
   return <Tag className={className}>{loading ? text : (translated ?? text)}</Tag>
 }
