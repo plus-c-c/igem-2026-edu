@@ -97,7 +97,7 @@ export function LoginModal({ open, onClose, onLogin }: LoginModalProps) {
           onLogin(mapUser(res.user))
           onClose()
         } else {
-
+          setError(res.message || t.loginModal.loginFailed)
         }
       } else {
         if (step === "form") {

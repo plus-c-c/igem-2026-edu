@@ -191,7 +191,7 @@
     "resendAfter": "s before resend",
     "resend": "Resend code",
     "sendFailed": "Send failed",
-    "loginFailed": "Login failed",
+    "loginFailed": "Incorrect email or password",
     "codeFailed": "Failed to send code",
     "registerFailed": "Registration failed",
     "networkError": "Network error, please check backend service",
