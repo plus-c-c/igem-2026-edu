@@ -584,8 +584,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       <div className="page-heading">
         <div>
           <p className="eyebrow">{isEdit ? t.submitPage.eyebrowEdit : t.submitPage.eyebrowSubmit}</p>
-          <h1>{isEdit ? `${t.submitPage.edit} ${projectLabel}` : `${t.submitPage.submit} ${projectLabel}`}</h1>
-          <p>{t.submitPage.currentTeam} {user.teamName}</p>
+          <h1>{isEdit ? `${t.submitPage.edit}${projectLabel}` : `${t.submitPage.submit}${projectLabel}`}</h1>
+          <p>{t.submitPage.currentTeam}{user.teamName}</p>
         </div>
       </div>
 

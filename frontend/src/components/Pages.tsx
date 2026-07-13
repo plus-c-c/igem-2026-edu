@@ -331,7 +331,7 @@ export function RecruitmentPage({ resources, onSubmit }: PageProps) {
 
   return (
     <section className="page-shell recruitment-page">
-      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} {t.pages.itemCount}</span></>} />
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length}{t.pages.itemCount}</span></>} />
 
       <section className="case-section">
         <SectionTitle
@@ -424,7 +424,7 @@ export function CategoryPage({ category, resources, onSubmit }: { category: type
 
   return (
     <section className="page-shell">
-      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length} {t.pages.itemCount}</span></>} />
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length}{t.pages.itemCount}</span></>} />
 
       <section className="case-section">
         <SectionTitle
