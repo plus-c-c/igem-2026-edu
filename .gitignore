@@ -7,3 +7,4 @@ test/
 backend/database/
 argos-models/
 .docker-cache/images.tar
+backups/
