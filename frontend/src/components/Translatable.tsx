@@ -18,9 +18,10 @@ export function Translatable({ text, as: Tag = "span", className, caseMode }: Tr
   if (!text) return null
 
   const targetLang = language
-  const hasZh = /[\u4e00-\u9fff]/.test(text)
-  const hasEn = /[a-zA-Z]/.test(text)
-  const needsTranslate = targetLang === "en" ? hasZh : hasEn
+  const cjkCount = (text.match(/[\u4e00-\u9fff]/g) || []).length
+  const enCount = (text.match(/[a-zA-Z]/g) || []).length
+  const isChinese = cjkCount > enCount
+  const needsTranslate = targetLang === "en" ? isChinese : !isChinese
 
   useEffect(() => {
     if (!needsTranslate) {

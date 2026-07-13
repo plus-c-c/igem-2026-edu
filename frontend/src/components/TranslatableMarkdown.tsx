@@ -16,9 +16,10 @@ export function TranslatableMarkdown({ markdown }: TranslatableMarkdownProps) {
 
   if (!markdown) return null
 
-  const hasZh = /[\u4e00-\u9fff]/.test(markdown)
-  const hasEn = /[a-zA-Z]/.test(markdown)
-  const needsTranslate = language === "en" ? hasZh : hasEn
+  const cjkCount = (markdown.match(/[\u4e00-\u9fff]/g) || []).length
+  const enCount = (markdown.match(/[a-zA-Z]/g) || []).length
+  const isChinese = cjkCount > enCount
+  const needsTranslate = language === "en" ? isChinese : !isChinese
 
   useEffect(() => {
     if (!needsTranslate) {
