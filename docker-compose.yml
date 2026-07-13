@@ -71,7 +71,8 @@ services:
       dockerfile: frontend/Dockerfile
     network_mode: host
     volumes:
-      - ./frontend/ssl:/etc/nginx/ssl
+      - /etc/letsencrypt/live/syneduglobal.top/fullchain.pem:/etc/nginx/ssl/server.crt:ro
+      - /etc/letsencrypt/live/syneduglobal.top/privkey.pem:/etc/nginx/ssl/server.key:ro
     depends_on:
       - libretranslate
 
