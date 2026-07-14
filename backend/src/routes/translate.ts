@@ -140,16 +140,25 @@ function normalizeCase(text: string): string {
 }
 
 async function translateLT(text: string, target: string, source: string): Promise<string> {
-  const response = await fetch(`${LT_URL}/translate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ q: text, source, target }),
-  })
-  if (!response.ok) {
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), 30000)
+  try {
+    const response = await fetch(`${LT_URL}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: text, source, target }),
+      signal: controller.signal,
+    })
+    clearTimeout(id)
+    if (!response.ok) {
+      return text
+    }
+    const data = await response.json()
+    return data.translatedText || text
+  } catch {
+    clearTimeout(id)
     return text
   }
-  const data = await response.json()
-  return data.translatedText || text
 }
 
 async function translateLTBatch(texts: string[], target: string, source: string): Promise<string[]> {
@@ -217,14 +226,18 @@ router.post("/", async (req: Request, res: Response) => {
     if (hit) {
       translatedText = await promise
     } else {
+      const controller = new AbortController()
+      const id = setTimeout(() => controller.abort(), 30000)
       const response = await fetch(`${LT_URL}/translate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ q, source: source || "auto", target }),
-      })
-      if (!response.ok) {
-        const text = await response.text()
-        console.error("LibreTranslate error:", response.status, text)
+        signal: controller.signal,
+      }).catch(() => { clearTimeout(id); return null })
+      clearTimeout(id)
+      if (!response || !response.ok) {
+        const text = response ? await response.text() : "timeout"
+        console.error("LibreTranslate error:", response?.status || "timeout", text)
         res.status(502).json({ error: "Translation service error" })
         return
       }

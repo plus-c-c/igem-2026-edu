@@ -518,7 +518,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       const count = res.likesCount !== undefined ? res.likesCount : likesCount
       setLikesCount(count)
       syncLocal(next, favoritedByMe, count, favoritesCount)
-    } catch {}
+    } catch {
+      setLikedByMe(likedByMe)
+    }
   }
 
   const handleFavorite = async () => {
@@ -530,7 +532,9 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       const count = res.favoritesCount !== undefined ? res.favoritesCount : favoritesCount
       setFavoritesCount(count)
       syncLocal(likedByMe, next, likesCount, count)
-    } catch {}
+    } catch {
+      setFavoritedByMe(favoritedByMe)
+    }
   }
 
   const handleDelete = () => {

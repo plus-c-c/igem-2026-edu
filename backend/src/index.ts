@@ -23,6 +23,11 @@ app.get("/", (_req, res) => {
   res.json({ message: "iGEM 2026 Education API" })
 })
 
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("未捕获异常:", err)
+  res.status(500).json({ message: "服务器内部错误" })
+})
+
 export { AppDataSource }
 
 AppDataSource.initialize()

@@ -6,6 +6,7 @@ import { categories } from "./data/categories"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { useResources } from "./hooks/useResources"
 import { AppLayout } from "./components/AppLayout"
+import { ErrorBoundary } from "./components/ErrorBoundary"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage, FavoritesPage } from "./components/Pages"
 import { SubmitResourcePage } from "./components/SubmitResourcePage"
 import { ProfilePage } from "./components/ProfilePage"
@@ -65,9 +66,11 @@ function App() {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
-  </BrowserRouter>
+  <ErrorBoundary>
+    <BrowserRouter>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </BrowserRouter>
+  </ErrorBoundary>
 )

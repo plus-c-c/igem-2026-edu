@@ -1,5 +1,5 @@
 import type { Resource } from "../types"
-import { API_BASE, authHeaders, authFetch } from "./client"
+import { API_BASE, authHeaders, authFetch, fetchWithTimeout } from "./client"
 
 export interface ResourceDetailResult {
   resource: Resource
@@ -19,7 +19,8 @@ export const resourceService = {
     if (filters.status === "draft" && token) {
       headers["Authorization"] = `Bearer ${token}`
     }
-    const res = await fetch(`${API_BASE}/resources${qs ? `?${qs}` : ""}`, { headers })
+    const res = await fetchWithTimeout(`${API_BASE}/resources${qs ? `?${qs}` : ""}`, { headers })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     const data = await res.json()
     let items: Resource[] = data.resources || []
     if (filters.material && filters.material !== "all") {
@@ -37,6 +38,7 @@ export const resourceService = {
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(resource),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -44,6 +46,7 @@ export const resourceService = {
     const res = await authFetch(`${API_BASE}/resources/${id}`, {
       headers: authHeaders(),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -53,6 +56,7 @@ export const resourceService = {
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(resource),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -61,6 +65,7 @@ export const resourceService = {
       method: "DELETE",
       headers: authHeaders(),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -70,12 +75,14 @@ export const resourceService = {
         method: "DELETE",
         headers: authHeaders(),
       })
+      if (!res.ok) throw new Error(`请求失败 (${res.status})`)
       return res.json()
     }
     const res = await authFetch(`${API_BASE}/resources/${id}/favorite`, {
       method: "POST",
       headers: authHeaders(),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -85,12 +92,14 @@ export const resourceService = {
         method: "DELETE",
         headers: authHeaders(),
       })
+      if (!res.ok) throw new Error(`请求失败 (${res.status})`)
       return res.json()
     }
     const res = await authFetch(`${API_BASE}/resources/${id}/like`, {
       method: "POST",
       headers: authHeaders(),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     return res.json()
   },
 
@@ -98,6 +107,7 @@ export const resourceService = {
     const res = await authFetch(`${API_BASE}/resources/favorites`, {
       headers: authHeaders(),
     })
+    if (!res.ok) throw new Error(`请求失败 (${res.status})`)
     const data = await res.json()
     return data.resources || []
   },

@@ -3,11 +3,13 @@ import type { User } from "../types"
 import { authService } from "../services/authService"
 
 const CHECK_INTERVAL = 5 * 60 * 1000
+const MAX_FAILURES = 5
 
 export function useLocalAuth(): [User | null, (user: User | null) => void, boolean] {
   const [user, setUserState] = useState<User | null>(null)
   const [loading, setLoading] = useState(!!localStorage.getItem("authToken"))
   const checkRef = useRef<number>(0)
+  const failCountRef = useRef(0)
 
   const clearAuth = () => {
     localStorage.removeItem("authToken")
@@ -21,6 +23,7 @@ export function useLocalAuth(): [User | null, (user: User | null) => void, boole
     try {
       const res = await authService.getMe(token)
       if (res.user) {
+        failCountRef.current = 0
         const u: User = {
           id: res.user.id,
           email: res.user.email,
@@ -36,7 +39,10 @@ export function useLocalAuth(): [User | null, (user: User | null) => void, boole
         clearAuth()
       }
     } catch {
-      clearAuth()
+      failCountRef.current++
+      if (failCountRef.current >= MAX_FAILURES) {
+        clearAuth()
+      }
     }
     setLoading(false)
   }
