@@ -559,8 +559,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
       <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="hero-content">
           <h1><Translatable text={r.title} as="span" /></h1>
-          {r.team && <p className="hero-team"><Translatable text={r.team} /></p>}
-          {r.contact && <p className="hero-contact"><Translatable text={r.contact} /></p>}
+          {r.team && <p className="hero-team">{r.team}</p>}
+          {r.contact && <p className="hero-contact">{r.contact}</p>}
         </div>
         <button className="hero-close" type="button" onClick={() => navigate(-1)} aria-label={t.caseDetail.close}>×</button>
       </div>
@@ -670,8 +670,8 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
         </div>
         {(r.team || r.contact) && (
           <div className="detail-footer-team">
-            {r.team && <strong><Translatable text={r.team} /></strong>}
-            {r.contact && <span><Translatable text={r.contact} /></span>}
+            {r.team && <strong>{r.team}</strong>}
+            {r.contact && <span>{r.contact}</span>}
           </div>
         )}
       </div>
