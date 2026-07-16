@@ -27,24 +27,27 @@ export function useResources() {
 
   useEffect(() => { fetchResources() }, [fetchResources])
 
+  useEffect(() => {
+    const timer = setInterval(fetchResources, 30000)
+    return () => clearInterval(timer)
+  }, [fetchResources])
+
   const addResource = (resource: Partial<Resource>) => {
     if (resource.id) {
-      setResources((items) => [resource as Resource, ...items])
       const cat = categories.find((c) => c.id === resource.category)
+      fetchResources()
       if (cat) navigate(cat.path)
     }
   }
 
   const updateResource = (id: string, updated: Partial<Resource>) => {
-    setResources((items) => items.map((r) => String(r.id) === id ? { ...r, ...updated } : r))
+    fetchResources()
     navigate(`/cases/${updated.id}`)
   }
 
   const deleteResource = (id: string) => {
-    resourceService.remove(id).then((res: any) => {
-      if (res.message) {
-        setResources((items) => items.filter((r) => String(r.id) !== id))
-      }
+    resourceService.remove(id).then(() => {
+      fetchResources()
     }).catch(() => {})
   }
 
