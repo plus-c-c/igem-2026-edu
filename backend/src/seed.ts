@@ -575,7 +575,7 @@ async function loginAsAdmin(): Promise<string> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@igem-education.com", password: "devAdmin123!" }),
+    body: JSON.stringify({ email: "admin@igem-education.com", password: process.env.ADMIN_PASSWORD || "devAdmin123!" }),
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
@@ -676,18 +676,18 @@ async function seedAdmin() {
   } else {
     const admin = userRepo.create({
       email: "admin@igem-education.com",
-      password: "devAdmin123!",
+      password: process.env.ADMIN_PASSWORD || "devAdmin123!",
       name: "管理员",
       registrantName: "Admin",
       role: "admin",
     })
     await userRepo.save(admin)
-    console.log("管理员账号创建成功: admin@igem-education.com / devAdmin123!")
+    console.log(`管理员账号创建成功: admin@igem-education.com / ${process.env.ADMIN_PASSWORD || "devAdmin123!"}`)
   }
 
   const testUsers = [
-    { email: "team1@test.com", password: "devTestPass!", name: "San Zhang" },
-    { email: "team2@test.com", password: "devTestPass!", name: "Si Li" },
+    { email: "team1@test.com", password: process.env.TEST_PASSWORD || "devTest123!", name: "San Zhang" },
+    { email: "team2@test.com", password: process.env.TEST_PASSWORD || "devTest123!", name: "Si Li" },
   ]
   for (const u of testUsers) {
     const exist = await userRepo.findOneBy({ email: u.email })
