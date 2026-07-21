@@ -1,0 +1,281 @@
+/* ========== Filter Bar (category page top bar) ========== */
+.filter-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 28px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+  margin-bottom: 32px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.224px;
+  color: var(--ink-muted-48);
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.224px;
+  color: var(--ink-muted-48);
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  color: var(--ink);
+  background: var(--canvas);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+select {
+  appearance: none;
+  padding-right: 54px;
+  background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%231d1d1f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 24px center;
+  background-size: 18px 18px;
+}
+
+textarea {
+  border-radius: var(--radius-md);
+  min-height: 120px;
+  resize: vertical;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+}
+
+.search-input {
+  position: relative;
+  display: block;
+}
+.search-input svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-muted-48);
+  pointer-events: none;
+}
+.search-input input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* ========== Project Filter Panel (recruitment page) ========== */
+.project-filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+}
+
+.project-filter-search-row {
+  position: relative;
+  width: 100%;
+}
+
+.project-filter-search-row .search-input {
+  width: 100%;
+}
+
+.project-filter-search-row .search-input input {
+  padding-right: 58px;
+  box-sizing: border-box;
+}
+
+.filter-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(0, 102, 204, 0.18);
+  border-radius: 50%;
+  background: #eef6ff;
+  color: var(--primary);
+  box-shadow: 0 1px 2px rgba(0, 102, 204, 0.12);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.filter-toggle-btn svg {
+  position: static;
+  transform: none;
+  color: currentColor;
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+.filter-toggle-btn:hover {
+  border-color: rgba(0, 102, 204, 0.35);
+  background: #e1efff;
+  transform: translateY(-50%) scale(1.03);
+}
+.filter-toggle-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.18);
+}
+.filter-toggle-btn.open svg {
+  transform: rotate(180deg);
+}
+
+.project-filter-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.filter-row label {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-muted-48);
+}
+.filter-row .filter-multi-label {
+  display: block;
+}
+.filter-row .filter-multi-label > span {
+  display: block;
+  margin-bottom: 6px;
+}
+.filter-row .filter-multi-label > .multi-select-dropdown {
+  display: block;
+}
+
+.filter-row label select,
+.filter-row label input[type="text"],
+.multi-select-trigger {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--elevated, var(--canvas));
+  font-size: 0.875rem;
+  color: var(--ink);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.filter-row label select:hover,
+.filter-row label input[type="text"]:hover,
+.multi-select-trigger:hover {
+  border-color: var(--accent);
+}
+
+.filter-row label select:focus,
+.filter-row label input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* ========== Multi-Select Dropdown ========== */
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.multi-select-trigger:hover {
+  border-color: var(--accent);
+}
+
+.multi-select-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md, 8px);
+  background: var(--elevated, white);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.multi-select-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  white-space: nowrap;
+  flex-direction: row;
+}
+
+.multi-select-panel label:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.multi-select-panel label.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.multi-select-panel label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
