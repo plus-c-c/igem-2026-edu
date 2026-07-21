@@ -1,0 +1,92 @@
+/* ========== Reset & Base ========== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--body);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+button {
+  border: 0;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+/* ========== Typography ========== */
+h1, h2, h3, p { margin-top: 0; }
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.28px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.231px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: var(--ink-muted-48);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+p:last-child { margin-bottom: 0; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--ink-muted-48);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* Light text on dark surfaces */
+.product-tile.dark h1, .product-tile.dark h2, .product-tile.dark h3,
+.product-tile.dark p, .product-tile.dark .eyebrow,
+.product-tile.dark .lead, .product-tile.dark .tagline,
+.showcase-band h1, .showcase-band h2, .showcase-band h3,
+.showcase-band p, .showcase-band .eyebrow,
+.showcase-band .lead, .showcase-band .tagline {
+  color: var(--body-on-dark);
+}
+.product-tile.dark p, .showcase-band p { color: var(--body-muted); }
+.product-tile.dark .eyebrow, .showcase-band .eyebrow { color: var(--body-muted); }
