@@ -1,0 +1,10 @@
+node_modules/
+backend/dist/
+*.log
+.env
+.DS_Store
+test/
+backend/database/
+argos-models/
+.docker-cache/images.tar
+backups/

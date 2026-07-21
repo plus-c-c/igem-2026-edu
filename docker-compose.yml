@@ -1,0 +1,93 @@
+services:
+  db:
+    image: postgres:16-alpine
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: igem_education
+    volumes:
+      - ./backend/database/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h 127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: igem_education
+      JWT_SECRET: change-this-in-production
+      JWT_EXPIRES_IN: 7d
+      SMTP_HOST: smtp.yeah.net
+      SMTP_PORT: "465"
+      SMTP_SECURE: "true"
+      SMTP_USER: syneduglobal@yeah.net
+      SMTP_PASS: ZFgPAAiyS4GL56hB
+      SMTP_FROM: syneduglobal@yeah.net
+      LT_URL: http://127.0.0.1:5000
+      API_URL: http://127.0.0.1:3000
+      PORT: 3000
+    volumes:
+      - ./backend/database/uploads:/app/backend/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  seed:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    network_mode: host
+    command: node backend/dist/seed.js
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_URL: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: igem_education
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    network_mode: host
+    volumes:
+      - /etc/letsencrypt/live/syneduglobal.top/fullchain.pem:/etc/nginx/ssl/server.crt:ro
+      - /etc/letsencrypt/live/syneduglobal.top/privkey.pem:/etc/nginx/ssl/server.key:ro
+    depends_on:
+      - libretranslate
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      LT_LOAD_ONLY: "zh,en"
+      LT_QUEUE_LIMIT: "10"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
