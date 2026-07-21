@@ -1,0 +1,94 @@
+﻿zh_term,preferred_en,avoid,category,match_type
+科普,science communication; public education,popular science,Education,context
+科普组,Science Communication Group,Popular Science Group,Education,exact
+活动对象,target audience,activity object,UI,exact
+活动形式,activity format,activity form,UI,exact
+活动标题,activity title,activity name,UI,context
+上传活动,submit an activity; submit a case,upload activity,UI,context
+项目征集,project call,recruitment post,Project/UI,context
+合作机会,collaboration opportunity,cooperation chance,Project/UI,exact
+公众参与,public engagement,public participation,Education/HP,context
+公众教育,public education,public activity,Education,exact
+科学传播,science communication,science popularization,Education,exact
+教学资源,teaching resources; educational resources,teaching support,Education,context
+教育活动,educational activity,education activity,Education,context
+教育成果,educational outcomes,education outcomes,Education,context
+动手工作坊,hands-on workshop,manual workshop,Education,exact
+主题展览,themed exhibition,theme exhibition,Education,exact
+游园活动,interactive fair; carnival activity,garden activity,Education,context
+大型游园活动,large-scale interactive fair,large garden activity,Education,exact
+户外活动,outdoor activity,outdoor,Education/UI,exact
+场地活动,venue-based activity,venues,Education/UI,context
+误解,misconception,misunderstanding,Education,context
+新兴技术,emerging technologies,new technologies,Education,context
+合成生物学,synthetic biology,synthetic biological science,SynBio,exact
+iGEM,iGEM,IGEM,SynBio/UI,exact
+可持续发展目标,Sustainable Development Goals; SDGs,sustainable development goals,Sustainability,exact
+生物材料,biomaterials,biomaterial,Biology,context
+合作课程包,co-developed course packages,co-built course packages,Education,context
+团队账号,team account,team account,UI,exact
+发布项目征集,post a project call,publish a project call,UI/context,post 更符合网站操作；publish 可用于正式发布但较重
+参与状态,participation status,can participate,UI,exact
+可参与,open,available,UI/context,Available 可保留，但如果表示活动开放参与，Open 或 open to participation 更清楚
+活动概览,activity overview,project overview,UI/context,如果展示的是教育活动内容，activity overview 比 project overview 更贴合
+活动详情,activity details,activity info,UI,exact
+主题,topic,subcategory,UI/context,如果 subcategory 实际指活动主题，建议统一为 topic
+时长,duration,time limit; lecture duration,UI,exact
+场地,venue,venues,UI/context,作为地点前缀时用单数 venue；不要直接显示 venues
+活动指南,activity guide,project book,UI,exact
+展区内容,exhibition content,show area content,Education/UI,exact
+组织者说明,organizer notes,organization tips,UI/context,organizer notes 更自然
+适用场景,suggested use,apply scene,UI/context,suggested use 更自然
+预期成果,expected outcomes,the harvest,Education/UI,context
+项目亮点,project highlights,bright spots of the project,UI/context,project highlights 更自然
+演示,demonstration,presentation only,Education,context
+开放日,open day,open-day event,Education,context
+传感器,biosensor,biological sensor,SynBio,context
+重金属离子,heavy metal ions,heavy metal ion,Biology/Chemistry,context
+工程菌株,engineered strain,engineering strain,SynBio,exact
+工程微生物,engineered microorganisms,engineering fungus,SynBio,context
+水样,water sample,water quality,Science,context
+废水处理,wastewater treatment,sewage treatment,Environment,context
+微生物燃料电池,microbial fuel cell; MFC,microbiological fuel cell,Biology/Environment,exact
+产电菌,electrogenic bacteria,electrobacterial bacteria,Biology,exact
+CRISPR-Cas9,CRISPR-Cas9,crisp; CRISPR genetic editorial,SynBio,exact
+基因编辑,gene editing,genetic editorial,SynBio,exact
+作用机制,mechanism of action,mechanisms of functioning,Science,context
+伦理争议,ethical debates,ethical disputes,Education/Bioethics,context
+圆桌讨论,roundtable discussion,round table discussion,Education,exact
+DNA折纸,DNA origami,"DNA, origami",SynBio,exact
+纳米结构,nanostructures,nano structures,SynBio,exact
+双螺旋结构,double-helix structure,double spiral structure,Biology,exact
+纸质模型,paper model; paper modelling,paper modelling experience,Education,context
+难度等级,difficulty level,difficulty,Activity Design,context
+参与证书,certificate of participation,certificate of active participation,Education,exact
+细胞工厂,cell factory,cell factories,SynBio,context
+微生物,microorganisms,micro-organisms,Biology,exact
+通识课程,general education course,university generals,Education,exact
+高中选修课,high school elective,high school biological electives,Education,context
+教师手册,teacher manual,teacher's manual,Education,exact
+学生学习单,student worksheet,student work paper,Education,exact
+评价量表,assessment rubric,assessment table,Education,context
+实验设备,experimental equipment,test equipment,Science/Education,context
+合作需求,collaboration needs,collaboration requirements,UI/Project,context
+展位活动,outreach booth,booth,Education,context
+路演,outreach roadshow; roadshow,road show,Education,context
+开放参与,open to participation,available,UI/context,表示其他组织是否可以参与时，open to participation 比 available 更明确
+不开放参与,not open to participation,unavailable,UI/context,与 open to participation 对应
+线下,in person; onsite,offline,UI/context,表示线下活动时 in person 更自然；作定语用 in-person
+展示方式,layout,format,UI/context,如果指照片排列方式，layout 比 format 更准确
+单图,single image,single,UI,exact
+双图布局,two-image layout,double,UI,exact
+四图网格,four-image grid,quad,UI,exact
+图片授权,image permission,image right,Media/Permission,context
+肖像授权,portrait permission,portrait right,Media/Permission,context
+版权授权,copyright permission,copyright right,Media/Permission,context
+侵权,infringement,tort,Media/Permission,context
+上传团队,uploading team,uploader team,Media/Permission,exact
+活动指南,activity guide,project book,UI,exact
+组织者说明,organizer notes,organization tips,UI/context,用于填写活动组织经验、安全提醒、执行建议
+安全提醒,safety reminders,safety tips,Education/UI,context
+教育非营利组织,educational nonprofits,education nonprofits,Organization,context
+公司/企业,companies, caring companies,Organization,context
+教育实践,educational practices,education practices,Education,context
+科学传播平台,platform for science communication,pure platform for science communication,Education,context
