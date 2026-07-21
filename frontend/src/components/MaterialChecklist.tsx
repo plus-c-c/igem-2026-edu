@@ -1,0 +1,33 @@
+import { useI18n } from "../i18n"
+
+export function MaterialChecklist({
+  selected,
+  onToggle,
+}: {
+  selected: string[]
+  onToggle: (material: string) => void
+}) {
+  const { t } = useI18n()
+  const materialTypes = ["项目介绍书", "项目合作书", "实践建议", "现场照片", "项目 example"]
+  const materialLabels: Record<string, string> = {
+    "项目介绍书": t.materialChecklist.materialIntroduction,
+    "项目合作书": t.materialChecklist.materialProposal,
+    "实践建议": t.materialChecklist.materialSuggestion,
+    "现场照片": t.materialChecklist.materialPhoto,
+    "项目 example": t.materialChecklist.materialExample,
+  }
+
+  return (
+    <section className="material-checklist">
+      <h2>{t.materialChecklist.title}</h2>
+      <div>
+        {materialTypes.map((material) => (
+          <label key={material} className={selected.includes(material) ? "material active" : "material"}>
+            <input type="checkbox" checked={selected.includes(material)} onChange={() => onToggle(material)} />
+            {materialLabels[material] || material}
+          </label>
+        ))}
+      </div>
+    </section>
+  )
+}
