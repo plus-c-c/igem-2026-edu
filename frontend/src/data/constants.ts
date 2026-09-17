@@ -6,6 +6,7 @@ export const categoryThemeOptions: Record<string, string[]> = {
   applications: ["合成生物学科普", "iGEM科普", "其他"],
   activities: ["互动游戏", "现场体验", "其他"],
   cooperation: ["支教合作", "公益教育", "课程共建", "其他"],
+  industrialization: ["技术转化", "工程放大", "市场应用", "法规伦理", "社会沟通"],
 }
 
 export const deliveryOptions = ["线上", "线下", "都可"]

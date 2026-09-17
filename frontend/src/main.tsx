@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, lazy, Suspense } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom"
 import { setOnUnauthorized } from "./services/client"
-import { categories } from "./data/categories"
+import { visibleCategories } from "./data/categories"
+import { features } from "./config/features"
 import { useLocalAuth } from "./hooks/useLocalAuth"
 import { useResources } from "./hooks/useResources"
+const LazyIndustrializationPage = features.industrialization
+  ? lazy(() => import("./components/IndustrializationPage").then((m) => ({
+      default: (props: any) => <m.IndustrializationPage {...props} />,
+    })))
+  : null
+const LazyVideoDetailPage = features.industrialization
+  ? lazy(() => import("./components/VideoDetailPage").then((m) => ({ default: m.VideoDetailPage })))
+  : null
 import { AppLayout } from "./components/AppLayout"
 import { ErrorBoundary } from "./components/ErrorBoundary"
 import { HomePage, LoginRequiredPage, CategoryPage, CaseDetailPage, RecruitmentPage, AboutPage, FavoritesPage } from "./components/Pages"
@@ -47,6 +56,46 @@ function App() {
         <Route path="/" element={<HomePage resources={resources} />} />
         <Route path="/applications" element={<Navigate to="/lecture" replace />} />
         <Route path="/recruitment" element={<RecruitmentPage resources={resources} onSubmit={requestSubmit} />} />
+        {features.industrialization && LazyIndustrializationPage && (
+          <Route
+            path="/industrialization"
+            element={
+              <Suspense fallback={null}>
+                <LazyIndustrializationPage resources={resources} user={user} onSubmit={requestSubmit} />
+              </Suspense>
+            }
+          />
+        )}
+        {features.industrialization && LazyIndustrializationPage && (
+          <Route
+            path="/industrialization/discussions"
+            element={
+              <Suspense fallback={null}>
+                <LazyIndustrializationPage resources={resources} user={user} onSubmit={requestSubmit} initialTab="forum" />
+              </Suspense>
+            }
+          />
+        )}
+        {features.industrialization && LazyIndustrializationPage && (
+          <Route
+            path="/industrialization/videos"
+            element={
+              <Suspense fallback={null}>
+                <LazyIndustrializationPage resources={resources} user={user} onSubmit={requestSubmit} initialTab="video" />
+              </Suspense>
+            }
+          />
+        )}
+        {features.industrialization && LazyVideoDetailPage && (
+          <Route
+            path="/industrialization/video/:videoIndex"
+            element={
+              <Suspense fallback={null}>
+                <LazyVideoDetailPage />
+              </Suspense>
+            }
+          />
+        )}
         <Route path="/about" element={<AboutPage />} />
         <Route
           path="/submit"
@@ -56,7 +105,7 @@ function App() {
           <Route path="/resource/:resourceId/edit" element={<EditResourceRoute user={user} addResource={addResource} updateResource={updateResource} findById={findById} openLogin={() => setLoginOpen(true)} />} />
           <Route path="/profile" element={user ? <ProfilePage user={user} setUser={setUser} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
           <Route path="/favorites" element={user ? <FavoritesPage resources={resources} /> : <LoginRequiredPage openLogin={() => setLoginOpen(true)} />} />
-        {categories.filter((cat) => cat.id !== "about").map((cat) => (
+        {visibleCategories.filter((cat) => cat.id !== "about" && cat.id !== "industrialization").map((cat) => (
           <Route key={cat.id} path={cat.path} element={<CategoryPage category={cat} resources={resources} onSubmit={requestSubmit} />} />
         ))}
       </Routes>

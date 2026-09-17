@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { Upload, Loader2, Plus, Trash2, Bold, Italic, Heading, List, Link2, Eye, Edit3, ImageIcon } from "lucide-react"
 import type { User, Resource } from "../types"
-import { categories } from "../data/categories"
+import { visibleCategories } from "../data/categories"
 import { materialOptions, audienceOptions, categoryThemeOptions } from "../data/constants"
 import { worldCountries, worldRegions, worldCities } from "../data/locations"
 import { resourceService } from "../services/resourceService"
@@ -130,7 +130,6 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
     }
     if (locationTypes.length === 0) next.locationType = required
-    if (!imageAuthorized) next.imageAuthorization = required
     setFieldErrors((prev) => {
       const merged = { ...prev }
       for (const key of ["activityFormat", "canParticipate", "timeLimitType", "timeRangeStart", "timeRangeEnd", "locationType", "imageAuthorization"]) delete merged[key]
@@ -162,7 +161,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
   const [selectedSubcategory, setSelectedSubcategory] = useState(editResource?.subcategory || "")
   const [audience, setAudience] = useState(editResource?.audience || "")
-  const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : (t.submitPage.projectLabelCooperation)
+  const projectLabel = selectedCategory === "applications" ? (t.submitPage.projectLabelApplications) : selectedCategory === "activities" ? (t.submitPage.projectLabelActivities) : selectedCategory === "industrialization" ? (t.submitPage.projectLabelIndustrialization) : (t.submitPage.projectLabelCooperation)
+  const isIndustrialization = selectedCategory === "industrialization"
+  const resourceType = isIndustrialization ? "discussion" : "campaign"
   const themeChoices = categoryThemeOptions[selectedCategory] || []
   const audienceChoices = audienceOptions
   const materialChoices = materialOptions
@@ -283,7 +284,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (isEdit && editResource?.status === "published") {
       if (draftId) return draftId
       const res = await resourceService.create({
-        type: "campaign",
+        type: resourceType,
         status: "draft",
         originalId: String(editResource.id),
         category: selectedCategory,
@@ -299,7 +300,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (isEdit) return String(editResource!.id)
     if (draftId) return draftId
     const res = await resourceService.create({
-        type: "campaign",
+        type: resourceType,
         category: defaultCategory,
         subcategory: selectedSubcategory,
         team: user.teamName,
@@ -422,7 +423,12 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setErrorMsg("")
     setDraftSaved(false)
     try {
-      if (!validateEventInfo()) {
+      if (!isIndustrialization && !validateEventInfo()) {
+        throw new Error(t.submitPage.required || "请填写必填项")
+      }
+      const hasCoverImage = !!coverUploadedUrl.current || !!editResource?.image
+      if (hasCoverImage && !imageAuthorized) {
+        setFieldErrors((prev) => ({ ...prev, imageAuthorization: t.submitPage.required }))
         throw new Error(t.submitPage.required || "请填写必填项")
       }
       const emptyStep = campaignSteps.find((s) => !s.text.trim())
@@ -442,7 +448,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
 
       const payload: Record<string, any> = {
-        type: "campaign",
+        type: resourceType,
         status: isDraft ? "draft" : "published",
         category: formData.get("category") as string || selectedCategory,
         subcategory: selectedSubcategory,
@@ -579,7 +585,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     doSubmit(false)
   }
 
-  return (
+  const hasImage = !!coverUploadedUrl.current || !!editResource?.image
+    return (
     <section className="page-shell">
       <div className="page-heading">
         <div>
@@ -615,7 +622,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onChange={(e) => { setSelectedCategory(e.target.value); clearFieldError("category") }}
               onBlur={(e) => validateField("category", e.target.value)}>
               <option value="" disabled>{t.submitPage.selectCategory}</option>
-              {categories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{t.categories[c.id]?.name ?? c.name}</option>)}
+              {visibleCategories.filter((c) => c.id !== "about").map((c) => <option key={c.id} value={c.id}>{t.categories[c.id]?.name ?? c.name}</option>)}
             </select>
             {getVisibleFieldError("category") && <span className="field-error">{getVisibleFieldError("category")}</span>}
           </label>
@@ -687,6 +694,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </label>
         </div>
 
+        {!isIndustrialization && (
         <section className="event-info-section">
           <h2>{t.submitPage.eventInfo}</h2>
           <div className="event-info-grid">
@@ -898,7 +906,9 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           </div>
         </div>
         </section>
+        )}
 
+        {!isIndustrialization && (
         <section className="site-photos-section" style={{ marginTop: 0 }}>
           <h2>{t.submitPage.sitePhotos}</h2>
           <div className="choice-group">
@@ -954,6 +964,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
             </div>
           )}
         </section>
+        )}
 
         <section className="introduction-section">
           <div className="intro-header">
@@ -991,14 +1002,16 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
           )}
         </section>
 
+        {!isIndustrialization && (
         <section className="tips-section">
           <h2>{t.submitPage.tips}</h2>
           <textarea className="intro-textarea" placeholder={t.submitPage.tipsPlaceholder} value={tips}
             onChange={(e) => setTips(e.target.value)} rows={4} />
         </section>
+        )}
 
         <div className="image-auth-card bottom-auth-card">
-          <label className="image-auth-checkbox required">
+          <label className={`image-auth-checkbox ${hasImage ? "required" : ""}`}>
             <input type="checkbox" checked={imageAuthorized} onChange={(e) => { setImageAuthorized(e.target.checked); if (e.target.checked) clearFieldError("imageAuthorization") }} />
             <span>{t.submitPage.imageAuthorization || "本团队保证上传图片已取得完整肖像、著作使用授权，若存在侵权行为，相关法律责任由上传团队自行承担"}</span>
           </label>
@@ -1033,7 +1046,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               onClick={() => doSubmit(true)}>
               {submitting && savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : t.submitPage.saveDraft}
             </button>
-            <button className="pill-btn primary" type="submit" disabled={submitting || !imageAuthorized}>
+            <button className="pill-btn primary" type="submit" disabled={submitting || (hasImage && !imageAuthorized)}>
               {submitting && !savingDraft.current ? <><Loader2 size={16} className="spin" /> {t.submitPage.saving}</> : isEdit ? t.submitPage.saveChanges : t.submitPage.publish}
             </button>
           </div>

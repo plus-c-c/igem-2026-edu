@@ -2,6 +2,7 @@ node_modules/
 backend/dist/
 *.log
 .env
+frontend/ssl/
 .DS_Store
 test/
 backend/database/

@@ -4,6 +4,7 @@
     "applications": "Lectures",
     "activities": "Hands-on Activities",
     "recruitment": "Project Calls",
+    "industrialization": "Industrialization",
     "about": "About Us",
     "login": "Log in",
     "logout": "Log out",
@@ -28,7 +29,7 @@
     "recruitButton": "Submit your project",
     "showcaseTitle": "Latest Educational Activities",
     "showcaseDesc": "SynEdu Global is a collaborative platform for science outreach, teaching resources, and public engagement. We welcome activity cases, project calls, and open collaboration opportunities.",
-    "categoryTitle": "Four core sections",
+    "categoryTitle": "{n} core sections",
     "categoryDesc": "Each section is a dedicated space for educational resources and collaboration."
   },
   "stats": {
@@ -134,6 +135,11 @@
       "name": "Project Calls",
       "short": "Partners",
       "intro": "Post collaboration opportunities with teaching teams, partner schools, public education venues, and co-developed course packages."
+    },
+    "industrialization": {
+      "name": "Industrialization Education",
+      "short": "Industrialization",
+      "intro": "Connecting synthetic biology research with real industrial practice — sharing tech-transfer experience, industry cases, and open discussions."
     },
     "about": {
       "name": "About",
@@ -316,6 +322,7 @@
     "projectLabelApplications": "Lecture Project",
     "projectLabelActivities": "Activity",
     "projectLabelCooperation": "Education Project",
+    "projectLabelIndustrialization": "Industry Discussion",
     "createFailed": "Failed to create resource",
     "stepFileFailed": "Step file upload failed",
     "coverUploadFailed": "Cover upload failed",
@@ -355,6 +362,69 @@
   "campaignCard": {
     "onlineOffline": "Online/Offline",
     "canJoin": "Open/Available"
+  },
+  "industrialization": {
+    "eyebrow": "INDUSTRIALIZATION",
+    "badgeLabel": "Exchange · Learn",
+    "addContent": "Add your content here",
+    "forumTab": "Discussion Forum",
+    "videoTab": "Video Library",
+    "searchPlaceholder": "Search discussions by title, team, or keyword",
+    "viewAllDiscussions": "View more discussions →",
+    "viewAllVideos": "View all videos",
+    "forumSubtitle": "Discussions around synthetic biology industrialization.",
+    "videoSubtitle": "Industry interviews, case studies, and expert talks",
+    "viewDiscussion": "View discussion",
+    "replies": "replies",
+    "videoPlaceholder": "VIDEO PLACEHOLDER",
+    "play": "Play",
+    "categories": ["All", "Tech Transfer", "Scale-up", "Market Application", "Regulatory & Ethics", "Public Communication"],
+    "videoTopics": ["All", "Industry Interviews", "Industrial Cases", "Expert Talks", "Panel Discussions"],
+    "connectTitle": "Learning & Discussion Are Connected",
+    "connectDesc": "Video details lead to related discussions, and discussion details link to related videos; the homepage keeps SynEdu Global's consistent \"search — browse — view details\" flow.",
+    "connectVideoToDiscussion": "After watching a video, join the related discussion",
+    "connectDiscussionToVideo": "After reading a discussion, explore related videos",
+    "relatedContent": "Related Content",
+    "relatedDiscussions": "Related Discussions",
+    "relatedVideos": "Related Videos",
+    "footerTag": "Industrialization · Human Practices",
+    "discussions": [
+      {
+        "team": "Jiangnan-China",
+        "title": "From lab to industry: what is the first hurdle?",
+        "tag": "Tech Transfer",
+        "replies": 24
+      },
+      {
+        "team": "XJTLU-China",
+        "title": "How can research teams and companies talk effectively?",
+        "tag": "Cross-Sector Exchange",
+        "replies": 12
+      },
+      {
+        "team": "ZJU-China",
+        "title": "How can synthetic biology products build public trust?",
+        "tag": "Public Communication",
+        "replies": 18
+      }
+    ],
+    "videos": [
+      {
+        "team": "Jiangnan-China",
+        "title": "From research to market: industry interviews",
+        "tag": "Industry Interviews"
+      },
+      {
+        "team": "Jiangnan-China",
+        "title": "How technology truly lands: industrial cases",
+        "tag": "Industrial Cases"
+      },
+      {
+        "team": "Jiangnan-China",
+        "title": "Science, enterprise, and society: panel discussions",
+        "tag": "Panel Discussions"
+      }
+    ]
   },
   "materialChecklist": {
     "title": "Project Materials",

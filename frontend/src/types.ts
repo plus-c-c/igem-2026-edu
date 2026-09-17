@@ -65,6 +65,7 @@ export interface Resource {
   sitePhotoIds?: string
   // 项目介绍书
   introductionContent?: string
+  commentCount?: number
   createdAt?: string
   updatedAt?: string
 }

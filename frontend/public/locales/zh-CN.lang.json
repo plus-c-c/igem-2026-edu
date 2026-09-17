@@ -4,6 +4,7 @@
     "applications": "讲座科普",
     "activities": "实践活动",
     "recruitment": "教育项目招募",
+    "industrialization": "产业化教育",
     "about": "关于我们",
     "login": "登录",
     "logout": "退出登录",
@@ -28,7 +29,7 @@
     "recruitButton": "在这里添加你的项目",
     "showcaseTitle": "最新的教育活动",
     "showcaseDesc": "SynEdu Global是能组织科普、支教和公众活动的教育协作平台。期待你上传案例，发布招募信息或加入招募项目。",
-    "categoryTitle": "四个栏目",
+    "categoryTitle": "{n} 个栏目",
     "categoryDesc": "每个栏目都是一个可持续沉淀的教育专题。"
   },
   "stats": {
@@ -134,6 +135,11 @@
       "name": "教育项目招募",
       "short": "Partners",
       "intro": "记录支教队伍、合作学校、公益教育场景和课程包共建进度。"
+    },
+    "industrialization": {
+      "name": "产业化教育",
+      "short": "Industrialization",
+      "intro": "连接合成生物学研究与真实产业实践，分享技术转化经验、产业案例与开放讨论。"
     },
     "about": {
       "name": "关于我们",
@@ -316,6 +322,7 @@
     "projectLabelApplications": "科普项目",
     "projectLabelActivities": "实践活动",
     "projectLabelCooperation": "教育项目",
+    "projectLabelIndustrialization": "产业讨论",
     "createFailed": "无法创建资源",
     "stepFileFailed": "步骤文件上传失败",
     "coverUploadFailed": "封面上传失败",
@@ -355,6 +362,69 @@
   "campaignCard": {
     "onlineOffline": "线上/线下",
     "canJoin": "可参与"
+  },
+  "industrialization": {
+    "eyebrow": "INDUSTRIALIZATION",
+    "badgeLabel": "交流 · 学习",
+    "addContent": "在这里添加你的内容",
+    "forumTab": "交流论坛",
+    "videoTab": "视频资源",
+    "searchPlaceholder": "搜索讨论标题、团队名或其他关键词",
+    "viewAllDiscussions": "查看更多讨论 →",
+    "viewAllVideos": "查看全部视频",
+    "forumSubtitle": "围绕合成生物学产业化展开的讨论。",
+    "videoSubtitle": "产业访谈、产业案例与专家分享",
+    "viewDiscussion": "查看讨论",
+    "replies": "条回复",
+    "videoPlaceholder": "VIDEO PLACEHOLDER",
+    "play": "播放",
+    "categories": ["全部", "技术转化", "工程放大", "市场应用", "法规伦理", "社会沟通"],
+    "videoTopics": ["全部", "企业访谈", "产业案例", "专家分享", "圆桌讨论"],
+    "connectTitle": "学习与讨论相互连接",
+    "connectDesc": "视频详情可进入相关讨论，讨论详情也可查看相关视频；栏目首页保持 SynEdu Global 一贯的“搜索—浏览—查看详情”逻辑。",
+    "connectVideoToDiscussion": "观看视频后进入相关讨论",
+    "connectDiscussionToVideo": "阅读讨论后查看相关视频",
+    "relatedContent": "相关内容",
+    "relatedDiscussions": "相关讨论",
+    "relatedVideos": "相关视频",
+    "footerTag": "产业化教育 · Human Practices",
+    "discussions": [
+      {
+        "team": "Jiangnan-China",
+        "title": "从实验室走向产业，第一道门槛是什么？",
+        "tag": "技术转化",
+        "replies": 24
+      },
+      {
+        "team": "XJTLU-China",
+        "title": "科研团队与企业应该如何有效对话？",
+        "tag": "校企交流",
+        "replies": 12
+      },
+      {
+        "team": "ZJU-China",
+        "title": "合成生物学产品如何建立公众信任？",
+        "tag": "社会沟通",
+        "replies": 18
+      }
+    ],
+    "videos": [
+      {
+        "team": "Jiangnan-China",
+        "title": "从科研到市场：产业访谈",
+        "tag": "企业访谈"
+      },
+      {
+        "team": "Jiangnan-China",
+        "title": "技术如何真正落地：产业案例",
+        "tag": "产业案例"
+      },
+      {
+        "team": "Jiangnan-China",
+        "title": "科研、企业与社会：圆桌讨论",
+        "tag": "圆桌讨论"
+      }
+    ]
   },
   "materialChecklist": {
     "title": "项目材料",

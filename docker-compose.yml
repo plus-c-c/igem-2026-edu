@@ -4,9 +4,9 @@ services:
     network_mode: host
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: igem_education
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-igem_education}
     volumes:
       - ./backend/database/pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -27,17 +27,17 @@ services:
     environment:
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: igem_education
-      JWT_SECRET: ***REMOVED_SECRET***
-      JWT_EXPIRES_IN: 7d
-      SMTP_HOST: smtp.yeah.net
-      SMTP_PORT: "465"
-      SMTP_SECURE: "true"
-      SMTP_USER: ***REMOVED_SECRET***
-      SMTP_PASS: ***REMOVED_SECRET***
-      SMTP_FROM: ***REMOVED_SECRET***
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_DATABASE: ${DB_DATABASE:-igem_education}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
       LT_URL: http://127.0.0.1:5000
       API_URL: http://127.0.0.1:3000
       PORT: 3000
@@ -63,14 +63,17 @@ services:
       API_URL: http://127.0.0.1:3000
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: igem_education
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_DATABASE: ${DB_DATABASE:-igem_education}
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      args:
+        VITE_DEV_MODE: ${VITE_DEV_MODE:-false}
+        NGINX_CONF: ${NGINX_CONF:-nginx.conf}
     network_mode: host
     volumes:
       - /etc/letsencrypt/live/syneduglobal.top/fullchain.pem:/etc/nginx/ssl/server.crt:ro
@@ -85,6 +88,14 @@ services:
     environment:
       LT_LOAD_ONLY: "zh,en"
       LT_QUEUE_LIMIT: "10"
+      LT_WORKERS: "1"
+      WEB_CONCURRENCY: "1"
+      HTTP_PROXY: "http://127.0.0.1:7890"
+      HTTPS_PROXY: "http://127.0.0.1:7890"
+      NO_PROXY: "127.0.0.1,localhost,::1"
+      no_proxy: "127.0.0.1,localhost,::1"
+    volumes:
+      - ./models/argos:/home/libretranslate/.local/share/argos-translate
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/')"]
       interval: 30s

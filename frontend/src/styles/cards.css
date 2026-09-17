@@ -293,7 +293,7 @@
 /* ========== Category Grid ========== */
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 24px;
   width: 100%;
   max-width: 1180px;

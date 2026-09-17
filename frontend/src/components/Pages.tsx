@@ -5,7 +5,7 @@ import { CommentSection } from "./CommentSection"
 import { Translatable } from "./Translatable"
 import { TranslatableMarkdown } from "./TranslatableMarkdown"
 import { resourceService } from "../services/resourceService"
-import { categories } from "../data/categories"
+import { categories, visibleCategories } from "../data/categories"
 import { materialOptions, audienceOptions, categoryThemeOptions, timeLimitOptions } from "../data/constants"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Download, ImageIcon, LogIn, Plus, Search, Star, ThumbsUp, Trash2, ChevronDown, ChevronUp } from "lucide-react"
@@ -294,10 +294,10 @@ export function HomePage({ resources }: { resources: Resource[] }) {
       {/* Category grid — light */}
       <section className="product-tile light">
         <div className="tile-content wide-container" style={{ maxWidth: 1440, width: "100%" }}>
-          <h2>{t.home.categoryTitle}</h2>
+          <h2>{t.home.categoryTitle.replace("{n}", String(visibleCategories.length))}</h2>
           <p>{t.home.categoryDesc}</p>
           <div className="category-grid">
-            {categories.map((cat) => {
+            {visibleCategories.map((cat) => {
               const catT = t.categories[cat.id]
               return (
               <Link className="category-card" key={cat.id} to={cat.path} style={{ "--accent": cat.accent } as React.CSSProperties}>
@@ -456,7 +456,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const { t } = useI18n()
   const { caseId } = useParams()
   const navigate = useNavigate()
-  const item = resources.find((c) => c.type === "campaign" && String(c.id) === caseId)
+  const item = resources.find((c) => String(c.id) === caseId)
   const [fetchedResource, setFetchedResource] = useState<Resource | null>(null)
   useEffect(() => {
     if (!item && caseId && !fetchedResource) {

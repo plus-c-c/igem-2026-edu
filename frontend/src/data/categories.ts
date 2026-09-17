@@ -1,5 +1,6 @@
-import { FlaskConical, Sparkles, Handshake, Building2 } from "lucide-react"
+import { FlaskConical, Sparkles, Handshake, Factory, Building2 } from "lucide-react"
 import type { Category } from "../types"
+import { features } from "../config/features"
 
 const imageAssets = {
   students: "/images/students.jpg",
@@ -9,6 +10,7 @@ const imageAssets = {
   labTeam: "/images/lab-team.jpg",
   labWork: "/images/lab-work.jpg",
   alliance: "/images/alliance.jpg",
+  industrialization: "/images/industrialization.jpg",
 }
 
 export const categories: Category[] = [
@@ -34,6 +36,19 @@ export const categories: Category[] = [
     image: imageAssets.petri,
     recommended: ["材料清单", "场地条件", "活动流程", "现场照片", "安全说明", "满意度调查"],
   },
+  ...(features.industrialization
+    ? [{
+        id: "industrialization",
+        path: "/industrialization",
+        name: "产业化教育",
+        short: "Industrialization",
+        icon: Factory,
+        intro: "连接科研、产业与社会，围绕合成生物学成果从实验室走向真实应用过程中的技术转化、产业实践与社会议题展开学习与交流。",
+        accent: "#1f7a5c",
+        image: imageAssets.industrialization,
+        recommended: ["案例", "视频", "讨论", "技术转化", "产业实践"],
+      } as Category]
+    : []),
   {
     id: "cooperation",
     path: "/cooperation",
@@ -57,3 +72,5 @@ export const categories: Category[] = [
     recommended: ["参与队伍", "分工", "运行模式", "企业赞助", "联系方式", "年度成果"],
   },
 ]
+
+export const visibleCategories: Category[] = categories

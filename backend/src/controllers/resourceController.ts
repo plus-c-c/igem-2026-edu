@@ -22,8 +22,16 @@ export async function create(req: AuthRequest, res: Response) {
     } = req.body
 
     const isCampaign = type === "campaign"
-    if (!isCampaign && !team) {
-      return res.status(400).json({ message: "请填写必填字段" })
+    const isDiscussion = type === "discussion"
+    const isDraft = status === "draft"
+    if (!isDraft) {
+      if (isDiscussion) {
+        if (!team || !title || !category || !desc) {
+          return res.status(400).json({ message: "请填写必填字段" })
+        }
+      } else if (!isCampaign && !team) {
+        return res.status(400).json({ message: "请填写必填字段" })
+      }
     }
 
     const resourceRepo = AppDataSource.getRepository(Resource)
@@ -54,6 +62,7 @@ export async function list(req: AuthRequest, res: Response) {
     const team = req.query.team as string | undefined
     const audience = req.query.audience as string | undefined
     const status = req.query.status as string | undefined
+    const type = req.query.type as string | undefined
 
     const where: any = {}
 
@@ -69,6 +78,7 @@ export async function list(req: AuthRequest, res: Response) {
 
     if (category && category !== "all") where.category = category
     if (team) where.team = team
+    if (type) where.type = type
 
     let resources = await resourceRepo.find({
       where,
@@ -80,6 +90,20 @@ export async function list(req: AuthRequest, res: Response) {
     }
     if (audience) {
       resources = resources.filter((r) => r.audience?.includes(audience as string))
+    }
+
+    if (resources.length > 0) {
+      const ids = resources.map((r) => r.id)
+      const commentRepo = AppDataSource.getRepository(Comment)
+      const counts = await commentRepo
+        .createQueryBuilder("c")
+        .select("c.resourceId", "resourceId")
+        .addSelect("COUNT(*)::int", "cnt")
+        .where("c.resourceId IN (:...ids)", { ids })
+        .groupBy("c.resourceId")
+        .getRawMany()
+      const countMap = new Map(counts.map((c) => [c.resourceId, Number(c.cnt)]))
+      resources = resources.map((r) => ({ ...r, commentCount: countMap.get(r.id) || 0 }))
     }
 
     return res.json({ resources })
@@ -114,7 +138,9 @@ export async function get(req: AuthRequest, res: Response) {
       likedByMe = !!like
     }
 
-    return res.json({ resource, likedByMe, favoritedByMe })
+    const commentCount = await AppDataSource.getRepository(Comment).countBy({ resourceId: resource.id })
+
+    return res.json({ resource: Object.assign(resource, { commentCount }), likedByMe, favoritedByMe })
   } catch (error) {
     console.error("获取资源错误:", error)
     return res.status(500).json({ message: "服务器内部错误" })
@@ -234,8 +260,13 @@ export async function update(req: AuthRequest, res: Response) {
     const isDraftSave = status === "draft" || (!status && resource.status === "draft")
     if (!isDraftSave) {
       const isCampaign = (type || resource.type) === "campaign"
+      const isDiscussion = (type || resource.type) === "discussion"
       if (isCampaign) {
         if (!title || !category || !desc) {
+          return res.status(400).json({ message: "请填写必填字段" })
+        }
+      } else if (isDiscussion) {
+        if (!team || !title || !category || !desc) {
           return res.status(400).json({ message: "请填写必填字段" })
         }
       } else if (!team || !title || !category || !delivery || !audience || !location || !reimbursement || !contact || !desc) {

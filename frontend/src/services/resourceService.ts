@@ -8,11 +8,12 @@ export interface ResourceDetailResult {
 }
 
 export const resourceService = {
-  list: async (filters: { category?: string; material?: string; team?: string; audience?: string; status?: string } = {}): Promise<Resource[]> => {
+  list: async (filters: { category?: string; material?: string; team?: string; audience?: string; status?: string; type?: string } = {}): Promise<Resource[]> => {
     const params = new URLSearchParams()
     if (filters.category && filters.category !== "all") params.set("category", filters.category)
     if (filters.team) params.set("team", filters.team)
     if (filters.status) params.set("status", filters.status)
+    if (filters.type) params.set("type", filters.type)
     const qs = params.toString()
     const token = localStorage.getItem("authToken")
     const headers: Record<string, string> = {}

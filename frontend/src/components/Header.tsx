@@ -3,6 +3,7 @@ import { Globe2, LogIn, LogOut, Menu, Shield, Star, UserRound, X } from "lucide-
 import { useEffect, useRef, useState } from "react"
 import type { User } from "../types"
 import { useI18n } from "../i18n"
+import { features } from "../config/features"
 
 interface HeaderProps {
   user: User | null
@@ -20,6 +21,7 @@ export function Header({ user, setUser, openLogin }: HeaderProps) {
     { path: "/", name: t.nav.home },
     { path: "/lecture", name: t.nav.applications },
     { path: "/activities", name: t.nav.activities },
+    ...(features.industrialization ? [{ path: "/industrialization", name: t.nav.industrialization }] : []),
     { path: "/recruitment", name: t.nav.recruitment },
     { path: "/about", name: t.nav.about },
   ]
