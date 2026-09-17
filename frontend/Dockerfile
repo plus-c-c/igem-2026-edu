@@ -1,7 +1,5 @@
 FROM node:22-alpine AS builder
-ARG VITE_DEV_MODE=false
 ARG NGINX_CONF=nginx.conf
-ENV VITE_DEV_MODE=$VITE_DEV_MODE
 WORKDIR /app
 COPY frontend/package.json ./
 RUN npm install
