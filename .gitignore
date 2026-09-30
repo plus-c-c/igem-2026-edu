@@ -9,3 +9,12 @@ backend/database/
 argos-models/
 .docker-cache/images.tar
 backups/
+scripts/redeploy-dmit.sh
+scripts/zju-auth-ctl
+docker-compose.igem.yml
+
+# 本机个人脚本(含凭据), 非本项目内容
+/zju_auth.py
+
+# 站点域名随部署环境变化, 线上 CNAME 由部署脚本在服务端保留
+/frontend/public/CNAME
