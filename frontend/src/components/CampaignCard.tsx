@@ -60,7 +60,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
     <Link className="campaign-card" to={`/cases/${item.id}`}>
       <img src={coverImage} alt="" />
       <div>
-        <p className="campaign-format"><Translatable text={item.format} as="span" caseMode="lower" /></p>
+        {item.format && <p className="campaign-format"><Translatable text={item.format} as="span" caseMode="lower" /></p>}
         <h3><Translatable text={item.title} as="span" /></h3>
         {item.impact && <strong><Translatable text={item.impact} as="span" /></strong>}
         <div className="tags">
