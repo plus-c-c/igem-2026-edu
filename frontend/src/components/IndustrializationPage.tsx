@@ -26,6 +26,7 @@ interface IndustrializationPageProps {
 export function IndustrializationPage({ resources, onSubmit, initialTab = "forum" }: IndustrializationPageProps) {
   const { t } = useI18n()
   const category = categories.find((c) => c.id === "industrialization") || categories[0]
+  const list = resources.filter((r) => r.category === category.id)
   const Icon = category.icon
 
   const [tab, setTab] = useState<ActiveTab>(initialTab)
@@ -64,7 +65,7 @@ export function IndustrializationPage({ resources, onSubmit, initialTab = "forum
 
   return (
     <section className="page-shell industrialization-page">
-      <CategoryHero category={category} badge={<><Icon size={34} /><span>{t.industrialization.badgeLabel}</span></>} />
+      <CategoryHero category={category} badge={<><Icon size={34} /><span>{list.length}{t.pages.itemCount}</span></>} />
 
       <section className="case-section">
         <SectionTitle
