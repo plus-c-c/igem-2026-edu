@@ -126,6 +126,29 @@
 .case-hero.no-bg {
   background: var(--surface-tile-1);
 }
+/* 视频封面: 复用同一个 .case-hero 尺寸, 播放时隐藏标题 */
+.case-hero.has-video { background: #000; }
+.case-hero .case-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.case-hero.has-video::before {
+  background: rgba(0, 0, 0, 0.35);
+  transition: background 0.2s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+.case-hero.has-video.video-playing::before { background: transparent; }
+/* 标题压在视频之上, 但不能挡住播放控件 */
+.case-hero.has-video .hero-content {
+  z-index: 2;
+  pointer-events: none;
+}
+.case-hero.video-playing .hero-content { display: none; }
 .case-hero .hero-content {
   position: relative;
   z-index: 1;

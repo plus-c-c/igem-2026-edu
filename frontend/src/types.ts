@@ -45,6 +45,7 @@ export interface Resource {
   originalId?: string
   subtitle?: string
   image?: string
+  imageType?: string
   format?: string
   impact?: string
   campaignSteps?: { id: string; text: string; files: { fileId: string; name: string }[] }[]

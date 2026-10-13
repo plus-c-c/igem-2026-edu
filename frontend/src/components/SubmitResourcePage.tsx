@@ -10,6 +10,7 @@ import { fileService } from "../services/fileService"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
 import { useI18n } from "../i18n"
+import { isVideoCover, isVideoFile } from "../utils/media"
 
 interface SubmitResourcePageProps {
   user: User
@@ -42,6 +43,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
   const [coverFileId, setCoverFileId] = useState<string | null>(null)
   const [coverDeleting, setCoverDeleting] = useState(false)
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | undefined>(editResource?.image)
+  const [coverIsVideo, setCoverIsVideo] = useState(() => isVideoCover(editResource?.image, editResource?.imageType))
   const coverUploadedUrl = useRef<string | undefined>(undefined)
   const [campaignSteps, setCampaignSteps] = useState<{ id: string; text: string; files: { fileId: string; name: string }[] }[]>(
     (editResource?.campaignSteps || [])
@@ -183,6 +185,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     setErrorMsg("")
     setCoverPreviewUrl(editResource?.image)
     coverUploadedUrl.current = undefined
+    setCoverIsVideo(isVideoCover(editResource?.image, editResource?.imageType))
     setDraftId(null)
     setSelectedCategory(defaultCategory)
     setSelectedSubcategory(editResource?.subcategory || "")
@@ -335,6 +338,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (!file) return
     imageFileRef.current = file
     setImageUploadPct(0)
+    setCoverIsVideo(isVideoFile(file))
     const objectUrl = URL.createObjectURL(file)
     setCoverPreviewUrl(objectUrl)
     try {
@@ -457,6 +461,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
         team: team || user.teamName,
         contact: contact || user.email,
         image: editResource?.image || "",
+        imageType: coverIsVideo ? "video" : "image",
         desc,
         campaignSteps,
         canParticipate,
@@ -648,12 +653,14 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
               <label className="image-upload-tile">
                 <Upload size={24} />
                 <span>{t.submitPage.uploadCover}</span>
-                <input type="file" accept="image/*" onChange={handleCoverFileChange} />
+                <input type="file" accept="image/*,video/*" onChange={handleCoverFileChange} />
               </label>
               {imageFileRef.current && !coverUploadedUrl.current && <span className="file-name">{imageFileRef.current.name}</span>}
               {coverPreviewUrl && (
                 <div className="image-preview">
-                  <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />
+                  {coverIsVideo
+                    ? <video src={coverPreviewUrl} controls muted playsInline preload="metadata" />
+                    : <img src={coverPreviewUrl} alt={t.submitPage.coverPreview} />}
                   <span>
                     <button type="button" className="file-delete-btn" disabled={coverDeleting}
                       onClick={async (e) => {
@@ -672,6 +679,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
                         setCoverPreviewUrl(undefined)
                         coverUploadedUrl.current = undefined
                         setCoverFileId(null)
+                        setCoverIsVideo(false)
                         imageFileRef.current = null
                       }}
                     >×</button>

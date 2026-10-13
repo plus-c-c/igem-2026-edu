@@ -15,6 +15,7 @@ import { StatsPanel } from "./StatsPanel"
 import { SectionTitle } from "./SectionTitle"
 import { useI18n } from "../i18n"
 import { useResourceFiles } from "../hooks/useResourceFiles"
+import { isVideoCover } from "../utils/media"
 
 
 interface PageProps {
@@ -474,6 +475,7 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const { materialFiles } = useResourceFiles(r?.id)
   const resId = r?.id ? String(r.id) : ""
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
+  const [heroPlaying, setHeroPlaying] = useState(false)
 
   const [likedByMe, setLikedByMe] = useState(() => {
     if (!resId || !user) return false
@@ -557,10 +559,26 @@ export function CaseDetailPage({ resources, user, onDelete }: { resources: Resou
   const locationLabel = r.locationType?.split(",").join("、")
   const sitePhotoIdList = r.sitePhotoIds ? r.sitePhotoIds.split(",").filter(Boolean) : []
   const heroImage = r.image || "/images/classroom.jpg"
+  const heroIsVideo = isVideoCover(r.image, r.imageType)
 
   return (
     <section className="page-shell case-detail">
-      <div className="case-hero has-bg" style={{ backgroundImage: `url(${heroImage})` }}>
+      <div
+        className={`case-hero has-bg${heroIsVideo ? " has-video" : ""}${heroPlaying ? " video-playing" : ""}`}
+        style={heroIsVideo ? undefined : { backgroundImage: `url(${heroImage})` }}
+      >
+        {heroIsVideo && (
+          <video
+            className="case-hero-video"
+            src={heroImage}
+            controls
+            playsInline
+            preload="metadata"
+            onPlay={() => setHeroPlaying(true)}
+            onPause={() => setHeroPlaying(false)}
+            onEnded={() => setHeroPlaying(false)}
+          />
+        )}
         <div className="hero-content">
           <h1><Translatable text={r.title} as="span" /></h1>
           {r.team && <p className="hero-team">{r.team}</p>}

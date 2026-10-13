@@ -159,11 +159,15 @@
 }
 
 .campaign-card img,
+.campaign-cover-video,
 .card-img-placeholder {
   display: block;
   width: 100%;
   height: 180px;
   object-fit: cover;
+}
+.campaign-cover-video {
+  background: #000;
 }
 .card-img-placeholder {
   background: var(--canvas-parchment);

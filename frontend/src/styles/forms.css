@@ -293,7 +293,8 @@
   align-items: center;
   gap: 8px;
 }
-.image-preview img {
+.image-preview img,
+.image-preview video {
   width: 40px;
   height: 25px;
   object-fit: cover;

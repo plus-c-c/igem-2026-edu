@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import type { Resource } from "../types"
 import { useI18n } from "../i18n"
 import { Translatable } from "./Translatable"
+import { isVideoCover } from "../utils/media"
 
 interface CampaignCardProps {
   item: Resource
@@ -13,6 +14,25 @@ const defaultPoster = "/images/classroom.jpg"
 export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
   const { t } = useI18n()
   const coverImage = item.image || defaultPoster
+  const coverIsVideo = isVideoCover(item.image, item.imageType)
+
+  // 封面为视频时占位与图片一致 (cards.css 中两者共用同一尺寸规则);
+  // 阻断冒泡, 避免操作播放控件时触发整张卡片的跳转。
+  const cover = coverIsVideo ? (
+    <video
+      className="campaign-cover-video"
+      src={coverImage}
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls
+      preload="metadata"
+      onClick={(e) => e.stopPropagation()}
+    />
+  ) : (
+    <img src={coverImage} alt="" />
+  )
 
   if (variant === "project") {
     const row1: string[] = []
@@ -38,7 +58,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
     return (
       <Link className="campaign-card project-card" to={`/cases/${item.id}`}>
-        <img src={coverImage} alt="" />
+        {cover}
         {canJoin && <span className="tag-can-join">{t.campaignCard.canJoin}</span>}
         <div>
           {item.team && <p className="project-org">{item.team}</p>}
@@ -58,7 +78,7 @@ export function CampaignCard({ item, variant = "case" }: CampaignCardProps) {
 
   return (
     <Link className="campaign-card" to={`/cases/${item.id}`}>
-      <img src={coverImage} alt="" />
+      {cover}
       <div>
         {item.format && <p className="campaign-format"><Translatable text={item.format} as="span" caseMode="lower" /></p>}
         <h3><Translatable text={item.title} as="span" /></h3>
