@@ -304,6 +304,7 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
     if (draftId) return draftId
     const res = await resourceService.create({
         type: resourceType,
+        status: "draft",
         category: defaultCategory,
         subcategory: selectedSubcategory,
         team: user.teamName,
