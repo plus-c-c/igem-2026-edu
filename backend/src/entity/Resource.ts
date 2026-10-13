@@ -121,6 +121,10 @@ export class Resource {
   @Column({ nullable: true })
   image!: string
 
+  // 封面类型: "image" | "video"; 为空时前端按 URL 扩展名推断
+  @Column({ nullable: true })
+  imageType!: string
+
   @Column({ nullable: true })
   format!: string
 

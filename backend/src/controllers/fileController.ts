@@ -30,9 +30,11 @@ export async function download(req: AuthRequest, res: Response) {
     const filePath = path.resolve(UPLOAD_DIR, record.storedName)
     if (!fs.existsSync(filePath)) return res.status(404).json({ message: "文件已丢失" })
 
-    const isImage = record.mimeType?.startsWith("image/")
-    res.setHeader("Content-Disposition", `${isImage ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(record.originalName)}`)
+    // 图片与视频均内联返回, 否则 <video> 会因为 attachment 而无法播放
+    const isInline = record.mimeType?.startsWith("image/") || record.mimeType?.startsWith("video/")
+    res.setHeader("Content-Disposition", `${isInline ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(record.originalName)}`)
     res.setHeader("Content-Type", record.mimeType)
+    res.setHeader("Accept-Ranges", "bytes")
     res.sendFile(filePath)
   } catch (error) {
     console.error("文件下载错误:", error)

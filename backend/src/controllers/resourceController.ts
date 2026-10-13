@@ -15,7 +15,7 @@ export async function create(req: AuthRequest, res: Response) {
     const {
       team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
+      contact, desc, materials, type, subtitle, image, imageType, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
       sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
@@ -39,7 +39,7 @@ export async function create(req: AuthRequest, res: Response) {
       userId: req.userId,
       team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
+      contact, desc, materials, type, subtitle, image, imageType, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
       sitePhotosFormat, sitePhotoIds, introductionContent, tips, imageAuthorization,
@@ -251,7 +251,7 @@ export async function update(req: AuthRequest, res: Response) {
     const {
       team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
+      contact, desc, materials, type, subtitle, image, imageType, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
       sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
@@ -277,7 +277,7 @@ export async function update(req: AuthRequest, res: Response) {
     resourceRepo.merge(resource, {
       team, title, negotiator, category, subcategory, acceptsOthers,
       delivery, audience, duration, location, reimbursement,
-      contact, desc, materials, type, subtitle, image, format, impact, campaignSteps,
+      contact, desc, materials, type, subtitle, image, imageType, format, impact, campaignSteps,
       canParticipate, locationType, locationCountry, locationProvince, locationCity,
       eventDate, timeLimitType,
       sitePhotosFormat, sitePhotoIds, introductionContent, tips, status, imageAuthorization,
