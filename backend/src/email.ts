@@ -10,8 +10,11 @@ export interface PendingRegistration {
   avatar?: string
 }
 
-const codes = new Map<string, { code: string; data: PendingRegistration; expires: number }>()
-const resetCodes = new Map<string, { code: string; expires: number }>()
+const codes = new Map<string, { code: string; data: PendingRegistration; expires: number; attempts?: number }>()
+const resetCodes = new Map<string, { code: string; expires: number; attempts?: number }>()
+
+// 验证码只有 6 位, 5 分钟内若不限制尝试次数, 可被暴力枚举 -> 同样能接管账号。
+const MAX_CODE_ATTEMPTS = 5
 
 function createTransporter() {
   return nodemailer.createTransport({
@@ -75,7 +78,11 @@ export function verifyCode(email: string, code: string): { valid: boolean; data?
     codes.delete(email)
     return { valid: false }
   }
-  if (entry.code !== code) return { valid: false }
+  if (entry.code !== code) {
+    entry.attempts = (entry.attempts || 0) + 1
+    if (entry.attempts >= MAX_CODE_ATTEMPTS) codes.delete(email)
+    return { valid: false }
+  }
   codes.delete(email)
   return { valid: true, data: entry.data }
 }
@@ -117,7 +124,11 @@ export function verifyPasswordResetCode(email: string, code: string): boolean {
     resetCodes.delete(email)
     return false
   }
-  if (entry.code !== code) return false
+  if (entry.code !== code) {
+    entry.attempts = (entry.attempts || 0) + 1
+    if (entry.attempts >= MAX_CODE_ATTEMPTS) resetCodes.delete(email)
+    return false
+  }
   resetCodes.delete(email)
   return true
 }

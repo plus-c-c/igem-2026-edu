@@ -51,7 +51,8 @@ export const fileService = {
     }),
 
   list: async (resourceId: string): Promise<UploadedFile[]> => {
-    const res = await fetch(`${API_BASE}/resources/${resourceId}/files`)
+    // 带上登录态: 草稿的附件只有属主/管理员可见, 编辑草稿时需要能看到已上传的文件
+    const res = await fetch(`${API_BASE}/resources/${resourceId}/files`, { headers: authHeaders() })
     const data = await res.json()
     return data.files || []
   },

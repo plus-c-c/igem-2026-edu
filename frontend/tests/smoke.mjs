@@ -116,7 +116,9 @@ async function main() {
         await sendCodeBtn.click()
         await page.waitForTimeout(2000)
 
-        // retrieve the code via the same-origin API
+        // 读取验证码。注意: /api/auth/debug-code 默认不注册（无鉴权, 生产环境不应
+        // 暴露）。若要在本机跑通注册这一段, 需给后端进程设置:
+        //   ENABLE_AUTH_DEBUG_ROUTES=true
         let code = ""
         try {
           const codeRes = await page.evaluate(async (email) => {
@@ -127,6 +129,9 @@ async function main() {
           }, testEmail)
           if (codeRes) code = codeRes
         } catch {}
+        if (!code) {
+          console.log("  SKIP: 注册流程（后端未开启 ENABLE_AUTH_DEBUG_ROUTES，无法读取验证码）")
+        }
         if (code) {
           await page.fill('input[name="code"]', code)
           await page.click("text=注册")

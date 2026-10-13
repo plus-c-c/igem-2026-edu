@@ -102,6 +102,13 @@ export async function removeFile(req: AuthRequest, res: Response) {
 export async function listFiles(req: AuthRequest, res: Response) {
   try {
     const resourceId = req.params.resourceId as string
+    // 草稿的附件（现场照片、材料等）对非属主不可见, 与 GET /resources/:id 的口径一致
+    const resource = await AppDataSource.getRepository(Resource).findOneBy({ id: resourceId })
+    if (!resource) return res.status(404).json({ message: "资源不存在" })
+    if (resource.status === "draft" && resource.userId !== req.userId && req.userRole !== "admin") {
+      return res.status(404).json({ message: "资源不存在" })
+    }
+
     const fileRepo = AppDataSource.getRepository(UploadedFile)
     const files = await fileRepo.find({
       where: { resourceId },
