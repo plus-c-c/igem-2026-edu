@@ -558,7 +558,8 @@ export function SubmitResourcePage({ user, addResource, updateResource, editReso
       }
 
       if (isDraft && !isEditingPublished) {
-        await resourceService.update(rid, { image: payload.image })
+        // 草稿也要存 imageType, 否则之后重新编辑草稿时无法判断封面是视频还是图片
+        await resourceService.update(rid, { image: payload.image, imageType: payload.imageType })
       } else if (!isDraft && !isEditingDraft) {
         const res = await resourceService.update(rid, payload)
         if (!res.resource) throw new Error(res.message || t.submitPage.saveFailed)
